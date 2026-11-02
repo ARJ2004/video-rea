@@ -1,5 +1,7 @@
 # AI Short-Form Video Generator on AWS: Implementation Plan
 
+> **Update:** MVP decisions (vertical-only, lowest cost, talking heads) are now in [`mvp-plan.md`](mvp-plan.md), which supersedes the MVP sections below. Nova Reel is not used because it cannot output 9:16.
+>
 > Companion to `deep-research-report (1).md`. That report is cloud-agnostic and partly GCP-focused.
 > This document turns it into an **all-AWS** design: models, architecture, workflow, costs, and a phased roadmap.
 >
