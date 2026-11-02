@@ -122,22 +122,23 @@ Minimum moving parts and minimum idle cost:
                                         │ (no public ports)
 ┌───────────────────────────────────────▼──────────────────────────────────┐
 │ EC2 g6e.2xlarge SPOT (1× L40S 48 GB, 8 vCPU, 64 GB RAM)                  │
-│  Deep Learning AMI (Ubuntu, PyTorch) · 300 GB gp3 EBS (models + cache)   │
+│  Base DLAMI · models copied S3 → free local NVMe at boot (~3–8 min)      │
 │  ComfyUI + vrea pipeline CLI + Gradio "pick-a-take" review app           │
-│  idle-watchdog: no GPU use for 30 min → shutdown (EBS kept)              │
+│  watchdog: work → S3 every 3 min; idle 20 min / max hours → terminate   │
 └───────┬──────────────────────────────┬───────────────────────────────────┘
         │                              │
   ┌─────▼──────┐               ┌───────▼───────────┐
   │ S3 bucket  │               │ Bedrock (Claude)  │
-  │ projects/… │               │ storyboard JSON   │
+  │ models/env │               │ storyboard JSON   │
+  │ work/      │               │                   │
   └────────────┘               └───────────────────┘
   AWS Budgets alert at $50 / $100 · CloudWatch alarm on instance hours
 ```
 
 - **Instance:** `g6e.2xlarge` rather than `g6e.xlarge`. Same GPU, but 64 GB of system RAM, which loading Wan 14B (FP8) plus Qwen-Image needs. It costs only ~$0.38/h more on-demand.
-- **Spot with `stop` interruption behavior** (persistent request): the EBS disk with models survives interruptions. Each shot is an independent, cached job, so an interruption costs at most one take.
+- **Spot, terminate on interruption.** Nothing lives only on the instance: work syncs to S3 every 3 minutes, and each shot is an independent, cached job, so an interruption costs at most one take.
 - **No NAT gateway** (saves ~$33/month). Use a public subnet with no inbound rules, and SSM Session Manager for access.
-- **Model weights** (~150 GB) download once to EBS. Snapshot the EBS volume when the trial ends (~$7/month) and delete the volume.
+- **Model weights live in S3** (114 GB for the quick-test set ≈ $2.60/month). A cheap CPU instance downloads them from Hugging Face once; every GPU boot copies them S3 → local NVMe for free in the same region. The ComfyUI Python environment is cached in S3 too. No persistent EBS volume (this saves ~$24/month vs a 300 GB disk). Ready-to-run scripts: [`infra/quicktest/`](../infra/quicktest/README.md).
 
 ### 5.2 Stage 2: MVP service (after the trial proves quality)
 
@@ -145,9 +146,9 @@ The same container and workflows, wrapped for self-serve use, still scaling to z
 
 - **API Gateway + Lambda + DynamoDB** (jobs, shots, credits), and a **Cognito**-protected web app on **S3 + CloudFront** (storyboard editor + pick-a-take UI).
 - **Step Functions** orchestrates the job (storyboard → voices → keyframes → shots → post → assemble). Each GPU step is an **SQS** message with a task token.
-- GPU workers: an **EC2 Auto Scaling Group** of Spot `g6e.xlarge/2xlarge` (mixed types, multiple AZs), **min 0**, scaled on SQS queue depth. Workers boot from an **AMI/EBS snapshot with weights pre-baked** (~2 min boot instead of ~20).
+- GPU workers: an **EC2 Auto Scaling Group** of Spot `g6e.xlarge/2xlarge` (mixed types, multiple AZs), **min 0**, scaled on SQS queue depth. Workers use the same S3 → NVMe pattern as Stage 1 (~5–10 min boot), so there are no disks to pay for while idle. Optional: a small warm pool for faster starts.
 - This is cheaper than SageMaker Async Inference, which carries a 15–30% instance premium and has no Spot for inference. That is the main change from the earlier plan.
-- Idle cost is roughly **$10–30/month** (S3, snapshot, CloudWatch, tiny Lambda/DynamoDB usage).
+- Idle cost is roughly **$5–20/month** (S3 models + work, CloudWatch, tiny Lambda/DynamoDB usage).
 
 ### 5.3 Region choice (cheapest)
 
@@ -220,23 +221,25 @@ Rules that drive quality:
 
 Unit prices (approximate):
 - `g6e.2xlarge`: ~$2.24/h on-demand, **~$0.9–1.2/h Spot** (varies)
-- gp3 EBS: $0.08/GB-month
 - S3: $0.023/GB-month
 - Bedrock Claude: per token, <$0.50 for the whole episode including iterations
 
 ### 8.1 This trial (5 reels, ~2 minutes)
 
-| Item | Balanced | Lean |
+**Start with the quick test:** Clip 1.1 only, ≈ **$7–9 on Spot** (≈ $13–14 on-demand). See [`infra/quicktest/README.md`](../infra/quicktest/README.md). Only continue to the full trial if that reel looks good.
+
+| Item (full 5-reel trial) | Balanced | Lean |
 |---|---|---|
-| Setup, model downloads, bake-offs, workflow tuning (~12 h) | $11–14 (Spot) | $11–14 |
+| Model seeding to S3 (CPU instance, one time) | $0.10 | $0.10 |
+| Bake-offs and workflow tuning (~8 h GPU) | $7–10 (Spot) | $7–10 |
 | Production GPU time | ~5 h → $5–6 | ~2.5 h → $3 |
 | Re-dos and iteration buffer (50%) | $3 | $2 |
-| EBS 300 GB for one month | $24 | $24 |
-| S3, Bedrock, data transfer | ~$2 | ~$2 |
-| **Total trial cloud cost** | **≈ $45–50** | **≈ $40** |
-| *(same, all on-demand instead of Spot)* | *≈ $80* | *≈ $65* |
+| S3 (models, env, work) for one month | ~$3 | ~$3 |
+| Bedrock, data transfer | ~$1 | ~$1 |
+| **Total trial cloud cost** | **≈ $19–23** | **≈ $16–19** |
+| *(same, all on-demand instead of Spot)* | *≈ $40* | *≈ $32* |
 
-The EBS disk is about half the trial bill. Shrink it to 200 GB by keeping only FP8 weights, or delete it between work sessions and restore from a snapshot.
+The quick test's cost is part of these totals: the models and tuning carry over.
 Voice actor reference recordings (one-time, optional) are the only non-AWS cost.
 
 ### 8.2 Steady state per reel (25 s), Stage 2 service
