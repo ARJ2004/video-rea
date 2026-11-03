@@ -3,7 +3,7 @@ it blended them (Brahma twice, Vishnu/Shiva merged). v2 composes the group from 
 (tridev_compose.py), then only HARMONIZES lighting with a single-image edit, accepted only if every deity still matches
 his sheet. Close frames = exact crop windows of the group, re-rendered with that one deity's sheet.
 usage: python deities2.py [--sheets brahma=2,vishnu=1,shiva=1]"""
-import glob, json, sys
+import glob, json, sys, time
 from pathlib import Path
 import torch
 from PIL import Image
@@ -38,7 +38,9 @@ def crop_scores(group, wins, sheets):
 def main(choice):
     comfy.wait_up(); S = json.load(open(ST))
     S["chosen"] = {k: S["sheets"][k][choice.get(k, 1) - 1] for k in s34.DEITY}
-    field = sorted(glob.glob("/mnt/nvme/ComfyUI/output/srishti/s3/field*.png"))   # same gold field as clip 1.3's opening
+    while not (DW / "field.png").exists():                                     # same clean gold field as clip 1.3's opening
+        time.sleep(5)
+    field = [str(DW / "field.png")]
     raw = DW / "group_raw.png"
     wins = tc.compose(S["chosen"], field[0] if field else None, raw)
     cands = [(str(raw), crop_scores(raw, wins, S["chosen"]))]

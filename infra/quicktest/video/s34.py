@@ -107,20 +107,43 @@ def norm(src, out, L, fade_in=0, fade_out=0):
     return out
 
 
-def finish(parts, labels, vo, vo_start, caption, out, work, cap_span=None):
+def cap_chunks(caption, width=34, lines=2):
+    """Split a caption into chunks of at most `lines` wrapped lines, breaking after punctuation where possible."""
+    words = caption.split(); chunks, cur = [], []
+    for w in words:
+        if cur and len(textwrap.wrap(" ".join(cur + [w]), width)) > lines:
+            # back up to the last word ending in punctuation, if that keeps the chunk at least half full
+            k = max((i for i, x in enumerate(cur) if x[-1] in ",.;:!?—–"), default=-1)
+            if k >= len(cur) // 2 and k < len(cur) - 1:
+                chunks.append(" ".join(cur[:k + 1])); cur = cur[k + 1:]
+            else:
+                chunks.append(" ".join(cur)); cur = []
+        cur.append(w)
+    if cur: chunks.append(" ".join(cur))
+    return chunks
+
+
+def finish(parts, labels, vo, vo_start, caption, out, work, cap_span=None, cap_starts=None):
     """concat video parts; overlay labels [(png, t_in, t_out)]; VO at vo_start; caption during VO; -14 LUFS."""
     lst = work / "list.txt"; lst.write_text("".join(f"file '{p}'\n" for p in parts))
     video = work / "video.mp4"; sh("ffmpeg", "-loglevel", "error", "-y", "-f", "concat", "-safe", "0", "-i", lst, "-c", "copy", video)
     total = dur(video)
-    cap = work / "cap.txt"; cap.write_text("\n".join(textwrap.wrap(caption, 36)))
     inputs = ["-i", video, "-i", vo]; fc = []; last = "0:v"
     for k, (png, a, b) in enumerate(labels):
         inputs += ["-loop", "1", "-t", f"{total:.2f}", "-i", png]
         fc.append(f"[{k + 2}:v]format=rgba,fade=t=in:st={a:.2f}:d=0.35:alpha=1,fade=t=out:st={b - 0.35:.2f}:d=0.35:alpha=1[l{k}]")
         fc.append(f"[{last}][l{k}]overlay=0:0:enable='between(t,{a:.2f},{b:.2f})'[v{k}]"); last = f"v{k}"
     vl = dur(vo); c0, c1 = cap_span or (vo_start, vo_start + vl + 0.3)
-    fc.append(f"[{last}]drawtext=fontfile={CAPF}:textfile={cap}:fontsize=42:fontcolor=white:line_spacing=10:box=1:boxcolor=black@0.45:"
-              f"boxborderw=18:x=(w-text_w)/2:y=h-text_h-200:enable='between(t,{c0:.2f},{c1:.2f})'[v]")
+    chunks = cap_chunks(caption); n = sum(len(c) for c in chunks); t = c0
+    for j, ch in enumerate(chunks):                       # 2-line chunks, each on screen for its share of the speech
+        if cap_starts and len(cap_starts) == len(chunks):  # explicit chunk start times (phrase-voiced clips)
+            a = cap_starts[j]; t = c1 if j == len(chunks) - 1 else cap_starts[j + 1]
+        else:
+            a = t; t = c1 if j == len(chunks) - 1 else t + (c1 - c0) * len(ch) / n
+        cf = work / f"cap{j}.txt"; cf.write_text("\n".join(textwrap.wrap(ch, 34)))
+        out_l = "[v]" if j == len(chunks) - 1 else f"[c{j}]"
+        fc.append(f"[{last}]drawtext=fontfile={CAPF}:textfile={cf}:fontsize=46:fontcolor=white:line_spacing=10:box=1:boxcolor=black@0.45:"
+                  f"boxborderw=18:x=(w-text_w)/2:y=h-text_h-220:enable='between(t,{a:.2f},{t:.2f})'{out_l}"); last = out_l[1:-1]
     fc.append(f"[1:a]aresample=48000,adelay={int(vo_start * 1000)}|{int(vo_start * 1000)},apad,loudnorm=I=-14:TP=-1.5:LRA=11[a]")
     sh("ffmpeg", "-loglevel", "error", "-y", *inputs, "-filter_complex", ";".join(fc), "-map", "[v]", "-map", "[a]",
        "-t", f"{total:.2f}", "-c:v", "libx264", "-crf", "18", "-c:a", "aac", "-b:a", "192k", out)

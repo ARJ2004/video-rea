@@ -33,3 +33,13 @@ the group deterministically from cut-outs of each deity's own sheet (`tridev_com
 background, fixed slots: Shiva top centre, Brahma lower left, Vishnu lower right), then runs a single-image lighting
 harmonize pass that is accepted only if each deity's crop still matches his sheet (DINOv2). Close frames come from the
 exact composition windows, so they are guaranteed to show the right deity.
+
+### Lesson: keep the series LOOK out of "empty" plates (2026-11-03)
+The clip 1.3 field was prompted "no people" but also carried the series LOOK ("family film ... expressive faces"), and
+Qwen-Image drew a man, a boy and a girl into it; they then ghosted through 1.3-A/B and the harmonized Tridev frame.
+`field.py` drops LOOK, adds a people negative and rejects any candidate where OWLv2 finds a person/face (score >= 0.12).
+
+### Captions
+`s34.finish` now shows the caption as timed 2-line chunks (`cap_chunks`, split at punctuation) instead of one block for
+the whole clip; chunk times follow character share, or explicit `cap_starts` for phrase-voiced clips (1.4).
+`reassemble.py` re-runs only the final assembly from the rendered parts (no GPU).

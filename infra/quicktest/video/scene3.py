@@ -41,10 +41,10 @@ def main():
     print("timeline", dict(vo_start=round(vo_start, 2), A=round(la, 2), B=round(lb, 2), C=round(lc, 2), D=round(tD, 2),
                            E=round(tE, 2), F=round(tF, 2), end=round(end, 2)), flush=True)
     # A: swirling golden field (t2i -> i2v) + breathing Om
-    files, _ = comfy.run(s34.g_t2i("abstract soft swirling golden light field, glowing mist and gentle luminous swirls, deep indigo edges, "
-                                   "no symbols, no text, no people, vertical, " + s34.LOOK, "srishti/s3/field", 1500))
-    field = comfy.to_input(files[0], "s3_field.png")
-    files, sec = comfy.run(comfy.g_i2v(field, "soft golden light slowly swirls and breathes, gentle luminous mist, calm", "srishti/s3/A_bg",
+    while not (s34.DW / "field.png").exists():             # clean, people-free field from field.py
+        time.sleep(5)
+    field = comfy.to_input(s34.DW / "field.png", "s3_field_clean.png")
+    files, sec = comfy.run(comfy.g_i2v(field, "soft golden light slowly swirls and breathes, gentle luminous mist, calm, empty space, no people", "srishti/s3/A_bg",
                                        1501, s34.nframes(la), *HQ)); print("1.3-A bg", sec, "s", flush=True)
     a_vid = om_frames(str(files[0]), W / "1.3-A.mp4", la)
     a_last = s34.last_frame(a_vid, W / "A_last.png", *HQ)
