@@ -189,6 +189,7 @@ flowchart LR
 ```
 
 Rules that drive quality:
+0. **Pronunciation gate before video.** Every line goes through the respelling lexicon and multi-take ASR check, plus a native listener on flagged words, before any TALK shot is rendered. See [`hindi-pronunciation.md`](hindi-pronunciation.md).
 1. **Voice first.** Dialogue timing sets shot length, and TALK shots are generated *from* the final audio, so lips match by construction.
 2. **Approve stills before motion.** Rejecting a keyframe costs about 15 s of GPU time; rejecting a video take costs minutes.
 3. **Same seed and references per character.** Every keyframe of Tara uses the Tara sheet as reference 1.

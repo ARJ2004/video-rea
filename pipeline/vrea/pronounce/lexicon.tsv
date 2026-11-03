@@ -1,0 +1,34 @@
+# Pronunciation lexicon: what the TTS model READS. Captions always keep the original spelling.
+# Columns (tab-separated): word	tts_spelling	rule	status	note
+#   rule   = why the respelling helps (see docs/hindi-pronunciation.md §3)
+#   status = proposed (untested) | verified (a native listener approved the audio) | rejected
+# Alternatives for the same word: separate with " | " in tts_spelling; the first is the default and qa.py can try the others.
+#
+# --- symbols & letters ---
+ॐ	ओम्	symbol	proposed	TTS cannot read the glyph; halant closes the final m ("om", not "oma")
+ओम	ओम्	schwa-close	proposed	force closed final m
+अ,	अ...	letter-name	proposed	isolated vowel letter; ellipsis gives the drawn-out A-U-M reading
+उ,	उ...	letter-name	proposed
+म	म्	letter-name	proposed	the M of A-U-M is a closed /m/, not "ma"; only applied as a standalone token
+# --- Sanskrit / devotional vocabulary in Srishti ep1 ---
+ब्रह्मांड	ब्रह्मान्ड | ब्रम्हान्ड	anusvara-nasal	proposed	anusvara before ड = न्; second form = common spoken "bramhaand"
+ब्रह्मा	ब्रह्मा | ब्रम्हा	h-cluster	proposed	keep Sanskrit form first; colloquial "bramha" as fallback
+सूक्ष्म	सूक्श्म	sha-merge	proposed	ष is spoken as श in Hindi
+सृष्टि	स्रिश्टि	ri-vowel+sha-merge	proposed	ृ is spoken "ri" in Hindi
+पृथ्वी	प्रिथ्वी	ri-vowel	proposed
+विष्णु	विश्णु	sha-merge	proposed
+विज्ञान	विग्यान	gya	proposed	ज्ञ is spoken "gya" in Hindi
+ज्ञान	ग्यान	gya	proposed
+तत्त्व	तत्व	simplify	proposed	Sanskrit double-t form; Hindi says "tatva"
+तत्वों	तत्वों	watch	proposed	listen for "tat-vo" vs "ta-ta-vo"
+ध्वनि	ध्वनि	watch	proposed	listen for "dhvani"; fallback ध्वनी if final vowel is clipped
+धड़कन	धड़कन | धड़्कन	schwa-medial	proposed	medial schwa must drop: "dhaḍ-kan", not "dha-ḍa-kan"
+पवित्र	पवित्र	watch	proposed	final "tra" is light; listen for over-stressed "pavitra-a"
+प्रकट	प्रकट	watch	proposed	"pra-kaṭ"
+ख़ामोशी	ख़ामोशी | खामोशी	nukta	proposed	drop nukta if model stumbles on ख़
+ख़त्म	ख़त्म | खत्म	nukta	proposed
+चीज़ों	चीज़ों | चीजों	nukta	proposed
+दुःख	दुख	visarga	proposed	visarga is silent in everyday Hindi
+# --- English loanwords (always written in Devanagari for the Hindi voice) ---
+Big Bang	बिग बैंग	loanword	proposed
+school	स्कूल	loanword	proposed
