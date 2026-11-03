@@ -161,3 +161,29 @@ Voices: Indic Parler-TTS has no child or elderly voices, so Tara used Divya (des
 | ध्वनि | onset clipped in 2/4 takes | ध्वनी |
 
 **Still needed:** a native listener on the top take of each line. ASR can't hear schwa or vowel-length detail, and it doesn't judge whether the Sanskritized ब्रह्मा sounds right.
+
+---
+
+## 8. Voice consistency and emotion (plan, 2026-11-03)
+
+Feedback on the first run: the voices sound **robotic**, and the voice **changes between lines**.
+
+**Why it happens.** Indic Parler-TTS builds a voice from a *text description* on every call. Each take samples a slightly different speaker, so nothing ties line 3's Dadi to line 1's Dadi. Its emotion control is officially tested only for 10 languages, and Hindi is not one of them. So the delivery comes out flat.
+
+**The fix: one fixed reference voice per character, cloned for every line.** IndicF5 (MIT) clones a voice from a 10–15 s reference clip plus its exact transcript. It copies both the timbre and the delivery (pace, pitch movement, warmth) of that clip.
+- **Consistency:** the same reference is used for every line, so it's the same voice every time.
+- **Emotion:** it comes from the reference. A lively reference gives lively lines. Each character can get a few references from the same speaker (for example Tara curious, Tara excited, Dadi warm narration), chosen by the line's `emotion` field.
+
+**Where the reference comes from:**
+
+| Stage | Source | Status |
+|---|---|---|
+| Now (stopgap) | Generate 8 expressive Indic Parler candidates per character. Keep the clean ones (ASR: 0 word issues), then pick the most expressive (largest pitch spread). | `infra/quicktest/smoke/voice_v2` |
+| Next (recommended) | **Human voice actors**, with written permission: a young girl's voice for Tara, an older woman's for Dadi. Record 2–3 clips of 10–15 s each, in different emotions, quiet room, phone is fine, exact transcript. | needs recordings |
+| Later | Fine-tune on about 30–60 min of each actor's speech for a fully stable, owned voice. Also evaluate Indic-Speak (AI4Bharat's recommended successor; gated, license to check). | later |
+
+**Measuring it, not just listening.** `voice_score.py` adds two numbers to the ASR check for every take:
+- **Speaker similarity:** WavLM x-vector cosine against the character's reference. This measures consistency.
+- **Pitch spread:** F0 standard deviation in semitones. A low value means monotone, a rough "robotic" measure.
+
+Takes are ranked by word issues first, then by similarity. Baseline Parler takes are scored the same way, so the improvement is measured.
