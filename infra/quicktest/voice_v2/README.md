@@ -16,4 +16,6 @@ Pins:
 - IndicF5 needs `transformers==4.49.0`, `datasets==3.3.2` and `huggingface_hub<0.30`, and torch/torchaudio 2.8 (torchaudio 2.9+ needs torchcodec to read the reference WAV). Version 5.x builds models on the "meta" device and crashes in IndicF5's vocoder setup.
 - IndicConformer needs `onnxruntime<1.23`.
 
+The venvs come from `voice_env.sh restore` (S3 cache, built once). Upload `../voice_env.sh` with this bundle.
+
 Launch with `MODELS=none` so the session skips the ComfyUI weights.

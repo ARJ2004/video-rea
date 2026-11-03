@@ -3,6 +3,7 @@
 #
 # usage: BUCKET=my-bucket REGION=us-east-2 ./launch_gpu.sh
 # optional: TYPE=g6e.2xlarge MARKET=spot|ondemand IDLE_MIN=20 MAX_HOURS=3 PROFILE=vrea-ec2
+#           AZ=us-east-1b (pin an Availability Zone, e.g. when the default one has no capacity)
 #           MODELS='*' (S3 glob under models/ to copy; 'none' for voice-only sessions, e.g. 'diffusion_models/qwen*')
 set -euo pipefail
 : "${BUCKET:?set BUCKET}"
@@ -25,13 +26,15 @@ sed -e "s|__BUCKET__|$BUCKET|" -e "s|__REGION__|$REGION|g" \
     "$here/gpu_bootstrap.sh" > "$ud"
 
 market=()
+placement=()
+[ -n "${AZ:-}" ] && placement=(--placement "AvailabilityZone=$AZ")
 if [ "$MARKET" = spot ]; then
   market=(--instance-market-options 'MarketType=spot,SpotOptions={SpotInstanceType=one-time,InstanceInterruptionBehavior=terminate}')
 fi
 
 id=$(aws ec2 run-instances --region "$REGION" --image-id "$ami" --instance-type "$TYPE" \
   --iam-instance-profile Name="$PROFILE" \
-  ${market[@]+"${market[@]}"} \
+  ${market[@]+"${market[@]}"} ${placement[@]+"${placement[@]}"} \
   --instance-initiated-shutdown-behavior terminate \
   --metadata-options HttpTokens=required \
   --user-data "file://$ud" \
