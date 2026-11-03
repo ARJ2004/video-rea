@@ -10,7 +10,9 @@ from PIL import Image
 from transformers import Owlv2ForObjectDetection, Owlv2Processor
 
 Q = {"tara": "a little girl in a yellow kurta with braids", "dadi": "an old woman in a white saree with grey hair",
-     "paper": "a black sheet of paper held in hands", "hand": "a child's hand on a yellow kurta"}
+     "paper": "a black sheet of paper held in hands", "hand": "a child's hand on a yellow kurta",
+     "brahma": "a four-faced bearded deity seated on a pink lotus", "vishnu": "a blue-skinned four-armed deity with a crown",
+     "shiva": "a meditating deity with ash-blue skin and matted hair"}
 dev = "cuda"
 op = Owlv2Processor.from_pretrained("google/owlv2-base-patch16-ensemble")
 om = Owlv2ForObjectDetection.from_pretrained("google/owlv2-base-patch16-ensemble").to(dev).eval()
