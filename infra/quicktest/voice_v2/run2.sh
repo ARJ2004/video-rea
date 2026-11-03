@@ -8,7 +8,7 @@ echo "HF token present: ${HF_TOKEN:+yes}"
 cd $ROOT; TORCH="torch torchaudio --index-url https://download.pytorch.org/whl/cu128"
 ( $UV venv -q --python 3.12 tts && $UV pip install -q --python tts/bin/python $TORCH && $UV pip install -q --python tts/bin/python git+https://github.com/huggingface/parler-tts.git soundfile ) > venv_tts.log 2>&1 &
 ( $UV venv -q --python 3.12 asr && $UV pip install -q --python asr/bin/python $TORCH && $UV pip install -q --python asr/bin/python transformers "onnxruntime<1.23" soundfile librosa ) > venv_asr.log 2>&1 &
-( $UV venv -q --python 3.10 f5 && $UV pip install -q --python f5/bin/python $TORCH && $UV pip install -q --python f5/bin/python git+https://github.com/ai4bharat/IndicF5.git soundfile "transformers==4.49.0" accelerate ) > venv_f5.log 2>&1 &
+( $UV venv -q --python 3.10 f5 && $UV pip install -q --python f5/bin/python $TORCH && $UV pip install -q --python f5/bin/python git+https://github.com/ai4bharat/IndicF5.git soundfile "transformers==4.49.0" "datasets==3.3.2" "huggingface_hub<0.30" accelerate ) > venv_f5.log 2>&1 &
 wait; tail -3 venv_*.log
 echo "== seeds"; tts/bin/python $J/seed_refs.py $O/seeds
 echo "== score seeds"; asr/bin/python $J/voice_score.py $O/seeds

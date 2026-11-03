@@ -13,7 +13,7 @@ The pipeline, run by `run2.sh`:
 To swap in a real voice actor later, replace `refs/voice_<char>.wav` and its `text` in `refs.json` (the exact transcript), then re-run step 4.
 
 Pins:
-- IndicF5 needs `transformers==4.49.0`. Version 5.x builds models on the "meta" device and crashes in IndicF5's vocoder setup.
+- IndicF5 needs `transformers==4.49.0`, `datasets==3.3.2` and `huggingface_hub<0.30`. Version 5.x builds models on the "meta" device and crashes in IndicF5's vocoder setup.
 - IndicConformer needs `onnxruntime<1.23`.
 
 Launch with `MODELS=none` so the session skips the ComfyUI weights.
