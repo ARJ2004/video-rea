@@ -8,10 +8,11 @@
 #
 # --- symbols & letters ---
 ॐ	ओम्	symbol	proposed	TTS cannot read the glyph; halant closes the final m ("om", not "oma")
-ओम	ओम्	schwa-close	proposed	force closed final m
+ओम	ओम् | ओऽम् | ओ म्	schwa-close	proposed	force closed final m. Run 2026-11-03 (Indic Parler, Tara/Divya voice): heard as "um" in 4/4 takes; Dadi/Rani voice fine. Try variants
+ओम्	ओम् | ओऽम् | ओ म्	schwa-close	proposed	same as ओम (script often already has the halant); see ओम run note
 अ,	अ...	letter-name	proposed	isolated vowel letter; ellipsis gives the drawn-out A-U-M reading
-उ,	उ...	letter-name	proposed
-म	म्	letter-name	proposed	the M of A-U-M is a closed /m/, not "ma"; only applied as a standalone token
+उ,	उ... | उ,	letter-name	proposed	Run 2026-11-03: stretched to "ऊ" in 4/4 takes; try without the ellipsis
+म	म् | म्म्	letter-name	proposed	the M of A-U-M is a closed /m/, not "ma"; only applied as a standalone token. Run 2026-11-03: heard as "माँ" in 2/4 takes
 # --- Sanskrit / devotional vocabulary in Srishti ep1 ---
 ब्रह्मांड	ब्रह्मान्ड	anusvara-nasal	proposed	anusvara before ड = न्; Sanskritized "brah-maand" (colloquial ब्रम्हान्ड not used, see style)
 ब्रह्मा	ब्रह्मा	h-cluster	proposed	Sanskritized "brah-mā" (colloquial ब्रम्हा not used, see style); listen for h-m order
@@ -23,7 +24,7 @@
 ज्ञान	ग्यान	gya	proposed
 तत्त्व	तत्व	simplify	proposed	Sanskrit double-t form; Hindi says "tatva"
 तत्वों	तत्वों	watch	proposed	listen for "tat-vo" vs "ta-ta-vo"
-ध्वनि	ध्वनि	watch	proposed	listen for "dhvani"; fallback ध्वनी if final vowel is clipped
+ध्वनि	ध्वनि | ध्वनी	watch	proposed	listen for "dhvani". Run 2026-11-03: onset clipped ("नी", "धनी") in 2/4 takes
 धड़कन	धड़कन | धड़्कन	schwa-medial	proposed	medial schwa must drop: "dhaḍ-kan", not "dha-ḍa-kan"
 पवित्र	पवित्र	watch	proposed	final "tra" is light; listen for over-stressed "pavitra-a"
 प्रकट	प्रकट	watch	proposed	"pra-kaṭ"

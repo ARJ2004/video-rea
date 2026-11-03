@@ -8,7 +8,7 @@ Limits: ASR has its own language model, so it often "hears" the correct word eve
 schwa or vowel length is slightly off. Treat the ranking as a filter. A native listener still
 approves the top take of each line (see docs/hindi-pronunciation.md).
 
-CLI (on the GPU box, after `pip install transformers torchaudio onnxruntime`; the ASR model is
+CLI (on the GPU box, after `pip install transformers torchaudio soundfile "onnxruntime<1.23"`; the ASR model is
 gated, so accept its terms and set HF_TOKEN):
   python -m vrea.pronounce.qa --text "<ORIGINAL script line>" take1.wav take2.wav ...
 """
@@ -22,9 +22,10 @@ import unicodedata
 from dataclasses import asdict, dataclass, field
 from typing import Callable
 
-# Hindi speech averages ~12–16 characters/s (Devanagari, no spaces). Outside this band a take
-# usually skipped words (too fast) or stalled/repeated (too slow).
-CPS_RANGE = (8.0, 22.0)
+# Characters/s (Devanagari, no spaces). Calibrated on Indic Parler-TTS takes of Srishti ep1
+# (2026-11-03): normal takes ran 7.8–9.9 cps; a take with a long stall ran 5.8. Outside this band
+# a take usually skipped words (too fast) or stalled/repeated (too slow).
+CPS_RANGE = (6.5, 18.0)
 
 
 def canon(text: str) -> str:
@@ -33,6 +34,11 @@ def canon(text: str) -> str:
     t = unicodedata.normalize("NFC", text)
     t = t.replace("़", "")            # nukta
     t = t.replace("ँ", "ं")      # chandrabindu -> anusvara
+    # ASR spelling noise seen in practice, not audible differences:
+    t = re.sub("न्ं|ंं+", "ं", t)      # doubled nasal marks: अन्ंदर, चाँंद, पांँच
+    t = re.sub("््+", "्", t)          # doubled halant: ब्रह््मा
+    t = t.replace("त्त्व", "त्व")      # तत्त्व == तत्व
+    t = re.sub(r"\s+जी(?=\s|$)", "जी", t)  # honorific written apart or joined: ब्रह्मा जी == ब्रह्माजी
     t = t.replace("ष", "श")
     t = t.replace("ॐ", "ओम")
     t = re.sub(r"[।॥]", " ", t)
@@ -93,14 +99,16 @@ def rank(takes: list[TakeScore]) -> list[TakeScore]:
 def indic_conformer_asr() -> Callable[[str], tuple[str, float]]:
     """ASR backend: AI4Bharat IndicConformer (MIT). Returns fn(path) -> (transcript, duration_s)."""
     import torch
+    import soundfile as sf
     import torchaudio
     from transformers import AutoModel
 
     model = AutoModel.from_pretrained("ai4bharat/indic-conformer-600m-multilingual", trust_remote_code=True)
 
     def run(path: str) -> tuple[str, float]:
-        wav, sr = torchaudio.load(path)
-        wav = torch.mean(wav, dim=0, keepdim=True)
+        # soundfile, not torchaudio.load: torchaudio >= 2.9 needs the separate torchcodec package
+        data, sr = sf.read(path, dtype="float32", always_2d=True)
+        wav = torch.from_numpy(data.T).mean(dim=0, keepdim=True)
         if sr != 16000:
             wav = torchaudio.functional.resample(wav, sr, 16000)
         return str(model(wav, "hi", "ctc")), wav.shape[-1] / 16000

@@ -42,6 +42,13 @@ class QA(unittest.TestCase):
     def test_canon_ignores_inaudible_spelling(self):
         self.assertEqual(canon("ओम्। सूक्ष्म आवाज़ गूँज"), canon("ओम सूक्श्म आवाज गूंज"))
 
+    def test_canon_ignores_asr_spelling_noise(self):
+        # real IndicConformer outputs from the ep1 run vs the script
+        for heard, script in [("चाँंद", "चाँद"), ("मेरे अन्ंदर", "मेरे अंदर"), ("पांँच तत्त्वों", "पाँच तत्वों"),
+                              ("ब्रह््मांड", "ब्रह्मांड"), ("अ से ब्रह्माजी जिन्होंने", "अ से ब्रह्मा जी जिन्होंने")]:
+            self.assertEqual(canon(heard), canon(script), heard)
+        self.assertNotEqual(canon("पवित्र नी थी"), canon("पवित्र ध्वनि थी"))  # a real error stays visible
+
     def test_cer(self):
         self.assertEqual(cer("abc", "abc"), 0.0)
         self.assertAlmostEqual(cer("abcd", "abd"), 0.25)
