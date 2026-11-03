@@ -187,3 +187,23 @@ Feedback on the first run: the voices sound **robotic**, and the voice **changes
 - **Pitch spread:** F0 standard deviation in semitones. A low value means monotone, a rough "robotic" measure.
 
 Takes are ranked by word issues first, then by similarity. Baseline Parler takes are scored the same way, so the improvement is measured.
+
+### Result (2026-11-03): one cloned voice per character
+
+Setup:
+- **References:** one generated voice per character, picked automatically. Both had 0 ASR issues and a pitch spread of 4.6–5.0 semitones. Saved as `stories/srishti-ep1/refs/voice_{tara,dadi}.wav`, with the transcripts in `infra/quicktest/voice_v2/refs-2026-11-03.json`.
+- **Generation:** IndicF5 took 3–5 s per take on the g6e.
+
+| | Parler (before) | IndicF5 clone (after) |
+|---|---|---|
+| Voice similarity between takes, Dadi (20 takes) | 0.953 | **0.987** |
+| Voice similarity between takes, Tara (8 takes) | 0.963 | **0.982** |
+| Pitch spread across all takes (semitones) | 1.4–8.3 (flat on several Dadi lines) | **3.7–5.7** (steady, never flat) |
+| Lines whose best take has 0 ASR issues | 4 of 7 | **6 of 7** |
+| Tara's ओम् (1.5-L1) | "um" in 4/4 takes | correct in the best take |
+
+The similarity score is WavLM-SV cosine. It runs high even between different speakers of the same type, so the jump from about 0.95–0.96 to about 0.98–0.99 is meaningful.
+
+**Remaining issue.** 1.3-L1, the A-U-M line, still has about 4 ASR issues in its best take: the isolated उ and म, and अ से heard joined as "असे". It needs a listener and possibly a recorded line (fix ladder, level 5).
+
+**Emotion.** It is now as good as the generated reference voice, but no better. A recorded actor clip as the reference is the upgrade.
