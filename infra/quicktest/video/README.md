@@ -25,3 +25,11 @@ Lessons from the first run (2026-11-03):
   - keyframe: 15–25 s
   - Wan 2.2 I2V at 480×832: 81 frames in about 25 s, 129 frames in about 90 s
   - InfiniteTalk: about 80–130 s for a 4–6 s line
+
+### Lesson: never generate several distinct deities from several references in one edit (2026-11-03)
+Qwen-Image-Edit with three character references in one call blended them: both group variants had Brahma twice and a
+Vishnu/Shiva hybrid, and OWLv2 name queries still "found" all three, so the automatic check passed. `deities2.py` composes
+the group deterministically from cut-outs of each deity's own sheet (`tridev_compose.py`: GrabCut on the plain sheet
+background, fixed slots: Shiva top centre, Brahma lower left, Vishnu lower right), then runs a single-image lighting
+harmonize pass that is accepted only if each deity's crop still matches his sheet (DINOv2). Close frames come from the
+exact composition windows, so they are guaranteed to show the right deity.
