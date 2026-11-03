@@ -35,3 +35,9 @@
 # --- English loanwords (always written in Devanagari for the Hindi voice) ---
 Big Bang	बिग बैंग	loanword	proposed
 school	स्कूल	loanword	proposed
+# --- Srishti ep2 (draft) ---
+ऋषि	रिशि	ri-vowel+sha-merge	proposed	ऋ spoken "ri"; ष as श
+सप्तर्षि	सप्तरिशि | सप्तर्शि	ri-vowel+sha-merge	proposed	Sanskritized "sapta-rishi"
+रक्षक	रक्शक	sha-merge	proposed
+शास्त्र	शास्त्र	watch	proposed	3-consonant cluster "shaas-tra"; listen for an inserted vowel
+कुटुम्बकम्	कुटुम्बकम्	watch	proposed	Sanskrit: final halant keeps "kam", not "kama"

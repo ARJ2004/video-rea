@@ -10,6 +10,10 @@ cd /mnt/nvme/jobs3; PY=/mnt/nvme/ComfyUI/.venv/bin/python; L=/mnt/nvme/logs; mkd
 $PY deities.py > $L/deity.log 2>&1 &
 $PY scene3.py > $L/s3.log 2>&1 &
 $PY scene4.py > $L/s4.log 2>&1 &
+mkdir -p /mnt/nvme/ComfyUI/output/ep2
+$PY ep2_start.py > $L/ep2.log 2>&1 &          # episode 2 (draft): sheets + night master
+bash ep2_voices.sh > $L/ep2v.log 2>&1 &      # episode 2 (draft): voices
 wait
 s5cmd sync /mnt/nvme/ComfyUI/output/srishti/ s3://$BUCKET/work/output/srishti/
+s5cmd sync /mnt/nvme/ComfyUI/output/ep2/ s3://$BUCKET/work/output/ep2/
 echo "RUN34 DONE"

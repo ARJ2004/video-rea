@@ -34,8 +34,8 @@ class Normalize(unittest.TestCase):
         self.assertEqual(prepare("Big Bang कहता है", LEX).tts_text, "बिग बैंग कहता है")
 
     def test_risk_flag_for_unknown_word(self):
-        r = prepare("ऋषि ने कहा", LEX)
-        self.assertIn(("ऋषि", "ri-vowel ऋ/ृ"), r.risks)
+        r = prepare("ऋतु बदली", LEX)
+        self.assertIn(("ऋतु", "ri-vowel ऋ/ृ"), r.risks)
 
 
 class QA(unittest.TestCase):
