@@ -64,7 +64,8 @@ else
 fi
 
 # 4) Model weights S3 -> NVMe, then previous work
-time s5cmd --numworkers 32 cp --concurrency 16 "s3://$BUCKET/models/*" "$ROOT/ComfyUI/models/"
+MODELS='__MODELS__'   # S3 glob under models/; "none" skips the copy (voice-only sessions need no ComfyUI weights)
+[ "$MODELS" != none ] && time s5cmd --numworkers 32 cp --concurrency 16 "s3://$BUCKET/models/$MODELS" "$ROOT/ComfyUI/models/"
 for d in input output user; do
   mkdir -p "$ROOT/ComfyUI/$d"
   s5cmd cp "s3://$BUCKET/work/$d/*" "$ROOT/ComfyUI/$d/" || true   # empty on first run

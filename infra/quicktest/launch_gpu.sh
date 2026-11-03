@@ -3,6 +3,7 @@
 #
 # usage: BUCKET=my-bucket REGION=us-east-2 ./launch_gpu.sh
 # optional: TYPE=g6e.2xlarge MARKET=spot|ondemand IDLE_MIN=20 MAX_HOURS=3 PROFILE=vrea-ec2
+#           MODELS='*' (S3 glob under models/ to copy; 'none' for voice-only sessions, e.g. 'diffusion_models/qwen*')
 set -euo pipefail
 : "${BUCKET:?set BUCKET}"
 REGION=${REGION:-us-east-2}
@@ -10,6 +11,7 @@ TYPE=${TYPE:-g6e.2xlarge}
 MARKET=${MARKET:-spot}
 IDLE_MIN=${IDLE_MIN:-20}
 MAX_HOURS=${MAX_HOURS:-3}
+MODELS=${MODELS:-*}
 PROFILE=${PROFILE:-vrea-ec2}
 here=$(cd "$(dirname "$0")" && pwd)
 
@@ -19,7 +21,7 @@ ami=$(aws ssm get-parameter --region "$REGION" \
 
 ud=$(mktemp)
 sed -e "s|__BUCKET__|$BUCKET|" -e "s|__REGION__|$REGION|g" \
-    -e "s|__IDLE_MIN__|$IDLE_MIN|" -e "s|__MAX_HOURS__|$MAX_HOURS|" \
+    -e "s|__IDLE_MIN__|$IDLE_MIN|" -e "s|__MAX_HOURS__|$MAX_HOURS|" -e "s|__MODELS__|$MODELS|" \
     "$here/gpu_bootstrap.sh" > "$ud"
 
 market=()
