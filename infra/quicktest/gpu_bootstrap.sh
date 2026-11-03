@@ -24,10 +24,18 @@ EOF
 set -a; . /etc/vrea.env; set +a
 export HOME=/root
 
-# 1) Local NVMe instance store
-DEV=$(lsblk -dpno NAME,MODEL | awk '/Instance Storage/ {print $1; exit}')
-mkfs.ext4 -F -q "$DEV"
-mkdir -p "$ROOT" && mount -o noatime "$DEV" "$ROOT"
+# 0) Safety net armed first: even if a later step fails (and the watchdog never starts),
+#    the instance powers off, and so terminates, after MAX_HOURS plus 1 h.
+shutdown -h +$(( MAX_HOURS * 60 + 60 )) "vrea hard cap" || true
+
+# 1) Local NVMe instance store. The Deep Learning AMI already mounts it (LVM) at /opt/dlami/nvme.
+if mountpoint -q /opt/dlami/nvme; then
+  mkdir -p /opt/dlami/nvme/vrea && ln -sfn /opt/dlami/nvme/vrea "$ROOT"
+else
+  DEV=$(lsblk -dpno NAME,MODEL | awk '/Instance Storage/ {print $1; exit}')
+  mkfs.ext4 -F -q "$DEV"
+  mkdir -p "$ROOT" && mount -o noatime "$DEV" "$ROOT"
+fi
 
 # 2) Tools
 apt-get -o DPkg::Lock::Timeout=600 update -y
