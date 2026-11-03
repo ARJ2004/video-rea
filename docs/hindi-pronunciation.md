@@ -79,7 +79,7 @@ The model pronounces what it reads, so we write the word the way it is *spoken*.
 
 **Every respelling is a hypothesis until someone listens to it.** The lexicon has a `status` column: `proposed`, then `verified` or `rejected` after a native listener checks the audio. Words with several plausible fixes list them as alternatives (`ब्रह्मान्ड | ब्रम्हान्ड`), and the pipeline can try each one.
 
-**A style decision you need to make:** for devotional content, do we want **Sanskritized** pronunciation (ब्रह्मा as "brah-mā") or **everyday spoken Hindi** ("bram-hā")? The lexicon defaults to Sanskritized, with the colloquial form as a fallback. Decide once per series and record it in the lexicon.
+**Style decision (made 2026-11-03): Sanskritized.** Deity and scripture words use the Sanskritized pronunciation (ब्रह्मा as "brah-mā", not everyday "bram-hā"). The colloquial respellings were removed as alternatives, and the decision is recorded at the top of the lexicon.
 
 `normalize.py` on the Srishti ep1 script currently fixes 9 words and flags 7 words for a listener to check (पवित्र, ध्वनि, प्रकट, तत्वों, आवाज़ and similar):
 
@@ -133,7 +133,7 @@ Two details matter:
    - AI4Bharat's model cards now recommend Indic-Speak (3.3B, Llama-3.2-based, 22 languages, code-mixing support).
    - Its license is "other" and the repo is gated, so read its terms before any commercial use.
    - Run 4 takes per line through `qa.py` and have a native listener do a blind A/B.
-2. Lock the **Sanskritized vs colloquial** style decision.
+2. ~~Lock the Sanskritized vs colloquial style decision.~~ Done: Sanskritized.
 3. Have a native listener mark the lexicon entries verified or rejected. Carry the lexicon into every future episode.
 4. Add `qa.py` to the quick-test session; it needs `HF_TOKEN` with access to `ai4bharat/indic-conformer-600m-multilingual`, a gated MIT-licensed model.
 

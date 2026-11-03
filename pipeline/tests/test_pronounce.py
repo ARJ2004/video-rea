@@ -26,7 +26,9 @@ class Normalize(unittest.TestCase):
     def test_variants(self):
         self.assertEqual(prepare("हर धड़कन में", LEX, variant=1).tts_text, "हर धड़्कन में")
         self.assertEqual(variant_count("हर धड़कन में", LEX), 2)
-        self.assertEqual(prepare("ब्रह्मांड", LEX, variant=5).tts_text, "ब्रम्हान्ड")  # clamps to last
+        self.assertEqual(prepare("ख़त्म", LEX, variant=5).tts_text, "खत्म")  # clamps to last
+        # Sanskritized style: no colloquial ब्रम्हा- alternatives
+        self.assertEqual(prepare("ब्रह्मांड", LEX, variant=5).tts_text, "ब्रह्मान्ड")
 
     def test_latin_loanword(self):
         self.assertEqual(prepare("Big Bang कहता है", LEX).tts_text, "बिग बैंग कहता है")

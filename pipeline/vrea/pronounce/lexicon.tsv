@@ -2,6 +2,8 @@
 # Columns (tab-separated): word	tts_spelling	rule	status	note
 #   rule   = why the respelling helps (see docs/hindi-pronunciation.md §3)
 #   status = proposed (untested) | verified (a native listener approved the audio) | rejected
+# Series style (decided 2026-11-03): SANSKRITIZED pronunciation for deity and scripture words
+#   (ब्रह्मा = "brah-mā", not colloquial "bram-hā"). Colloquial forms are not used as alternatives.
 # Alternatives for the same word: separate with " | " in tts_spelling; the first is the default and qa.py can try the others.
 #
 # --- symbols & letters ---
@@ -11,8 +13,8 @@
 उ,	उ...	letter-name	proposed
 म	म्	letter-name	proposed	the M of A-U-M is a closed /m/, not "ma"; only applied as a standalone token
 # --- Sanskrit / devotional vocabulary in Srishti ep1 ---
-ब्रह्मांड	ब्रह्मान्ड | ब्रम्हान्ड	anusvara-nasal	proposed	anusvara before ड = न्; second form = common spoken "bramhaand"
-ब्रह्मा	ब्रह्मा | ब्रम्हा	h-cluster	proposed	keep Sanskrit form first; colloquial "bramha" as fallback
+ब्रह्मांड	ब्रह्मान्ड	anusvara-nasal	proposed	anusvara before ड = न्; Sanskritized "brah-maand" (colloquial ब्रम्हान्ड not used, see style)
+ब्रह्मा	ब्रह्मा	h-cluster	proposed	Sanskritized "brah-mā" (colloquial ब्रम्हा not used, see style); listen for h-m order
 सूक्ष्म	सूक्श्म	sha-merge	proposed	ष is spoken as श in Hindi
 सृष्टि	स्रिश्टि	ri-vowel+sha-merge	proposed	ृ is spoken "ri" in Hindi
 पृथ्वी	प्रिथ्वी	ri-vowel	proposed
