@@ -30,7 +30,7 @@ fi
 
 ud=$(mktemp)
 sed -e "s|__BUCKET__|$BUCKET|" -e "s|__REGION__|$REGION|g" \
-    -e "s|__IDLE_MIN__|$IDLE_MIN|" -e "s|__MAX_HOURS__|$MAX_HOURS|" -e "s|__MODELS__|$MODELS|" -e "s#__MODEL_PLAN__#$plan#" \
+    -e "s|__IDLE_MIN__|$IDLE_MIN|" -e "s|__MAX_HOURS__|$MAX_HOURS|" -e "s|__MODELS__|$MODELS|" -e "s#__MODEL_PLAN__#$plan#" -e "s#__HARD_MIN__#$(( MAX_HOURS * 60 + 60 ))#" \
     "$here/gpu_bootstrap.sh" > "$ud"
 
 market=()

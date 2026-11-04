@@ -20,7 +20,7 @@ om = Owlv2ForObjectDetection.from_pretrained("google/owlv2-base-patch16-ensemble
 
 @torch.no_grad()
 def box(img, q):
-    out = om(**op(text=[[Q[q]]], images=img, return_tensors="pt").to(dev))
+    out = om(**op(text=[[Q.get(q, f"a {q}")]], images=img, return_tensors="pt").to(dev))
     s = max(img.size)
     r = op.image_processor.post_process_object_detection(out, threshold=0.05, target_sizes=torch.tensor([[s, s]]).to(dev))[0]
     if len(r["scores"]) == 0:
@@ -40,7 +40,8 @@ def window(cx, top, H, img):
 def main(path, mode, subj, out):
     img = Image.open(path).convert("RGB")
     if mode == "two":
-        (a, sa), (b, sb) = box(img, "dadi"), box(img, "tara")
+        n1, n2 = subj.split(",")[:2] if "," in subj else ("dadi", "tara")
+        (a, sa), (b, sb) = box(img, n1), box(img, n2)
         x0, y0, x1, y1 = min(a[0], b[0]), min(a[1], b[1]), max(a[2], b[2]), max(a[3], b[3])
         h = y1 - y0
         win = window((x0 + x1) / 2, y0 - 0.08 * h, max(0.75 * h, (x1 - x0) * 1.08 * 16 / 9), img)

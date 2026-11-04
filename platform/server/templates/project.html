@@ -1,0 +1,2 @@
+{% extends "base.html" %}{% block title %}{{p.title}}{% endblock %}{% block body %}
+<div id="live" data-src="/p/{{p.id}}/board">{% include "_board.html" %}</div>{% endblock %}

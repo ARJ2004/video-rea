@@ -1,0 +1,6 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sign in · vrea</title><link rel="stylesheet" href="/static/app.css"></head><body>
+<main style="max-width:380px;margin-top:12vh"><div class="card"><h1>vrea studio</h1><p class="muted small">Story to video, with you choosing at each step.</p>
+{% if err %}<p class="err">Wrong password.</p>{% endif %}
+<form method="post" action="/login"><label class="small muted">Password</label><input type="password" name="password" autofocus required>
+<p><button class="btn primary" style="width:100%">Sign in</button></p></form></div></main></body></html>

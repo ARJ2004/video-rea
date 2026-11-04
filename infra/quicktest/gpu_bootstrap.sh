@@ -21,13 +21,14 @@ MAX_HOURS=__MAX_HOURS__
 ROOT=/mnt/nvme
 UV_PYTHON_INSTALL_DIR=/mnt/nvme/python
 MODEL_PLAN='__MODEL_PLAN__'
+HARD_MIN=__HARD_MIN__
 EOF
 set -a; . /etc/vrea.env; set +a
 export HOME=/root
 
 # 0) Safety net armed first: even if a later step fails (and the watchdog never starts),
 #    the instance powers off, and so terminates, after MAX_HOURS plus 1 h.
-shutdown -h +$(( MAX_HOURS * 60 + 60 )) "vrea hard cap" || true
+shutdown -h +"$HARD_MIN" "vrea hard cap" || true   # minutes; launch_gpu.sh: MAX_HOURS*60+60, platform: what the budget buys
 
 # 1) Local NVMe instance store. The Deep Learning AMI already mounts it (LVM) at /opt/dlami/nvme.
 if mountpoint -q /opt/dlami/nvme; then

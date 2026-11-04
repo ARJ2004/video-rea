@@ -1,0 +1,21 @@
+<div class="row"><h1>{{p.title}}</h1><span class="chip">{{p.status}}</span>
+{% if p.review %}<a class="btn primary" href="/p/{{p.id}}/review" style="margin-left:auto">Review next ({{p.review}} waiting)</a>{% endif %}</div>
+<div class="grid2" style="margin-top:12px">
+<div class="card"><div class="row small"><strong>Progress</strong><span class="muted">{{p.pct}}% of steps approved</span></div>
+<div class="bar" style="margin:6px 0 12px"><i style="width:{{p.pct}}%"></i></div>
+{% set frac = (p.spent / p.cap * 100) if p.cap else 0 %}
+<div class="row small"><strong>GPU spend</strong><span class="muted">${{'%.2f'|format(p.spent)}} of ${{'%.0f'|format(p.cap)}} hard cap</span></div>
+<div class="bar money {% if frac > 85 %}hot{% endif %}" style="margin-top:6px"><i style="width:{{ [frac,100]|min }}%"></i></div></div>
+<div class="card small"><strong>GPU machine</strong><br>
+{% if run %}{{run.state}} · {{run.itype or ''}} {{run.az or ''}}{% if run.last_family %} · last ran {{run.last_family}}{% endif %}
+{% if run.error and run.state in ('failed','terminated') %}<br><span class="muted">{{run.error[:160]}}</span>{% endif %}{% else %}none yet{% endif %}
+<br><span class="muted">Queued: {% for x in queued %}{{x.family}} {{x.n}}{% if not loop.last %}, {% endif %}{% else %}nothing{% endfor %}</span>
+<form method="post" action="/p/{{p.id}}/status" style="margin-top:8px">{% if p.status == 'paused' %}<button class="btn" name="status" value="running">Resume</button>
+{% elif p.status == 'running' %}<button class="btn" name="status" value="paused">Pause</button>{% endif %}</form></div></div>
+<h2>Pipeline</h2><div class="board">{% for ph, slots in cols %}<div class="col"><h3>{{ph}}</h3>
+{% for s in slots %}<a class="slot {% if s.state == 'review' %}review{% endif %}" href="/p/{{p.id}}/s/{{s.key}}">
+{% if s.aid and s.akind == 'image' %}<img loading="lazy" src="/a/{{s.aid}}" alt="">{% elif s.aid and s.akind == 'video' %}<div class="thumbph">▶ video</div>
+{% elif s.aid and s.akind == 'audio' %}<div class="thumbph" style="aspect-ratio:4/1">♪ audio</div>{% elif s.kind not in ('script','episode','clip') %}<div class="thumbph" style="aspect-ratio:4/1">—</div>{% endif %}
+<div class="lab">{{s.label}}</div><div class="meta st-{{s.state}}">{{labels.get(s.state, s.state)}}{% if s.task and s.state == 'generating' %} · {{s.task.state}}{% endif %}{% if s.round %} · round {{s.round + 1}}{% endif %}</div></a>
+{% endfor %}</div>{% endfor %}</div>
+<h2>Activity</h2><div class="card feed">{% for e in events %}<div class="{{e.level}}"><span class="muted small">{{e.ts.strftime('%H:%M:%S')}}</span> {{e.msg}}</div>{% endfor %}</div>
