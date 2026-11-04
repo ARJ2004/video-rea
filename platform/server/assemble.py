@@ -47,7 +47,7 @@ def cap_chunks(caption, width=34, lines=2):
     words, chunks, cur = caption.split(), [], []
     for w in words:
         if cur and len(textwrap.wrap(" ".join(cur + [w]), width)) > lines:
-            k = max((i for i, x in enumerate(cur) if x[-1] in ",.;:!?—–"), default=-1)
+            k = max((i for i, x in enumerate(cur) if x[-1] in ",.;:!?—–-"), default=-1)
             if len(cur) // 2 <= k < len(cur) - 1:
                 chunks.append(" ".join(cur[:k + 1])); cur = cur[k + 1:]
             else:
@@ -138,8 +138,19 @@ def burn(video, audio, caps, labels, out, work):
     sh(*args); return out
 
 
+PLAIN = {"\u2014": " - ", "\u2013": "-", "\u2018": "'", "\u2019": "'", "\u201c": '"', "\u201d": '"', "\u2026": "...", "\u00a0": " "}
+
+
+def plain(text):
+    """Captions are Hinglish (Latin script). This server's ffmpeg drawtext garbles multi-byte punctuation in wrapped,
+    multi-line text (an em dash rendered as one or two boxes), so typographic punctuation becomes plain ASCII."""
+    for a, b in PLAIN.items():
+        text = text.replace(a, b)
+    return " ".join(text.split())
+
+
 def line_caps(caption, t0, t1):
-    ch = cap_chunks(caption); n = sum(len(c) for c in ch) or 1; t, out = t0, []
+    ch = cap_chunks(plain(caption)); n = sum(len(c) for c in ch) or 1; t, out = t0, []
     for i, c in enumerate(ch):
         a = t; t = t1 if i == len(ch) - 1 else t + (t1 - t0) * len(c) / n; out.append((c, a, t))
     return out
