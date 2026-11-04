@@ -281,16 +281,14 @@ async def w_claim(request: Request):
     body = await request.json(); r = worker_run(request, body)
     if not r or r["state"] not in ("booting", "ready"):
         return JSONResponse({"task": None}, 200 if r else 403)
-    if body["lane"] == "voice":
-        fams = ["voice"]
-    else:
-        fams = [f for f in ("image", "edit", "video", "talk") if f in body.get("ready", [])]
-    if not fams:
-        return {"task": None}
+    # gpu lane takes any GPU family: first the family it just ran, then families already on disk, then the rest
+    # (the worker copies a missing family on demand), so work is never stranded on a box launched for other models
+    fams = ["voice"] if body["lane"] == "voice" else ["image", "edit", "video", "talk"]
+    ready = body.get("ready", [])
     with db.tx() as c:
         t = c.execute("""SELECT * FROM tasks WHERE project_id=%s AND state='queued' AND family = ANY(%s)
-                         ORDER BY (family = %s) DESC, created_at LIMIT 1 FOR UPDATE SKIP LOCKED""",
-                      (r["project_id"], fams, body.get("last") or "")).fetchone()
+                         ORDER BY (family = %s) DESC, (family = ANY(%s)) DESC, created_at LIMIT 1 FOR UPDATE SKIP LOCKED""",
+                      (r["project_id"], fams, body.get("last") or "", ready)).fetchone()
         if not t:
             return {"task": None}
         c.execute("UPDATE tasks SET state='running', run_id=%s, started_at=now(), heartbeat_at=now(), attempts=attempts+1 WHERE id=%s", (r["id"], t["id"]))
