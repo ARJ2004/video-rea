@@ -39,13 +39,14 @@ systemctl restart vrea-web || true
 EOF
 chmod +x /usr/local/bin/vrea-update
 
-cat >/etc/vrea-platform.env <<EOF
+# quoted heredoc: the password hash contains '$' and must not be expanded by the shell
+cat >/etc/vrea-platform.env <<'EOF'
 VREA_DSN=postgresql://vrea@/vrea
-VREA_BUCKET=$BUCKET
-VREA_REGION=$REGION
-AWS_DEFAULT_REGION=$REGION
-VREA_PUBLIC_URL=https://$DOMAIN
-VREA_PW_HASH=__PW_HASH__
+VREA_BUCKET=__BUCKET__
+VREA_REGION=__REGION__
+AWS_DEFAULT_REGION=__REGION__
+VREA_PUBLIC_URL=https://__DOMAIN__
+VREA_PW_HASH='__PW_HASH__'
 VREA_QUICKTEST=/opt/vrea/app/infra/quicktest
 EOF
 chmod 640 /etc/vrea-platform.env && chgrp vrea /etc/vrea-platform.env

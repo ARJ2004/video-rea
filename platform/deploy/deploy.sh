@@ -85,7 +85,7 @@ IID=$(instance_id)
 if [ "$IID" = None ]; then
   PW=$(python3 -c "import secrets,string; a=string.ascii_letters+string.digits; print(''.join(secrets.choice(a) for _ in range(20)))")
   HASH=$(python3 -c "import hashlib,secrets,sys; s=secrets.token_hex(16); print(s+'\$'+hashlib.scrypt(sys.argv[1].encode(),salt=bytes.fromhex(s),n=2**14,r=8,p=1).hex())" "$PW")
-  sed -e "s|__BUCKET__|$BUCKET|" -e "s|__REGION__|$REGION|" -e "s|__DOMAIN__|$DOMAIN|" -e "s|__PW_HASH__|$HASH|" \
+  sed -e "s|__BUCKET__|$BUCKET|g" -e "s|__REGION__|$REGION|g" -e "s|__DOMAIN__|$DOMAIN|g" -e "s|__PW_HASH__|$HASH|" \
     "$REPO/platform/deploy/server_setup.sh" > "$TMP/ud.sh"
   AMI=$(aws ssm get-parameter --region "$REGION" --name /aws/service/canonical/ubuntu/server/24.04/stable/current/arm64/hvm/ebs-gp3/ami-id --query Parameter.Value --output text)
   IID=$(aws ec2 run-instances --region "$REGION" --image-id "$AMI" --instance-type "$TYPE" --iam-instance-profile Name=$ROLE \
