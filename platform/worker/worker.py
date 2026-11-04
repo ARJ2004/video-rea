@@ -20,6 +20,7 @@ MODELS = json.load(open(HERE / "models.json"))["families"]
 REFS_JSON = ROOT / "ComfyUI/output/voice_v2/refs/refs.json"
 STATE = {"gpu_family": None, "lock": threading.Lock()}
 NEG_IMG = "photorealistic, text, watermark, logo, extra fingers, deformed face"
+PEOPLE_NEG = "person, people, man, woman, boy, girl, child, family, face, figure, silhouette"
 
 
 def api(path, body):
@@ -151,14 +152,17 @@ def h_keyframe(t):
         first = None
         if s["tech"] == "FLF":
             ensure_family("image")
+            empty = not chars        # no characters: never the series LOOK (it draws people), and say so explicitly
             if s.get("first_frame_prompt"):
-                fp = s["first_frame_prompt"] + ". Style: " + look
-                files, _ = comfy.run(g_t2i(fp, f"p{t['project_id']}/{s['id']}_first", seed)); first = pngs(files)[0]
+                fp = s["first_frame_prompt"] + (", no people, no text, vertical, soft 3D render" if empty else ". Style: " + look)
+                files, _ = comfy.run(g_t2i(fp, f"p{t['project_id']}/{s['id']}_first", seed,
+                                           neg=NEG_IMG + (", " + PEOPLE_NEG if empty else ""))); first = pngs(files)[0]
             else:
                 first = prev or base
             imgs = [comfy.to_input(first, f"t{t['id']}_first.png")] + [comfy.to_input(refs[c], f"t{t['id']}_{c}.png") for c in chars[:1]]
             prompt = ("Keep EXACTLY this composition, camera, framing and lighting. Change only this: " + keyframe_prompt(p, s)
-                      + (f" Image 2 is {chars[0]}'s reference: keep them exactly as in image 2." if chars else "") + " Style: " + look)
+                      + (f" Image 2 is {chars[0]}'s reference: keep them exactly as in image 2. Style: {look}" if chars
+                         else " No people, no figures, no faces anywhere in the frame. Soft 3D render."))
             files, _ = comfy.run(comfy.g_keyframe(prompt, imgs, f"p{t['project_id']}/{s['id']}_last", seed))
             kf = pngs(files)[0]; meta["first"] = s3put(first, t)
         elif base is not None and cover.get("crop") in ("mcu", "object", "two"):
@@ -193,7 +197,7 @@ def h_keyframe(t):
             ensure_family("image")
             prompt = keyframe_prompt(p, s) + ", no people, no text, vertical, soft 3D render"
             files, _ = comfy.run(g_t2i(prompt, f"p{t['project_id']}/{s['id']}", seed,
-                                       neg=NEG_IMG + ", person, people, man, woman, child, face, figure"))
+                                       neg=NEG_IMG + ", " + PEOPLE_NEG))
             kf = pngs(files)[0]
         score = sim(kf, refs[chars[0]]) if chars and chars[0] in refs else None
         meta["prompt"] = prompt
