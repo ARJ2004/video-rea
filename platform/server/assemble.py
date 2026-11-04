@@ -58,13 +58,37 @@ def cap_chunks(caption, width=34, lines=2):
     return chunks
 
 
+SYMF = next((f for f in ("/usr/share/fonts/truetype/noto/NotoSansSymbols-Bold.ttf", "/usr/share/fonts/truetype/noto/NotoSansMath-Regular.ttf",
+                          "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf") if Path(f).exists()), DEVF)
+
+
+def runs(text):
+    """Split a label into runs: Devanagari/Latin text in the Devanagari font, symbols (arrows etc.) in a symbols font."""
+    out = []
+    for ch in text:
+        sym = 0x2190 <= ord(ch) <= 0x2BFF          # arrows, math operators, misc symbols: not in Noto Sans Devanagari
+        if out and out[-1][1] == sym:
+            out[-1][0] += ch
+        else:
+            out.append([ch, sym])
+    return out
+
+
 def label_png(text, out, size=130):
     eng = ImageFont.Layout.RAQM if features.check("raqm") else ImageFont.Layout.BASIC
-    font = ImageFont.truetype(DEVF, size, layout_engine=eng)
+    fonts = {False: ImageFont.truetype(DEVF, size, layout_engine=eng), True: ImageFont.truetype(SYMF, int(size * 0.8), layout_engine=eng)}
     im = Image.new("RGBA", (WD, HT), (0, 0, 0, 0)); d = ImageDraw.Draw(im)
-    bb = d.textbbox((0, 0), text, font=font); xy = ((WD - (bb[2] - bb[0])) / 2 - bb[0], HT * 0.14 - bb[1])
-    glow = Image.new("RGBA", (WD, HT), (0, 0, 0, 0)); ImageDraw.Draw(glow).text(xy, text, font=font, fill=GOLD + (255,))
-    d.text(xy, text, font=font, fill=(255, 236, 180, 255))
+    parts = [(t, fonts[sym]) for t, sym in runs(text)]
+    widths = [d.textlength(t, font=f) for t, f in parts]
+    base = d.textbbox((0, 0), "क", font=fonts[False])
+    x = (WD - sum(widths)) / 2; y = HT * 0.14 - base[1]
+    glow = Image.new("RGBA", (WD, HT), (0, 0, 0, 0)); g = ImageDraw.Draw(glow)
+    for (t, f), w in zip(parts, widths):
+        if f is fonts[False]:
+            dy = 0
+        else:                                                   # centre the symbol on the Devanagari letters
+            sb = d.textbbox((0, 0), t, font=f); dy = (base[1] + base[3]) / 2 - (sb[1] + sb[3]) / 2
+        g.text((x, y + dy), t, font=f, fill=GOLD + (255,)); d.text((x, y + dy), t, font=f, fill=(255, 236, 180, 255)); x += w
     Image.alpha_composite(glow.filter(ImageFilter.GaussianBlur(14)), im).save(out); return out
 
 
@@ -86,7 +110,8 @@ def mix(tracks, total, out):
     for i, (p, t0) in enumerate(tracks):
         ins += ["-i", str(p)]
         fc.append(f"[{i}:a]aresample=48000,aformat=channel_layouts=stereo,adelay={int(t0 * 1000)}:all=1[a{i}]")
-    fc.append("".join(f"[a{i}]" for i in range(len(tracks))) + f"amix=inputs={len(tracks)}:normalize=0:duration=longest,apad,atrim=0:{total:.3f}[a]")
+    fc.append("".join(f"[a{i}]" for i in range(len(tracks))) + f"amix=inputs={len(tracks)}:normalize=0:duration=longest,"
+              f"loudnorm=I=-14:TP=-1.5:LRA=11,aresample=48000,apad,atrim=0:{total:.3f}[a]")      # clip previews at -14 LUFS too
     sh("ffmpeg", "-loglevel", "error", "-y", *ins, "-filter_complex", ";".join(fc), "-map", "[a]", out); return out
 
 
@@ -99,7 +124,8 @@ def burn(video, audio, caps, labels, out, work):
         fc.append(f"[{k + 2}:v]format=rgba,fade=t=in:st={a:.2f}:d=0.35:alpha=1,fade=t=out:st={max(a, b - 0.35):.2f}:d=0.35:alpha=1[l{k}]")
         fc.append(f"[{last}][l{k}]overlay=0:0:enable='between(t,{a:.2f},{b:.2f})'[v{k}]"); last = f"v{k}"
     for j, (text, a, b) in enumerate(caps):
-        cf = Path(work) / f"cap{j}.txt"; cf.write_text("\n".join(textwrap.wrap(text, 34)))
+        # trailing space: this ffmpeg drops a multi-byte character (e.g. an em dash) when it is the last byte of the text
+        cf = Path(work) / f"cap{j}.txt"; cf.write_text("\n".join(textwrap.wrap(text, 34)) + " ", encoding="utf-8")
         fc.append(f"[{last}]drawtext=fontfile={CAPF}:textfile={cf}:fontsize=46:fontcolor=white:line_spacing=10:box=1:boxcolor=black@0.45:"
                   f"boxborderw=18:x=(w-text_w)/2:y=h-text_h-220:enable='between(t,{a:.2f},{b:.2f})':"
                   f"alpha='min(1,min((t-{a:.2f})/0.15,({b:.2f}-t)/0.15))'[c{j}]"); last = f"c{j}"

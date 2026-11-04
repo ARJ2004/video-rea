@@ -232,6 +232,7 @@ def h_talk(t):
     p = t["params"]; s = p["shot"]; d = WORK / f"t{t['id']}"; d.mkdir(exist_ok=True)
     kf = s3get(p["kf"]["s3"], d / "kf.png"); wav = s3get(p["audio"]["s3"], d / "line.wav")
     n = math.ceil(talk.audio_seconds(str(wav)) * 25) + 4
+    n += (4 - (n - 1) % 4) % 4          # Wan/InfiniteTalk need 4k+1 frames (else an einops shape error), as in talk.run
     g = talk.g_talk(comfy.to_input(kf, f"t{t['id']}_kf.png"), comfy.to_input(wav, f"t{t['id']}_line.wav"),
                     s.get("motion_prompt", "") + ". " + p["look"], f"p{t['project_id']}/{s['id']}", n, seed=900 + t["round"])
     files, sec = comfy.run(g)
