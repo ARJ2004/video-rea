@@ -5,6 +5,8 @@
 # optional: TYPE=g6e.2xlarge MARKET=spot|ondemand IDLE_MIN=20 MAX_HOURS=3 PROFILE=vrea-ec2
 #           AZ=us-east-1b (pin an Availability Zone, e.g. when the default one has no capacity)
 #           MODELS='*' (S3 glob under models/ to copy; 'none' for voice-only sessions, e.g. 'diffusion_models/qwen*')
+#           MODELS=fam:edit,video  (only these model families from models.json, copied in this order in the
+#                                   background; a family's jobs start as soon as it lands - see video/gpu_dispatch.py)
 set -euo pipefail
 : "${BUCKET:?set BUCKET}"
 REGION=${REGION:-us-east-2}
@@ -20,9 +22,15 @@ ami=$(aws ssm get-parameter --region "$REGION" \
   --name /aws/service/deeplearning/ami/x86_64/base-oss-nvidia-driver-gpu-ubuntu-22.04/latest/ami-id \
   --query Parameter.Value --output text)
 
+plan=""
+if [ "${MODELS#fam:}" != "$MODELS" ]; then        # family list -> "fam=file|file;fam=file|..." for the bootstrap
+  plan=$(python3 "$here/model_plan.py" "${MODELS#fam:}" "$here/models.json")
+  MODELS=none
+fi
+
 ud=$(mktemp)
 sed -e "s|__BUCKET__|$BUCKET|" -e "s|__REGION__|$REGION|g" \
-    -e "s|__IDLE_MIN__|$IDLE_MIN|" -e "s|__MAX_HOURS__|$MAX_HOURS|" -e "s|__MODELS__|$MODELS|" \
+    -e "s|__IDLE_MIN__|$IDLE_MIN|" -e "s|__MAX_HOURS__|$MAX_HOURS|" -e "s|__MODELS__|$MODELS|" -e "s#__MODEL_PLAN__#$plan#" \
     "$here/gpu_bootstrap.sh" > "$ud"
 
 market=()

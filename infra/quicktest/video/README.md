@@ -55,3 +55,9 @@ the whole clip; chunk times follow character share, or explicit `cap_starts` for
   crossfaded, so no word inside a transition is faded out. Captions fade in/out over 0.15 s.
 - `ep_consistency.py` scores the final episode: characters/deities vs locked sheets (OWLv2 + DINOv2), set vs the
   living-room plate, voices vs locked references (WavLM-SV), every hard cut, the largest jump inside each join, 1.4 sync.
+
+### GPU utilization (2026-11-04)
+`gpu_dispatch.py` (model-affinity GPU queue), `util_report.py` (busy %, idle gaps, model switches from the box's
+telemetry), `run_template.sh` (dispatcher + parallel streams), `test_gpu_dispatch.py`. Launch with
+`MODELS=fam:<families>` (see `../models.json`) to copy only the needed model families, staged in priority order.
+Background and measurements: `docs/gpu-utilization.md`. Platform plan: `docs/orchestration-platform.md`.

@@ -26,8 +26,25 @@ def object_info(names):
     return {n: call(f"/object_info/{n}").get(n) for n in names}
 
 
-def run(graph, timeout=3600):
-    """Queue a graph, wait, return list of output file paths (images/videos/audio)."""
+def run(graph, timeout=7200, tag=""):
+    """Run a graph on the GPU; returns (output paths, seconds). Goes through the model-affinity dispatcher
+    (gpu_dispatch.py) when it is running, so concurrent streams don't make the GPU swap model families."""
+    try:
+        import gpu_dispatch
+        if gpu_dispatch.available():
+            return gpu_dispatch.wait_result(gpu_dispatch.submit(graph, tag), timeout)
+        ready = gpu_dispatch.MODELS_READY                      # staged model copy: wait until this family is on disk
+        if ready.exists():
+            fam = gpu_dispatch.family_of(graph)
+            while fam != "other" and not (ready / fam).exists():
+                time.sleep(5)
+    except ImportError:
+        pass
+    return run_direct(graph, timeout)
+
+
+def run_direct(graph, timeout=3600):
+    """Queue a graph straight into ComfyUI, wait, return list of output file paths (images/videos/audio)."""
     pid = call("/prompt", {"prompt": graph, "client_id": str(uuid.uuid4())})["prompt_id"]
     t0 = time.time()
     while time.time() - t0 < timeout:

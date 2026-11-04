@@ -20,6 +20,7 @@ IDLE_MIN=__IDLE_MIN__
 MAX_HOURS=__MAX_HOURS__
 ROOT=/mnt/nvme
 UV_PYTHON_INSTALL_DIR=/mnt/nvme/python
+MODEL_PLAN='__MODEL_PLAN__'
 EOF
 set -a; . /etc/vrea.env; set +a
 export HOME=/root
@@ -64,8 +65,38 @@ else
 fi
 
 # 4) Model weights S3 -> NVMe, then previous work
-MODELS='__MODELS__'   # S3 glob under models/; "none" skips the copy (voice-only sessions need no ComfyUI weights)
-[ "$MODELS" != none ] && time s5cmd --numworkers 32 cp --concurrency 16 "s3://$BUCKET/models/$MODELS" "$ROOT/ComfyUI/models/"
+#    MODEL_PLAN set (launch_gpu.sh MODELS=fam:image,edit,video): copy ONLY those families, in that order, in the
+#    background (vrea-models service, started at the end). Each family is marked in $ROOT/models.ready/ when it lands,
+#    and the GPU dispatcher only schedules jobs whose family is ready, so work starts while later families still copy.
+#    Otherwise MODELS is a plain S3 glob copied up front ("none" skips it, e.g. voice-only sessions).
+mkdir -p "$ROOT/logs" "$ROOT/ComfyUI/models"
+MODELS='__MODELS__'
+if [ -n "$MODEL_PLAN" ]; then
+  mkdir -p "$ROOT/models.ready"
+  cat >/usr/local/bin/vrea-models <<'MODELS_EOF'
+#!/bin/bash
+set -a; . /etc/vrea.env; set +a
+IFS=';' read -ra FAMS <<< "$MODEL_PLAN"
+for f in "${FAMS[@]}"; do
+  fam=${f%%=*}; t0=$(date +%s); IFS='|' read -ra FL <<< "${f#*=}"
+  for x in "${FL[@]}"; do
+    [ -s "$ROOT/ComfyUI/models/$x" ] || echo "cp --concurrency 16 s3://$BUCKET/models/$x $ROOT/ComfyUI/models/$x"
+  done > "/tmp/cp_$fam.txt"
+  [ -s "/tmp/cp_$fam.txt" ] && s5cmd --numworkers 32 run "/tmp/cp_$fam.txt"
+  touch "$ROOT/models.ready/$fam"; echo "$(date +%T) $fam ready in $(( $(date +%s) - t0 ))s" >> "$ROOT/logs/models.log"
+done
+MODELS_EOF
+  chmod +x /usr/local/bin/vrea-models
+  cat >/etc/systemd/system/vrea-models.service <<'UNIT_EOF'
+[Unit]
+Description=vrea staged model copy (families in priority order)
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/vrea-models
+UNIT_EOF
+elif [ "$MODELS" != none ]; then
+  time s5cmd --numworkers 32 cp --concurrency 16 "s3://$BUCKET/models/$MODELS" "$ROOT/ComfyUI/models/"
+fi
 for d in input output user; do
   mkdir -p "$ROOT/ComfyUI/$d"
   s5cmd cp "s3://$BUCKET/work/$d/*" "$ROOT/ComfyUI/$d/" || true   # empty on first run
@@ -88,7 +119,9 @@ EOF
 cat >/usr/local/bin/vrea-watchdog <<'EOF'
 #!/bin/bash
 set -a; . /etc/vrea.env; set +a
-sync_up() { for d in input output user; do s5cmd sync "$ROOT/ComfyUI/$d/" "s3://$BUCKET/work/$d/" >/dev/null 2>&1; done; }
+IID=$(cat /var/lib/cloud/data/instance-id 2>/dev/null || hostname)
+sync_up() { for d in input output user; do s5cmd sync "$ROOT/ComfyUI/$d/" "s3://$BUCKET/work/$d/" >/dev/null 2>&1; done
+            s5cmd sync "$ROOT/logs/" "s3://$BUCKET/logs/$IID/" >/dev/null 2>&1; }   # telemetry + job logs
 start=$(date +%s); idle=0; tick=0
 while true; do
   sleep 60; tick=$((tick + 1))
@@ -113,6 +146,18 @@ Restart=always
 WantedBy=multi-user.target
 EOF
 
+# 7) GPU telemetry every 5 s (utilization %, memory MiB, power W) -> logs/gpu.csv, synced to s3://BUCKET/logs/<instance>/
+cat >/etc/systemd/system/vrea-gpustat.service <<EOF
+[Unit]
+Description=vrea GPU telemetry
+[Service]
+ExecStart=/bin/bash -c 'nvidia-smi --query-gpu=timestamp,utilization.gpu,memory.used,power.draw --format=csv,noheader,nounits -l 5 >> $ROOT/logs/gpu.csv'
+Restart=always
+[Install]
+WantedBy=multi-user.target
+EOF
+
 systemctl daemon-reload
-systemctl enable --now comfyui vrea-watchdog
+systemctl enable --now comfyui vrea-watchdog vrea-gpustat
+if [ -n "$MODEL_PLAN" ]; then systemctl start vrea-models; fi
 echo "VREA READY"
