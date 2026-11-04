@@ -63,8 +63,13 @@ def who_on_screen(clip, lt):
     return []
 
 
+STEP = 1.0                                               # seconds between sampled frames
+
+
 def visual():
     E = json.load(open(EPJ)); tmp = Path(tempfile.mkdtemp())
+    ck = OUT.with_name(OUT.stem + "_frames.jsonl")         # checkpoint: one scored frame per line, resumable
+    done_rows = {r["t"]: r for r in map(json.loads, open(ck))} if ck.exists() else {}
     ref = {}
     for k, p in REFS.items():
         c, sc = find(Image.open(p).convert("RGB"), k); ref[k] = emb(c if c is not None else Image.open(p)); print("ref", k, round(sc, 2), flush=True)
@@ -76,6 +81,8 @@ def visual():
         nxt = E["segments"][si + 1]["start"] if si + 1 < len(E["segments"]) else E["total"]
         t = s["start"] + (0.6 if si else 0.2)
         while t < nxt - 0.3:
+            if round(t, 2) in done_rows:
+                rows.append(done_rows[round(t, 2)]); t += STEP; continue
             lt = s["a"] + (t - s["start"]); img = frame(t, tmp); r = {"t": round(t, 2), "clip": s["clip"], "lt": round(lt, 2)}
             found = []
             for w in who_on_screen(s["clip"], lt):
@@ -84,7 +91,9 @@ def visual():
                     r[w] = round(float(emb(c) @ ref[w]), 3); found.append(w)
             if "tara" in found and "dadi" in found:
                 r["set"] = round(float(emb(img) @ plate), 3)
-            rows.append(r); t += 0.5
+            rows.append(r); t += STEP
+            with open(ck, "a") as fh:
+                fh.write(json.dumps(r) + "\n")
         print("scored", s["clip"], flush=True)
     summ = {}
     for clip in ("1.1", "1.3", "1.4", "1.5"):
@@ -139,9 +148,13 @@ def sync():
 
 
 if __name__ == "__main__":
-    R = {}
-    R["sync_1.4"] = sync(); R["hard_cuts"], R["transitions"] = joins(); print("joins done", flush=True)
-    R["voices"] = voices(); print("voices", R["voices"], flush=True)
+    torch.set_num_threads(4)
+    part = OUT.with_name(OUT.stem + "_partial.json")
+    R = json.load(open(part)) if part.exists() else {}
+    if "voices" not in R:
+        R["sync_1.4"] = sync(); R["hard_cuts"], R["transitions"] = joins(); print("joins done", flush=True)
+        R["voices"] = voices(); json.dump(R, open(part, "w"), indent=2, ensure_ascii=False)
+    print("voices", R["voices"], flush=True)
     R["visual"], rows = visual()
     json.dump(R, open(OUT, "w"), indent=2, ensure_ascii=False); json.dump(rows, open(OUT.with_name(OUT.stem + "_frames.json"), "w"), indent=1)
     print(json.dumps(R, indent=1, ensure_ascii=False))
