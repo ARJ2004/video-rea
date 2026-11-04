@@ -43,3 +43,15 @@ Qwen-Image drew a man, a boy and a girl into it; they then ghosted through 1.3-A
 `s34.finish` now shows the caption as timed 2-line chunks (`cap_chunks`, split at punctuation) instead of one block for
 the whole clip; chunk times follow character share, or explicit `cap_starts` for phrase-voiced clips (1.4).
 `reassemble.py` re-runs only the final assembly from the rendered parts (no GPU).
+
+### Episode assembly (2026-11-04)
+- `cuts.py` finds visual jumps (frame difference far above its neighbourhood). Big ones (>30) should only be intended cuts.
+- Chained first/last-frame shots must be RETIMED to their slot, never trimmed: renders run ~0.15 s long, and trimming
+  dropped the frames that reach the end keyframe, so every 1.4 seam jumped. `rebuild34.py` keeps all frames, drops the
+  duplicate first frame of each chained shot, and (1.4) lays Dadi's phrases so each element finishes forming 0.2 s after
+  its name starts; the element label shows the spoken word large with the Sanskrit name beneath.
+- `episode.py` trims dead air at clip edges and overlaps clips with designed joins (void->void dissolve, golden-flare
+  dissolves for the divine-light joins, fade to the end card). Audio is laid per clip at its offset and mixed, never
+  crossfaded, so no word inside a transition is faded out. Captions fade in/out over 0.15 s.
+- `ep_consistency.py` scores the final episode: characters/deities vs locked sheets (OWLv2 + DINOv2), set vs the
+  living-room plate, voices vs locked references (WavLM-SV), every hard cut, the largest jump inside each join, 1.4 sync.

@@ -99,6 +99,21 @@ def label_png(text, out, size=150):
     return out
 
 
+def label2_png(main, sub, out, size=150):
+    """Spoken word large (what the viewer hears) + the Sanskrit name smaller underneath."""
+    eng = ImageFont.Layout.RAQM if features.check("raqm") else ImageFont.Layout.BASIC
+    big, small = ImageFont.truetype(DEV_FONT, size, layout_engine=eng), ImageFont.truetype(DEV_FONT, int(size * 0.42), layout_engine=eng)
+    im = Image.new("RGBA", (WD, HT), (0, 0, 0, 0)); glow = Image.new("RGBA", (WD, HT), (0, 0, 0, 0))
+    d, g = ImageDraw.Draw(im), ImageDraw.Draw(glow)
+    bb = d.textbbox((0, 0), main, font=big); xy = ((WD - (bb[2] - bb[0])) / 2 - bb[0], HT * 0.14 - bb[1])
+    g.text(xy, main, font=big, fill=GOLD + (255,)); d.text(xy, main, font=big, fill=(255, 236, 180, 255))
+    if sub and sub != main:
+        sb = d.textbbox((0, 0), sub, font=small); sxy = ((WD - (sb[2] - sb[0])) / 2 - sb[0], xy[1] + bb[3] + 24 - sb[1])
+        g.text(sxy, sub, font=small, fill=GOLD + (255,)); d.text(sxy, sub, font=small, fill=(255, 236, 180, 230))
+    Image.alpha_composite(glow.filter(ImageFilter.GaussianBlur(14)), im).save(out)
+    return out
+
+
 def norm(src, out, L, fade_in=0, fade_out=0):
     vf = f"scale={WD}:{HT}:flags=lanczos,fps={FPS},tpad=stop_mode=clone:stop_duration={L + 1},format=yuv420p"
     if fade_in: vf += f",fade=t=in:st=0:d={fade_in}"
@@ -143,7 +158,8 @@ def finish(parts, labels, vo, vo_start, caption, out, work, cap_span=None, cap_s
         cf = work / f"cap{j}.txt"; cf.write_text("\n".join(textwrap.wrap(ch, 34)))
         out_l = "[v]" if j == len(chunks) - 1 else f"[c{j}]"
         fc.append(f"[{last}]drawtext=fontfile={CAPF}:textfile={cf}:fontsize=46:fontcolor=white:line_spacing=10:box=1:boxcolor=black@0.45:"
-                  f"boxborderw=18:x=(w-text_w)/2:y=h-text_h-220:enable='between(t,{a:.2f},{t:.2f})'{out_l}"); last = out_l[1:-1]
+                  f"boxborderw=18:x=(w-text_w)/2:y=h-text_h-220:enable='between(t,{a:.2f},{t:.2f})':"
+                  f"alpha='min(1,min((t-{a:.2f})/0.15,({t:.2f}-t)/0.15))'{out_l}"); last = out_l[1:-1]
     fc.append(f"[1:a]aresample=48000,adelay={int(vo_start * 1000)}|{int(vo_start * 1000)},apad,loudnorm=I=-14:TP=-1.5:LRA=11[a]")
     sh("ffmpeg", "-loglevel", "error", "-y", *inputs, "-filter_complex", ";".join(fc), "-map", "[v]", "-map", "[a]",
        "-t", f"{total:.2f}", "-c:v", "libx264", "-crf", "18", "-c:a", "aac", "-b:a", "192k", out)
