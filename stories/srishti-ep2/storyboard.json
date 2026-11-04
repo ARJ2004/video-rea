@@ -1,0 +1,402 @@
+{
+  "series": "Srishti",
+  "episode": "2 - Pehla Jeevan (The First Life)",
+  "source": "DRAFT written by Claude on 2026-11-03 for review; continues ep1. Sources to verify by the writer: Brahma's manasa-putra Saptarishi and Svayambhuva Manu & Shatarupa (Vishnu Purana 1.7, Bhagavata Purana 3.12, Manusmriti 1); 'Vasudhaiva Kutumbakam' (Maha Upanishad 6.71). 'Manu -> Manav' is the traditional folk etymology.",
+  "status": "draft-for-review",
+  "format": {
+    "aspect": "9:16",
+    "final_resolution": "1080x1920",
+    "fps": 30,
+    "loudness_lufs": -14
+  },
+  "style": {
+    "look": "stylized 3D animated family film, soft global illumination, gentle depth of field, expressive faces, warm and reverent",
+    "palette": {
+      "room": "warm amber, teak, cream",
+      "cosmos": "deep indigo-black to radiant gold"
+    },
+    "negative": "photorealistic, text, watermark, logo, extra fingers, deformed face, flicker"
+  },
+  "characters": {
+    "tara": {
+      "ref_sheet": "refs/tara_sheet.png",
+      "voice_ref": "refs/voice_tara.wav",
+      "description": "8-year-old Indian girl, two braids with red ribbons, big expressive brown eyes, yellow cotton kurta"
+    },
+    "dadi": {
+      "ref_sheet": "refs/dadi_sheet.png",
+      "voice_ref": "refs/voice_dadi.wav",
+      "description": "70-year-old Indian grandmother, silver hair in a bun, round gold-rim glasses, cream cotton saree with maroon border, kind wrinkles, warm smile"
+    },
+    "brahma": {
+      "ref_sheet": "refs/brahma_sheet.png",
+      "description": "Lord Brahma, four bearded faces, four arms holding Vedas, lotus, kamandalu and rosary, saffron-gold garments, seated on pink lotus, serene"
+    },
+    "manu": {
+      "ref_sheet": "refs/manu_sheet.png",
+      "voice_ref": null,
+      "description": "Manu, the first man: young adult Indian man, calm kind face, short dark beard, hair tied in a top knot, simple saffron dhoti and shawl, rudraksha beads, barefoot"
+    },
+    "shatarupa": {
+      "ref_sheet": "refs/shatarupa_sheet.png",
+      "voice_ref": null,
+      "description": "Shatarupa, the first woman: young adult Indian woman, gentle smile, long braided hair with white flowers, simple cream sari with gold border, barefoot"
+    }
+  },
+  "sets": {
+    "living_room_night": {
+      "ref": "refs/living_room_night.png",
+      "derive_from": "srishti-ep1 living_room master shot (1.1-A)",
+      "description": "the same cozy living room, now at night: deep blue window with stars, warm lamp light, brass diya lit, a small tulsi plant in a pot on the windowsill"
+    }
+  },
+  "audio": {
+    "music": {
+      "engine": "ace-step",
+      "prompt": "soft devotional ambient, tanpura drone, bansuri flute, gentle, 70 bpm",
+      "duck_under_dialogue_db": -14
+    },
+    "sfx": [
+      "om_chant_recorded.wav",
+      "heartbeat_soft.wav",
+      "cosmic_whoosh.wav",
+      "light_burst.wav"
+    ]
+  },
+  "clips": [
+    {
+      "id": "2.1",
+      "title": "Aage Kya Hua? (What Came Next?)",
+      "duration_s": 20,
+      "lines": [
+        {
+          "id": "2.1-L1",
+          "speaker": "tara",
+          "emotion": "curious, thoughtful",
+          "caption": "Daadi, paanch tattva toh ban gaye... par ped, jaanvar aur insaan kahaan se aaye?",
+          "tts": "दादी, पाँच तत्व तो बन गए... पर पेड़, जानवर और इंसान कहाँ से आए?"
+        },
+        {
+          "id": "2.1-L2",
+          "speaker": "dadi",
+          "emotion": "pleased, storytelling",
+          "caption": "Bahut achha sawaal! Brahma ji ne socha — is sundar duniya mein ab jeevan chahiye.",
+          "tts": "बहुत अच्छा सवाल! ब्रह्मा जी ने सोचा — इस सुंदर दुनिया में अब जीवन चाहिए।"
+        }
+      ],
+      "shots": [
+        {
+          "id": "2.1-A",
+          "tech": "I2V",
+          "dur_s": 3,
+          "res": "480x832",
+          "refs": [
+            "living_room_night",
+            "dadi",
+            "tara"
+          ],
+          "keyframe_prompt": "wide shot, Dadi and Tara sitting together on the sofa at night, Tara looking at the tulsi plant on the windowsill, diya glowing, stars in the window",
+          "motion_prompt": "gentle settle, diya flame flickers, Tara turns her head from the window to Dadi, static camera"
+        },
+        {
+          "id": "2.1-B",
+          "tech": "TALK",
+          "line": "2.1-L1",
+          "res": "480x832",
+          "refs": [
+            "tara",
+            "living_room_night"
+          ],
+          "cover": {
+            "base": "2.1-A",
+            "crop": "mcu",
+            "subject": "tara"
+          },
+          "keyframe_prompt": "medium close-up of Tara seated on the right of the sofa, curious thoughtful eyes, looking toward screen-left at Dadi",
+          "motion_prompt": "Tara asks thoughtfully, slight head tilt"
+        },
+        {
+          "id": "2.1-C",
+          "tech": "TALK",
+          "line": "2.1-L2",
+          "res": "480x832",
+          "refs": [
+            "dadi",
+            "living_room_night"
+          ],
+          "cover": {
+            "base": "2.1-A",
+            "crop": "mcu",
+            "subject": "dadi"
+          },
+          "keyframe_prompt": "medium close-up of Dadi seated on the left of the sofa, pleased smile, looking toward screen-right at Tara",
+          "motion_prompt": "Dadi smiles and begins the story, gentle hand gesture"
+        },
+        {
+          "id": "2.1-D",
+          "tech": "I2V",
+          "dur_s": 3,
+          "res": "480x832",
+          "cover": {
+            "base": "2.1-A",
+            "crop": "object",
+            "subject": "diya"
+          },
+          "keyframe_prompt": "close-up of the brass diya flame on the table",
+          "motion_prompt": "slow push-in into the diya flame until warm golden light fills the frame",
+          "transition_out": "golden light dissolve to 2.2"
+        }
+      ]
+    },
+    {
+      "id": "2.2",
+      "title": "Brahma ji ka Dhyaan (Brahma's Thought)",
+      "duration_s": 22,
+      "lines": [
+        {
+          "id": "2.2-L1",
+          "speaker": "dadi",
+          "emotion": "calm narration",
+          "caption": "Brahma ji ne aankhen band karke dhyaan kiya. Unke mann se saat mahaan rishi prakat hue — Saptarishi — jo gyaan ke rakshak bane.",
+          "tts": "ब्रह्मा जी ने आँखें बंद करके ध्यान किया। उनके मन से सात महान ऋषि प्रकट हुए — सप्तर्षि — जो ज्ञान के रक्षक बने।"
+        }
+      ],
+      "shots": [
+        {
+          "id": "2.2-A",
+          "tech": "I2V",
+          "dur_s": 6,
+          "res": "480x832",
+          "refs": [
+            "brahma"
+          ],
+          "keyframe_prompt": "Brahma seated on a pink lotus in golden cosmic light, eyes closed in meditation, serene",
+          "motion_prompt": "Brahma breathes calmly in meditation, a soft glow gathers at his forehead"
+        },
+        {
+          "id": "2.2-B",
+          "tech": "FLF",
+          "dur_s": 6,
+          "res": "480x832",
+          "first_frame": "last frame of 2.2-A",
+          "last_frame_prompt": "seven small radiant points of white-gold light floating above meditating Brahma against the deep indigo sky",
+          "motion_prompt": "seven points of light rise gently one after another from Brahma's forehead and float upward"
+        },
+        {
+          "id": "2.2-C",
+          "tech": "I2V+COMP",
+          "dur_s": 6,
+          "res": "480x832",
+          "keyframe_prompt": "seven bright stars forming the Saptarishi (Big Dipper) constellation in a deep indigo night sky, faint glowing lines joining them",
+          "motion_prompt": "the stars twinkle softly, faint constellation lines glow and fade",
+          "overlay": {
+            "text": "सप्तर्षि",
+            "sync_word": "Saptarishi"
+          }
+        }
+      ]
+    },
+    {
+      "id": "2.3",
+      "title": "Dharti Par Jeevan (Life Fills the Earth)",
+      "duration_s": 25,
+      "lines": [
+        {
+          "id": "2.3-L1",
+          "speaker": "dadi",
+          "emotion": "joyful narration",
+          "caption": "Phir dharti par hariyaali chhaa gayi — ped-paudhe uge, nadiyaan baheen, aur paani, zameen aur aasmaan mein tarah-tarah ke jeev aaye: machhliyaan, panchhi aur jaanvar!",
+          "tts": "फिर धरती पर हरियाली छा गई — पेड़-पौधे उगे, नदियाँ बहीं, और पानी, ज़मीन और आसमान में तरह-तरह के जीव आए: मछलियाँ, पंछी और जानवर!"
+        }
+      ],
+      "shots": [
+        {
+          "id": "2.3-A",
+          "tech": "FLF",
+          "dur_s": 6,
+          "res": "480x832",
+          "first_frame_prompt": "close view of a young barren brown-grey Earth landscape at dawn, rocky plains and hills, no plants",
+          "last_frame_prompt": "the same landscape now lush and green with trees, grass and a winding blue river at dawn",
+          "motion_prompt": "green life spreads across the land, trees sprout and grow, a river begins to flow"
+        },
+        {
+          "id": "2.3-B",
+          "tech": "I2V",
+          "dur_s": 5,
+          "res": "480x832",
+          "keyframe_prompt": "clear river with colourful fish swimming under the water surface, sunlight rays",
+          "motion_prompt": "fish swim gracefully, water ripples, light rays shimmer"
+        },
+        {
+          "id": "2.3-C",
+          "tech": "I2V",
+          "dur_s": 5,
+          "res": "480x832",
+          "keyframe_prompt": "flock of colourful birds, parrots and peacock, flying over green treetops at sunrise",
+          "motion_prompt": "birds fly across the sky over the trees, peacock spreads its feathers"
+        },
+        {
+          "id": "2.3-D",
+          "tech": "I2V",
+          "dur_s": 6,
+          "res": "480x832",
+          "keyframe_prompt": "gentle forest clearing by the river with a baby elephant, deer, rabbits and a cow, friendly and calm",
+          "motion_prompt": "animals walk calmly, the baby elephant sprays water playfully, slow push-in"
+        }
+      ]
+    },
+    {
+      "id": "2.4",
+      "title": "Manu aur Shatarupa (The First Humans)",
+      "duration_s": 22,
+      "lines": [
+        {
+          "id": "2.4-L1",
+          "speaker": "dadi",
+          "emotion": "warm, wonder",
+          "caption": "Aur phir Brahma ji ne pehle insaanon ko banaaya — Manu aur Shatarupa. Manu se hi hum sab 'maanav' kehlaaye.",
+          "tts": "और फिर ब्रह्मा जी ने पहले इंसानों को बनाया — मनु और शतरूपा। मनु से ही हम सब 'मानव' कहलाए।"
+        }
+      ],
+      "shots": [
+        {
+          "id": "2.4-A",
+          "tech": "I2V",
+          "dur_s": 5,
+          "res": "480x832",
+          "refs": [
+            "brahma"
+          ],
+          "keyframe_prompt": "Brahma on his lotus holding out both hands, two soft human-shaped forms of golden light forming before him",
+          "motion_prompt": "the two golden forms brighten and take human shape"
+        },
+        {
+          "id": "2.4-B",
+          "tech": "I2V",
+          "dur_s": 7,
+          "res": "480x832",
+          "refs": [
+            "manu",
+            "shatarupa"
+          ],
+          "keyframe_prompt": "Manu and Shatarupa standing side by side on a green riverbank at sunrise, Manu on the left, Shatarupa on the right, looking at the rising sun with wonder",
+          "motion_prompt": "they look at each other and smile, then look at the sunrise, gentle breeze in the grass"
+        },
+        {
+          "id": "2.4-C",
+          "tech": "I2V+COMP",
+          "dur_s": 5,
+          "res": "480x832",
+          "refs": [
+            "manu",
+            "shatarupa"
+          ],
+          "cover": {
+            "base": "2.4-B",
+            "crop": "two"
+          },
+          "keyframe_prompt": "closer two-shot of Manu and Shatarupa smiling",
+          "motion_prompt": "slow push-in, warm sunlight",
+          "overlay": {
+            "text": "मनु → मानव",
+            "sync_word": "maanav"
+          }
+        }
+      ]
+    },
+    {
+      "id": "2.5",
+      "title": "Ek Bada Parivaar (One Big Family)",
+      "duration_s": 25,
+      "lines": [
+        {
+          "id": "2.5-L1",
+          "speaker": "tara",
+          "emotion": "amazed realization",
+          "caption": "Toh iska matlab... ped, panchhi, jaanvar aur hum — sab ek hi parivaar hain?",
+          "tts": "तो इसका मतलब... पेड़, पंछी, जानवर और हम — सब एक ही परिवार हैं?"
+        },
+        {
+          "id": "2.5-L2",
+          "speaker": "dadi",
+          "emotion": "proud, loving",
+          "caption": "Haan beta! Isiliye hamare shaastra kehte hain — Vasudhaiva Kutumbakam — poori dharti ek parivaar hai.",
+          "tts": "हाँ बेटा! इसीलिए हमारे शास्त्र कहते हैं — वसुधैव कुटुम्बकम् — पूरी धरती एक परिवार है।"
+        }
+      ],
+      "shots": [
+        {
+          "id": "2.5-A",
+          "tech": "I2V",
+          "dur_s": 3,
+          "res": "480x832",
+          "refs": [
+            "living_room_night",
+            "dadi",
+            "tara"
+          ],
+          "cover": {
+            "base": "2.1-A",
+            "crop": null
+          },
+          "transition": "golden light dissolve from 2.4-C",
+          "keyframe_prompt": "same wide shot, Tara looking amazed at Dadi",
+          "motion_prompt": "gentle settle, diya flickers, static camera"
+        },
+        {
+          "id": "2.5-B",
+          "tech": "TALK",
+          "line": "2.5-L1",
+          "res": "480x832",
+          "refs": [
+            "tara"
+          ],
+          "cover": {
+            "base": "2.5-A",
+            "crop": "mcu",
+            "subject": "tara"
+          },
+          "keyframe_prompt": "medium close-up of Tara, amazed bright eyes, looking toward screen-left",
+          "motion_prompt": "Tara speaks with wonder"
+        },
+        {
+          "id": "2.5-C",
+          "tech": "TALK",
+          "line": "2.5-L2",
+          "res": "480x832",
+          "refs": [
+            "dadi"
+          ],
+          "cover": {
+            "base": "2.5-A",
+            "crop": "mcu",
+            "subject": "dadi"
+          },
+          "keyframe_prompt": "medium close-up of Dadi, proud loving smile, looking toward screen-right",
+          "motion_prompt": "Dadi speaks lovingly, gentle nod"
+        },
+        {
+          "id": "2.5-D",
+          "tech": "I2V",
+          "dur_s": 6,
+          "res": "480x832",
+          "refs": [
+            "living_room_night",
+            "dadi",
+            "tara"
+          ],
+          "cover": {
+            "base": "2.5-A",
+            "crop": "two"
+          },
+          "keyframe_prompt": "two-shot on the sofa, Tara hugging Dadi, tulsi plant and stars in the window behind",
+          "motion_prompt": "Tara hugs Dadi, Dadi strokes her hair, slow push-in",
+          "end_card": {
+            "dur_s": 2,
+            "text": "Srishti · Episode 2"
+          }
+        }
+      ]
+    }
+  ]
+}

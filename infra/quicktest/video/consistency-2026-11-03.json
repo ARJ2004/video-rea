@@ -1,0 +1,330 @@
+{
+  "1.1-A": {
+    "keyframes": [
+      {
+        "keyframe": "/mnt/nvme/ComfyUI/output/srishti/kf/1.1-A_v1_00001_.png",
+        "scores": {
+          "dadi": [
+            0.918,
+            0.53
+          ],
+          "tara": [
+            0.641,
+            0.32
+          ]
+        },
+        "mean": 0.78
+      },
+      {
+        "keyframe": "/mnt/nvme/ComfyUI/output/srishti/kf/1.1-A_v2_00001_.png",
+        "scores": {
+          "dadi": [
+            0.93,
+            0.48
+          ],
+          "tara": [
+            0.589,
+            0.26
+          ]
+        },
+        "mean": 0.76
+      }
+    ],
+    "video_first_mid_last": {
+      "dadi": [
+        0.772,
+        0.581,
+        0.61
+      ],
+      "tara": [
+        0.669,
+        0.595,
+        0.599
+      ]
+    }
+  },
+  "1.1-B": {
+    "keyframes": [
+      {
+        "keyframe": "/mnt/nvme/ComfyUI/output/srishti/kf3/1.1-B_v1_00001_.png",
+        "scores": {
+          "tara": [
+            0.623,
+            0.4
+          ]
+        },
+        "mean": 0.623
+      },
+      {
+        "keyframe": "/mnt/nvme/ComfyUI/output/srishti/kf3/1.1-B_v2_00001_.png",
+        "scores": {
+          "tara": [
+            0.609,
+            0.41
+          ]
+        },
+        "mean": 0.609
+      }
+    ],
+    "video_first_mid_last": {
+      "tara": [
+        0.54,
+        0.705,
+        0.574
+      ]
+    }
+  },
+  "1.1-C": {
+    "keyframes": [
+      {
+        "keyframe": "/mnt/nvme/ComfyUI/output/srishti/kf3/1.1-C_v1_00001_.png",
+        "scores": {
+          "dadi": [
+            0.925,
+            0.58
+          ]
+        },
+        "mean": 0.925
+      },
+      {
+        "keyframe": "/mnt/nvme/ComfyUI/output/srishti/kf3/1.1-C_v2_00001_.png",
+        "scores": {
+          "dadi": [
+            0.897,
+            0.58
+          ]
+        },
+        "mean": 0.897
+      }
+    ],
+    "video_first_mid_last": {
+      "dadi": [
+        0.901,
+        0.909,
+        0.917
+      ]
+    }
+  },
+  "1.1-D": {
+    "keyframes": [
+      {
+        "keyframe": "/mnt/nvme/ComfyUI/output/srishti/kf3/1.1-D_v1_00002_.png",
+        "scores": {
+          "tara": [
+            0.808,
+            0.55
+          ]
+        },
+        "scene_sim": 0.543,
+        "mean": 0.675
+      },
+      {
+        "keyframe": "/mnt/nvme/ComfyUI/output/srishti/kf3/1.1-D_v2_00002_.png",
+        "scores": {
+          "tara": [
+            0.443,
+            0.56
+          ]
+        },
+        "scene_sim": 0.752,
+        "mean": 0.598
+      }
+    ],
+    "video_first_mid_last": {
+      "tara": [
+        0.804,
+        0.771,
+        0.383
+      ]
+    }
+  },
+  "1.5-A": {
+    "keyframes": [
+      {
+        "keyframe": "/mnt/nvme/ComfyUI/output/srishti/kf3/1.5-A_v1_00001_.png",
+        "scores": {
+          "dadi": [
+            0.911,
+            0.54
+          ],
+          "tara": [
+            0.411,
+            0.31
+          ]
+        },
+        "mean": 0.661
+      },
+      {
+        "keyframe": "/mnt/nvme/ComfyUI/output/srishti/kf3/1.5-A_v2_00001_.png",
+        "scores": {
+          "dadi": [
+            0.872,
+            0.52
+          ],
+          "tara": [
+            0.68,
+            0.36
+          ]
+        },
+        "mean": 0.776
+      }
+    ],
+    "video_first_mid_last": {
+      "dadi": [
+        0.754,
+        0.694,
+        0.67
+      ],
+      "tara": [
+        0.391,
+        0.595,
+        0.521
+      ]
+    }
+  },
+  "1.5-B": {
+    "keyframes": [
+      {
+        "keyframe": "/mnt/nvme/ComfyUI/output/srishti/kf3/1.5-B_v1_00001_.png",
+        "scores": {
+          "tara": [
+            0.676,
+            0.4
+          ]
+        },
+        "scene_sim": 0.817,
+        "mean": 0.746
+      },
+      {
+        "keyframe": "/mnt/nvme/ComfyUI/output/srishti/kf3/1.5-B_v2_00001_.png",
+        "scores": {
+          "tara": [
+            0.663,
+            0.4
+          ]
+        },
+        "scene_sim": 0.824,
+        "mean": 0.744
+      }
+    ],
+    "video_first_mid_last": {
+      "tara": [
+        0.605,
+        0.663,
+        0.175
+      ]
+    }
+  },
+  "1.5-C": {
+    "keyframes": [
+      {
+        "keyframe": "/mnt/nvme/ComfyUI/output/srishti/kf3/1.5-C_v1_00001_.png",
+        "scores": {
+          "tara": [
+            0.834,
+            0.41
+          ]
+        },
+        "scene_sim": 0.959,
+        "mean": 0.896
+      },
+      {
+        "keyframe": "/mnt/nvme/ComfyUI/output/srishti/kf3/1.5-C_v2_00001_.png",
+        "scores": {
+          "tara": [
+            0.666,
+            0.41
+          ]
+        },
+        "scene_sim": 0.983,
+        "mean": 0.825
+      }
+    ],
+    "video_first_mid_last": {
+      "tara": [
+        0.765,
+        0.263,
+        0.72
+      ]
+    }
+  },
+  "1.5-D": {
+    "keyframes": [
+      {
+        "keyframe": "/mnt/nvme/ComfyUI/output/srishti/kf3/1.5-D_v1_00001_.png",
+        "scores": {
+          "dadi": [
+            0.962,
+            0.53
+          ]
+        },
+        "scene_sim": 0.947,
+        "mean": 0.954
+      },
+      {
+        "keyframe": "/mnt/nvme/ComfyUI/output/srishti/kf3/1.5-D_v2_00001_.png",
+        "scores": {
+          "dadi": [
+            0.879,
+            0.53
+          ]
+        },
+        "scene_sim": 0.989,
+        "mean": 0.934
+      }
+    ],
+    "video_first_mid_last": {
+      "dadi": [
+        0.94,
+        0.902,
+        0.875
+      ]
+    }
+  },
+  "1.5-E": {
+    "keyframes": [
+      {
+        "keyframe": "/mnt/nvme/ComfyUI/output/srishti/kf3/1.5-E_v1_00001_.png",
+        "scores": {
+          "dadi": [
+            0.896,
+            0.56
+          ],
+          "tara": [
+            0.602,
+            0.31
+          ]
+        },
+        "scene_sim": 0.991,
+        "mean": 0.87
+      },
+      {
+        "keyframe": "/mnt/nvme/ComfyUI/output/srishti/kf3/1.5-E_v2_00001_.png",
+        "scores": {
+          "dadi": [
+            0.859,
+            0.56
+          ],
+          "tara": [
+            0.337,
+            0.31
+          ]
+        },
+        "scene_sim": 0.995,
+        "mean": 0.796
+      }
+    ],
+    "video_first_mid_last": {
+      "dadi": [
+        0.694,
+        0.667,
+        0.708
+      ],
+      "tara": [
+        0.606,
+        0.593,
+        0.602
+      ]
+    }
+  }
+}

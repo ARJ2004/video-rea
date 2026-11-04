@@ -1,0 +1,10 @@
+{% extends "base.html" %}{% block title %}New story{% endblock %}{% block body %}
+<h1>New story</h1>{% if err %}<p class="err">{{err}}</p>{% endif %}
+<form method="post" action="/new" class="card"><label class="small muted">Title</label><input type="text" name="title" required>
+<h2>Option A · paste the story</h2><p class="muted small">Claude drafts the storyboard (clips, shots, lines). You then edit and approve it before anything is generated.
+{% if not has_key %}<br><strong>Needs an Anthropic API key in <a href="/settings">Settings</a>.</strong>{% endif %}</p>
+<textarea name="story" rows="10" placeholder="Paste the story or script here"></textarea>
+<p><button class="btn primary" name="action" value="draft" {% if not has_key %}disabled{% endif %}>Draft with Claude</button></p>
+<h2>Option B · paste a storyboard JSON</h2><p class="muted small">Same format as <code>stories/srishti-ep2/storyboard.json</code>.</p>
+<textarea name="storyboard" rows="8" class="code" style="min-height:180px"></textarea>
+<p><button class="btn" name="action" value="create">Create from storyboard</button></p></form>{% endblock %}

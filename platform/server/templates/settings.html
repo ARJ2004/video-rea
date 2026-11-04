@@ -1,0 +1,7 @@
+{% extends "base.html" %}{% block title %}Settings{% endblock %}{% block body %}<h1>Settings</h1>{% if ok %}<p class="okmsg">Saved.</p>{% endif %}
+<form method="post" action="/settings" class="card"><h2 style="margin-top:0">Anthropic API key</h2>
+<p class="muted small">Used only to draft storyboards from a pasted story (Claude Opus 5.5). {% if has_key %}A key is saved; enter a new one to replace it.{% else %}No key saved.{% endif %}</p>
+<input type="password" name="anthropic_key" autocomplete="off" placeholder="sk-ant-...">
+<h2>Change password</h2><p class="muted small">At least 12 characters.</p><input type="password" name="new_password" autocomplete="new-password">
+<p><button class="btn primary">Save</button></p></form>
+<p class="muted small">Public address: {{url}}</p>{% endblock %}

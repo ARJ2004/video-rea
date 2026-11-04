@@ -1,0 +1,8 @@
+{% extends "base.html" %}{% block title %}Stories{% endblock %}{% block body %}
+<div class="row"><h1>Stories</h1><a class="btn primary" href="/new" style="margin-left:auto">New story</a></div>
+<p class="muted small">Each story has a hard GPU spending cap. GPU machines start only when there is GPU work and stop on their own.</p>
+{% for p in projects %}<a class="card" href="/p/{{p.id}}" style="display:block;text-decoration:none;margin:10px 0">
+<div class="row"><strong>{{p.title}}</strong><span class="chip">{{p.status}}</span>{% if p.review %}<span class="chip st-review">{{p.review}} waiting for you</span>{% endif %}
+<span class="muted small" style="margin-left:auto">${{'%.2f'|format(p.spent)}} of ${{'%.0f'|format(p.cap)}}</span></div>
+<div class="bar" style="margin-top:8px"><i style="width:{{p.pct}}%"></i></div><div class="muted small">{{p.pct}}% of steps approved</div></a>
+{% else %}<p class="muted">No stories yet.</p>{% endfor %}{% endblock %}

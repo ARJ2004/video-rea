@@ -1,0 +1,40 @@
+{
+  "_doc": "Model families: which weight files (under s3://BUCKET/models/) each kind of GPU job needs. gpu_bootstrap.sh copies only the families a session asks for (MODELS=fam:image,edit,video), in that order, and marks each ready; gpu_dispatch.py runs a job only once its family is on disk. Sizes are approximate.",
+  "families": {
+    "image": {
+      "doc": "Qwen-Image text-to-image (sheets, plates, fields) ~29 GB",
+      "files": ["diffusion_models/qwen_image_fp8_e4m3fn.safetensors", "text_encoders/qwen_2.5_vl_7b_fp8_scaled.safetensors",
+                "vae/qwen_image_vae.safetensors", "loras/Qwen-Image-Lightning-8steps-V2.0-bf16.safetensors"]
+    },
+    "edit": {
+      "doc": "Qwen-Image-Edit-2509 (keyframes, crop-then-rerender, harmonize) ~29 GB; shares the text encoder and VAE with image",
+      "files": ["diffusion_models/qwen_image_edit_2509_fp8_e4m3fn.safetensors", "text_encoders/qwen_2.5_vl_7b_fp8_scaled.safetensors",
+                "vae/qwen_image_vae.safetensors", "loras/Qwen-Image-Edit-2509-Lightning-8steps-V1.0-bf16.safetensors"]
+    },
+    "video": {
+      "doc": "Wan 2.2 I2V A14B high+low noise with LightX2V 4-step (I2V and first/last-frame shots) ~35 GB",
+      "files": ["diffusion_models/wan2.2_i2v_high_noise_14B_fp8_scaled.safetensors", "diffusion_models/wan2.2_i2v_low_noise_14B_fp8_scaled.safetensors",
+                "text_encoders/umt5_xxl_fp8_e4m3fn_scaled.safetensors", "vae/wan_2.1_vae.safetensors",
+                "loras/wan2.2_i2v_lightx2v_4steps_lora_v1_high_noise.safetensors", "loras/wan2.2_i2v_lightx2v_4steps_lora_v1_low_noise.safetensors"]
+    },
+    "talk": {
+      "doc": "InfiniteTalk on Wan 2.1 I2V 480p (talking heads) ~29 GB",
+      "files": ["diffusion_models/wan2.1_i2v_480p_14B_fp8_scaled.safetensors", "model_patches/wan2.1_infiniteTalk_single_fp16.safetensors",
+                "clip_vision/clip_vision_h.safetensors", "audio_encoders/wav2vec2-chinese-base_fp16.safetensors",
+                "text_encoders/umt5_xxl_fp8_e4m3fn_scaled.safetensors", "vae/wan_2.1_vae.safetensors",
+                "loras/lightx2v_I2V_14B_480p_cfg_step_distill_rank64_bf16.safetensors"]
+    },
+    "upscale": {
+      "doc": "Real-ESRGAN x4 (final polish)",
+      "files": ["upscale_models/RealESRGAN_x4plus.pth"]
+    }
+  },
+  "detect": {
+    "_doc": "How gpu_dispatch.family_of() recognises a ComfyUI graph: first loader whose model name contains the key wins",
+    "infiniteTalk": "talk",
+    "qwen_image_edit": "edit",
+    "qwen_image_fp8": "image",
+    "wan2.2_i2v": "video",
+    "RealESRGAN": "upscale"
+  }
+}

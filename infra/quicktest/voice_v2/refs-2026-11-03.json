@@ -1,0 +1,16 @@
+{
+  "dadi": {
+    "audio": "/mnt/nvme/ComfyUI/output/voice_v2/refs/voice_dadi.wav",
+    "text": "आओ बेटा, मेरे पास बैठो। आज मैं तुम्हें एक बहुत पुरानी कहानी सुनाती हूँ, जो मेरी दादी ने मुझे सुनाई थी।",
+    "from": "seed_dadi_c0_s3.wav",
+    "f0_std_st": 4.99,
+    "n_issues": 0
+  },
+  "tara": {
+    "audio": "/mnt/nvme/ComfyUI/output/voice_v2/refs/voice_tara.wav",
+    "text": "दादी, दादी! आज स्कूल में मैंने आसमान में एक चमकता तारा देखा! आप बताओ ना, वो इतना चमकता क्यों है?",
+    "from": "seed_tara_c0_s0.wav",
+    "f0_std_st": 4.61,
+    "n_issues": 0
+  }
+}

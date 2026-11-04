@@ -1,0 +1,152 @@
+{
+  "series": "Srishti",
+  "episode": "1 - Creation",
+  "source": "script.pdf (FINAL DRAFT, 'Suggested' lines used; Tara's optional 3rd line in 1.5 dropped per script note)",
+  "format": { "aspect": "9:16", "final_resolution": "1080x1920", "fps": 30, "loudness_lufs": -14 },
+  "style": {
+    "look": "stylized 3D animated family film, soft global illumination, gentle depth of field, expressive faces, warm and reverent",
+    "palette": { "room": "warm amber, teak, cream", "cosmos": "deep indigo-black to radiant gold" },
+    "negative": "photorealistic, text, watermark, logo, extra fingers, deformed face, flicker"
+  },
+  "characters": {
+    "tara": { "ref_sheet": "refs/tara_sheet.png", "voice_ref": "refs/voice_tara.wav", "description": "8-year-old Indian girl, two braids with red ribbons, big expressive brown eyes, yellow cotton kurta" },
+    "dadi": { "ref_sheet": "refs/dadi_sheet.png", "voice_ref": "refs/voice_dadi.wav", "description": "70-year-old Indian grandmother, silver hair in a bun, round gold-rim glasses, cream cotton saree with maroon border, kind wrinkles, warm smile" },
+    "brahma": { "ref_sheet": "refs/brahma_sheet.png", "description": "Lord Brahma, four bearded faces, four arms holding Vedas, lotus, kamandalu and rosary, saffron-gold garments, seated on pink lotus, serene" },
+    "vishnu": { "ref_sheet": "refs/vishnu_sheet.png", "description": "Lord Vishnu, blue complexion, four arms holding shankha, sudarshan chakra, gada and padma, yellow pitambara, jewelled crown, gentle smile" },
+    "shiva": { "ref_sheet": "refs/shiva_sheet.png", "description": "Lord Shiva, ash-blue skin, eyes closed in meditation, matted jata with crescent moon and Ganga, serpent around neck, trishul beside him" }
+  },
+  "sets": {
+    "living_room": { "ref": "refs/living_room_plate.png", "description": "cozy Indian living room at dusk, wooden sofa with cushions, lit brass diya, window with orange-blue sky, framed family photos" }
+  },
+  "audio": {
+    "music": { "engine": "ace-step", "prompt": "soft devotional ambient, tanpura drone, bansuri flute, gentle, 70 bpm", "duck_under_dialogue_db": -14 },
+    "sfx": ["om_chant_recorded.wav", "heartbeat_soft.wav", "cosmic_whoosh.wav", "light_burst.wav"]
+  },
+  "clips": [
+    {
+      "id": "1.1", "title": "Before Creation", "duration_s": 25,
+      "lines": [
+        { "id": "1.1-L1", "speaker": "tara", "emotion": "puzzled, wide-eyed",
+          "caption": "Daadi, jab sooraj, chaand, aur Brahmaand bhi nahi tha... tab kya tha?",
+          "tts": "दादी, जब सूरज, चाँद, और ब्रह्मांड भी नहीं था... तब क्या था?" },
+        { "id": "1.1-L2", "speaker": "dadi", "emotion": "calm storytelling",
+          "caption": "Tab na koi roop tha, na koi ujaala — bas ek pavitra dhwani thi: 'Om'. Itni sookshm ki kisi ne kabhi nahi suni, phir bhi wo hamesha se goonj rahi thi.",
+          "tts": "तब न कोई रूप था, न कोई उजाला — बस एक पवित्र ध्वनि थी: ओम्। इतनी सूक्ष्म कि किसी ने कभी नहीं सुनी, फिर भी वो हमेशा से गूँज रही थी।" }
+      ],
+      "shots": [
+        { "id": "1.1-A", "tech": "I2V", "dur_s": 3, "res": "480x832", "refs": ["living_room", "dadi", "tara"],
+          "keyframe_prompt": "wide shot, Dadi and Tara sitting together on the sofa, Tara holding a plain black sheet of paper, diya glowing, dusk window light",
+          "motion_prompt": "subtle breathing, diya flame flickers, Tara looks at the paper then up at Dadi, static camera" },
+        { "id": "1.1-B", "tech": "TALK", "line": "1.1-L1", "res": "480x832", "refs": ["tara", "living_room"],
+          "keyframe_prompt": "medium close-up of Tara on the sofa, puzzled wide eyes, holding black paper at chest height, soft background bokeh",
+          "motion_prompt": "Tara asks a curious question, slight head tilt, eyebrows raised" },
+        { "id": "1.1-C", "tech": "TALK", "line": "1.1-L2", "res": "480x832", "refs": ["dadi", "living_room"], "audio_span": "until 'Om'",
+          "keyframe_prompt": "medium close-up of Dadi, calm gentle expression, looking softly at Tara (off-screen right), warm diya light on her face",
+          "motion_prompt": "Dadi speaks slowly like telling a story, gentle hand gesture, soft blinks" },
+        { "id": "1.1-D", "tech": "I2V", "dur_s": 4, "res": "480x832", "refs": ["tara"], "vo": "1.1-L2 (continues)",
+          "keyframe_prompt": "over-the-shoulder close shot of the black sheet of paper in Tara's small hands, paper fills most of the frame",
+          "motion_prompt": "slow smooth camera push-in into the black paper until it fills the entire frame and everything goes dark" },
+        { "id": "1.1-E", "tech": "COMP", "dur_s": 6, "module": "void",
+          "params": { "base": "#05040a", "ripple": "heat-haze displacement, amplitude 1.5px, period 4s, loopable", "audio": "om_chant_recorded.wav at -30 dB, barely audible" } }
+      ]
+    },
+    {
+      "id": "1.2", "title": "The First Light", "duration_s": 20,
+      "lines": [
+        { "id": "1.2-L1", "speaker": "dadi", "mode": "voiceover", "emotion": "awe, building",
+          "caption": "Phir us khamoshi mein, Om ki shakti jaagi — jaise vigyaan aaj 'Big Bang' kehta hai — aur uski goonj se roshni phail gayi!",
+          "tts": "फिर उस ख़ामोशी में, ओम् की शक्ति जागी — जैसे विज्ञान आज 'बिग बैंग' कहता है — और उसकी गूँज से रोशनी फैल गई!" }
+      ],
+      "shots": [
+        { "id": "1.2-A", "tech": "COMP", "dur_s": 4, "module": "void", "params": { "ripple_sharpen": true, "glow_ramp": "0 -> 0.2, gold" } },
+        { "id": "1.2-B", "tech": "COMP", "dur_s": 8, "module": "om_pulse",
+          "params": { "glyph": "ॐ", "font": "NotoSansDevanagari-Bold", "color": "#f6c453", "pulses": 5, "pulse_sync": "heartbeat_soft.wav", "brightness_curve": "increasing", "emerge_from": "ripple" } },
+        { "id": "1.2-C", "tech": "I2V", "dur_s": 4, "res": "720x1280", "keyframe_from": "last frame of 1.2-B",
+          "motion_prompt": "the glowing golden Om symbol contracts into a brilliant point of light and bursts outward, golden light tearing through the darkness, radiant particles, cinematic" },
+        { "id": "1.2-D", "tech": "I2V", "dur_s": 4, "res": "720x1280", "keyframe_from": "last frame of 1.2-C",
+          "motion_prompt": "concentric waves of golden light and energy expand and fill the entire dark void, nebula-like glow, majestic slow motion" }
+      ]
+    },
+    {
+      "id": "1.3", "title": "Tridev Appear", "duration_s": 25,
+      "lines": [
+        { "id": "1.3-L1", "speaker": "dadi", "mode": "voiceover", "emotion": "reverent, clear",
+          "caption": "Om ke teen swar hote hain — A, U, aur M. Aur unhi teen swaron se Tridev prakat hue: 'A' se Brahma ji, jinhone srishti rachi; 'U' se Vishnu ji, jo sabka palan karte hain; aur 'M' se Shiv ji, jo purani cheezon ko khatam karke naye ke liye jagah banate hain.",
+          "tts": "ओम् के तीन स्वर होते हैं — अ, उ, और म। और उन्हीं तीन स्वरों से त्रिदेव प्रकट हुए: अ से ब्रह्मा जी, जिन्होंने सृष्टि रची; उ से विष्णु जी, जो सबका पालन करते हैं; और म से शिव जी, जो पुरानी चीज़ों को ख़त्म करके नए के लिए जगह बनाते हैं।" }
+      ],
+      "shots": [
+        { "id": "1.3-A", "tech": "COMP", "dur_s": 4, "module": "om_hold", "background": "I2V: soft swirling golden light field, 720x1280", "params": { "glyph": "ॐ", "glow": "steady, breathing" } },
+        { "id": "1.3-B", "tech": "FLF", "dur_s": 5, "res": "720x1280",
+          "first_frame": "last frame of 1.3-A",
+          "last_frame_prompt": "three separate glowing golden light forms arranged in a vertical triangle (one top centre, two below left and right), soft silhouettes, golden light field",
+          "motion_prompt": "the glowing symbol softly unfurls into three luminous sections at once, like a flower opening into three petals, smooth continuous motion" },
+        { "id": "1.3-C", "tech": "FLF", "dur_s": 6, "res": "720x1280",
+          "first_frame": "last frame of 1.3-B", "refs": ["brahma", "vishnu", "shiva"],
+          "last_frame_prompt": "Shiva meditating at top centre, Brahma on lotus lower left, Vishnu lower right, each surrounded by a golden halo, cosmic golden light background, vertical composition",
+          "motion_prompt": "the three light forms crystallize simultaneously into the three deities, light settling into form, serene and majestic" },
+        { "id": "1.3-D", "tech": "I2V+COMP", "dur_s": 3, "res": "480x832", "refs": ["brahma"], "overlay": { "text": "अ", "sync_word": "Brahma" },
+          "keyframe_prompt": "Brahma close shot on lotus, four faces, holding Vedas and lotus, golden halo", "motion_prompt": "slow push-in, lotus petals sway, halo shimmers" },
+        { "id": "1.3-E", "tech": "I2V+COMP", "dur_s": 3, "res": "480x832", "refs": ["vishnu"], "overlay": { "text": "उ", "sync_word": "Vishnu" },
+          "keyframe_prompt": "Vishnu close shot, blue complexion, four arms with shankha, chakra, gada, padma, golden halo", "motion_prompt": "slow push-in, chakra gently spins, garments flow" },
+        { "id": "1.3-F", "tech": "I2V+COMP", "dur_s": 3, "res": "480x832", "refs": ["shiva"], "overlay": { "text": "म", "sync_word": "Shiv" },
+          "keyframe_prompt": "Shiva close shot in meditation, crescent moon in jata, serpent, trishul, golden halo", "motion_prompt": "slow push-in, faint stream of Ganga flows from jata, calm breathing" }
+      ]
+    },
+    {
+      "id": "1.4", "title": "Making the Material World", "duration_s": 25,
+      "lines": [
+        { "id": "1.4-L1", "speaker": "dadi", "mode": "voiceover", "emotion": "wonder, rhythmic on each element",
+          "caption": "Fir Brahma ji ne apni shakti se, ek-ek karke paanch tattva banaye — Aakash, phir Hawa, phir Aag, phir Paani, aur ant mein Dharti! Aur inhi paanch tattvon se hamari ye sundar duniya bani.",
+          "tts": "फिर ब्रह्मा जी ने अपनी शक्ति से, एक-एक करके पाँच तत्व बनाए — आकाश, फिर हवा, फिर आग, फिर पानी, और अंत में धरती! और इन्हीं पाँच तत्वों से हमारी ये सुंदर दुनिया बनी।" }
+      ],
+      "shots": [
+        { "id": "1.4-A", "tech": "I2V", "dur_s": 4, "res": "480x832", "refs": ["brahma"],
+          "keyframe_prompt": "Brahma in golden cosmic light, one hand raised forward with open palm facing up, gentle expression",
+          "motion_prompt": "Brahma slowly extends his open palm forward, a soft glow gathers in the palm" },
+        { "id": "1.4-KF", "tech": "KEYFRAMES", "note": "same composition for all: Brahma's open palm in lower third, element rising above it",
+          "keyframes": {
+            "aakash": "a swirling sphere of deep blue-violet space with tiny stars rising from the open palm",
+            "vayu": "swirling translucent streams of wind and air spiralling up from the palm",
+            "agni": "a living flame of warm orange fire dancing above the palm",
+            "jal": "a flowing sphere of clear blue water rippling above the palm",
+            "prithvi": "a small green-blue Earth slowly spinning above the palm"
+          } },
+        { "id": "1.4-B", "tech": "FLF", "dur_s": 4, "res": "480x832", "first_frame": "last frame of 1.4-A", "last_frame": "aakash", "overlay": { "text": "आकाश", "sync_word": "Aakash" }, "motion_prompt": "space swirls out from the glowing palm" },
+        { "id": "1.4-C", "tech": "FLF", "dur_s": 4, "res": "480x832", "first_frame": "aakash", "last_frame": "vayu", "overlay": { "text": "वायु", "sync_word": "Hawa" }, "motion_prompt": "the swirling space thickens into rushing streams of wind" },
+        { "id": "1.4-D", "tech": "FLF", "dur_s": 4, "res": "480x832", "first_frame": "vayu", "last_frame": "agni", "overlay": { "text": "अग्नि", "sync_word": "Aag" }, "motion_prompt": "the wind ignites into dancing fire" },
+        { "id": "1.4-E", "tech": "FLF", "dur_s": 4, "res": "480x832", "first_frame": "agni", "last_frame": "jal", "overlay": { "text": "जल", "sync_word": "Paani" }, "motion_prompt": "the fire cools and melts into flowing water" },
+        { "id": "1.4-F", "tech": "FLF", "dur_s": 5, "res": "480x832", "first_frame": "jal", "last_frame": "prithvi", "overlay": { "text": "पृथ्वी", "sync_word": "Dharti" }, "motion_prompt": "the water settles and solidifies into a small spinning Earth" }
+      ]
+    },
+    {
+      "id": "1.5", "title": "The Spark Inside Us", "duration_s": 25,
+      "lines": [
+        { "id": "1.5-L1", "speaker": "tara", "emotion": "excited, inspired",
+          "caption": "Daadi, matlab jab main school mein 'Om' bolti hoon... wahi awaaz mere andar bhi hai?",
+          "tts": "दादी, मतलब जब मैं स्कूल में ओम् बोलती हूँ... वही आवाज़ मेरे अंदर भी है?",
+          "note": "script has 'meri andar'; corrected to 'mere andar' — confirm with writer" },
+        { "id": "1.5-L2", "speaker": "dadi", "emotion": "warmly smiling",
+          "caption": "Bilkul, beta. Wahi pavitra dhwani har jeev ke andar, har dhadkan mein baji hui hai!",
+          "tts": "बिल्कुल, बेटा। वही पवित्र ध्वनि हर जीव के अंदर, हर धड़कन में बजी हुई है!" }
+      ],
+      "shots": [
+        { "id": "1.5-A", "tech": "COMP+I2V", "dur_s": 3, "res": "480x832", "refs": ["living_room", "dadi", "tara"], "transition": "golden light flare dissolve from 1.4-F",
+          "keyframe_prompt": "wide shot, Dadi and Tara on the sofa in the cozy living room, Tara looking amazed", "motion_prompt": "gentle settle, diya flickers, static camera" },
+        { "id": "1.5-B", "tech": "TALK", "line": "1.5-L1", "res": "480x832", "refs": ["tara", "living_room"],
+          "keyframe_prompt": "medium close-up of Tara, excited bright eyes, one hand near her chest",
+          "motion_prompt": "Tara speaks excitedly and places her hand on her chest" },
+        { "id": "1.5-C", "tech": "I2V+COMP", "dur_s": 3, "res": "480x832", "refs": ["tara"],
+          "keyframe_prompt": "close-up of Tara's small hand resting on her chest over the yellow kurta",
+          "motion_prompt": "hand rests gently, slight breathing movement",
+          "overlay": { "module": "glow", "color": "#ffcf73", "pulse_sync": "same rhythm as 1.2-B", "pulses": 2, "intensity": "very faint" } },
+        { "id": "1.5-D", "tech": "TALK", "line": "1.5-L2", "res": "480x832", "refs": ["dadi", "living_room"],
+          "keyframe_prompt": "medium close-up of Dadi smiling warmly, eyes kind, looking at Tara off-screen",
+          "motion_prompt": "Dadi speaks lovingly, gentle nod, warm smile" },
+        { "id": "1.5-E", "tech": "I2V", "dur_s": 8, "res": "480x832", "refs": ["living_room", "dadi", "tara"],
+          "keyframe_prompt": "two-shot on the sofa, Dadi's hand resting on Tara's head, Tara smiling proudly, diya glowing",
+          "motion_prompt": "Dadi lovingly pats Tara's head, Tara smiles proudly, the faint glow on her chest fades, slow push-in",
+          "end_card": { "dur_s": 2, "text": "Srishti · Episode 1" } }
+      ]
+    }
+  ]
+}

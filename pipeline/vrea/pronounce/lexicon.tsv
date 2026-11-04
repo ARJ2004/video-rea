@@ -1,0 +1,44 @@
+# Pronunciation lexicon: what the TTS model READS. Captions always keep the original spelling.
+# Columns (tab-separated): word	tts_spelling	rule	status	note
+#   rule   = why the respelling helps (see docs/hindi-pronunciation.md §3)
+#   status = proposed (untested) | verified (a native listener approved the audio) | rejected
+# Series style (decided 2026-11-03): SANSKRITIZED pronunciation for deity and scripture words
+#   (ब्रह्मा = "brah-mā", not colloquial "bram-hā"). Colloquial forms are not used as alternatives.
+# Alternatives for the same word: separate with " | " in tts_spelling; the first is the default and qa.py can try the others.
+#
+# --- symbols & letters ---
+ॐ	ओम्	symbol	proposed	TTS cannot read the glyph; halant closes the final m ("om", not "oma")
+ओम	ओम् | ओऽम् | ओ म्	schwa-close	proposed	force closed final m. Run 2026-11-03 (Indic Parler, Tara/Divya voice): heard as "um" in 4/4 takes; Dadi/Rani voice fine. Try variants
+ओम्	ओम् | ओऽम् | ओ म्	schwa-close	proposed	same as ओम (script often already has the halant); see ओम run note
+अ,	अ...	letter-name	proposed	isolated vowel letter; ellipsis gives the drawn-out A-U-M reading
+उ,	उ... | उ,	letter-name	proposed	Run 2026-11-03: stretched to "ऊ" in 4/4 takes; try without the ellipsis
+म	म् | म्म्	letter-name	proposed	the M of A-U-M is a closed /m/, not "ma"; only applied as a standalone token. Run 2026-11-03: heard as "माँ" in 2/4 takes
+# --- Sanskrit / devotional vocabulary in Srishti ep1 ---
+ब्रह्मांड	ब्रह्मान्ड	anusvara-nasal	proposed	anusvara before ड = न्; Sanskritized "brah-maand" (colloquial ब्रम्हान्ड not used, see style)
+ब्रह्मा	ब्रह्मा	h-cluster	proposed	Sanskritized "brah-mā" (colloquial ब्रम्हा not used, see style); listen for h-m order
+सूक्ष्म	सूक्श्म	sha-merge	proposed	ष is spoken as श in Hindi
+सृष्टि	स्रिश्टि	ri-vowel+sha-merge	proposed	ृ is spoken "ri" in Hindi
+पृथ्वी	प्रिथ्वी	ri-vowel	proposed
+विष्णु	विश्णु	sha-merge	proposed
+विज्ञान	विग्यान	gya	proposed	ज्ञ is spoken "gya" in Hindi
+ज्ञान	ग्यान	gya	proposed
+तत्त्व	तत्व	simplify	proposed	Sanskrit double-t form; Hindi says "tatva"
+तत्वों	तत्वों	watch	proposed	listen for "tat-vo" vs "ta-ta-vo"
+ध्वनि	ध्वनि | ध्वनी	watch	proposed	listen for "dhvani". Run 2026-11-03: onset clipped ("नी", "धनी") in 2/4 takes
+धड़कन	धड़कन | धड़्कन	schwa-medial	proposed	medial schwa must drop: "dhaḍ-kan", not "dha-ḍa-kan"
+पवित्र	पवित्र	watch	proposed	final "tra" is light; listen for over-stressed "pavitra-a"
+प्रकट	प्रकट	watch	proposed	"pra-kaṭ"
+ख़ामोशी	ख़ामोशी | खामोशी	nukta	proposed	drop nukta if model stumbles on ख़
+ख़त्म	ख़त्म | खत्म	nukta	proposed
+चीज़ों	चीज़ों | चीजों	nukta	proposed
+दुःख	दुख	visarga	proposed	visarga is silent in everyday Hindi
+# --- English loanwords (always written in Devanagari for the Hindi voice) ---
+Big Bang	बिग बैंग	loanword	proposed
+school	स्कूल	loanword	proposed
+# --- Srishti ep2 (draft) ---
+ऋषि	रिशि	ri-vowel+sha-merge	proposed	ऋ spoken "ri"; ष as श
+सप्तर्षि	सप्तरिशि | सप्तर्शि	ri-vowel+sha-merge	proposed	Sanskritized "sapta-rishi"
+रक्षक	रक्शक	sha-merge	proposed
+शास्त्र	शास्त्र	watch	proposed	3-consonant cluster "shaas-tra"; listen for an inserted vowel
+कुटुम्बकम्	कुटुम्बकम्	watch	proposed	Sanskrit: final halant keeps "kam", not "kama"
+शतरूपा	शता-रूपा | शत-रूपा | शतऽरूपा | श त रूपा	schwa-keep	proposed	keep the medial a: "sha-ta-rū-pā". Ep2 run 2026-11-03 (Dadi, F5): ASR heard शत्रूपा (schwa dropped); round 2 with शत-रूपा first: still शत्रुपा in 4/4 (Platform, 2026-11-04) -> शता-रूपा first

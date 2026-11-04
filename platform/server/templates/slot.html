@@ -1,0 +1,35 @@
+{% extends "base.html" %}{% block title %}{{s.label}}{% endblock %}{% block body %}
+<p class="small"><a href="/p/{{p.id}}">← {{p.title}}</a></p>
+<div class="row"><h1>{{s.label}}</h1><span class="chip st-{{s.state}}">{{labels.get(s.state, s.state)}}</span>{% if s.round %}<span class="chip">round {{s.round + 1}}</span>{% endif %}
+{% if next %}<a class="btn" style="margin-left:auto" href="/p/{{p.id}}/s/{{next.key}}">Next waiting →</a>{% endif %}</div>
+{% if s.note %}<p class="small muted">Your notes so far: {{s.note}}</p>{% endif %}
+{% if s.kind == 'script' %}
+<p class="muted small">Edit the storyboard if you like, then approve. Nothing is generated before this is approved.</p>
+<form method="post" action="/p/{{p.id}}/script"><textarea name="storyboard" class="code">{{sb_text}}</textarea>
+<p class="row">{% if s.state != 'approved' %}<button class="btn" name="action" value="save">Save</button><button class="btn primary" name="action" value="approve">Approve storyboard</button>
+{% else %}<span class="muted small">Approved. (Editing an approved storyboard is not supported; start a new story.)</span>{% endif %}</p></form>
+{% else %}
+{% if s.params.shot %}<div class="card small"><strong>{{s.params.shot.tech}}</strong> · {{s.params.shot.keyframe_prompt or s.params.shot.last_frame_prompt or ''}}
+{% if s.params.shot.motion_prompt %}<br><span class="muted">Motion: {{s.params.shot.motion_prompt}}</span>{% endif %}</div>{% endif %}
+{% if s.params.line %}<div class="card small"><strong>{{s.params.line.speaker}}</strong> ({{s.params.line.emotion}}): {{s.params.line.tts}}<br><span class="muted">{{s.params.line.caption}}</span></div>{% endif %}
+{% if s.params.description %}<div class="card small">{{s.params.description}}</div>{% endif %}
+{% if s.state == 'waiting' %}<p class="muted">Waiting for: {% for d in deps if d.state != 'approved' %}<a href="/p/{{p.id}}/s/{{d.key}}">{{d.label}}</a> ({{labels.get(d.state, d.state)}}){% if not loop.last %}, {% endif %}{% endfor %}</p>{% endif %}
+{% if s.state == 'generating' %}<p class="muted">Generating… this page does not refresh by itself; the <a href="/p/{{p.id}}">board</a> does.</p>{% endif %}
+{% if s.state == 'failed' %}<form method="post" action="/p/{{p.id}}/s/{{s.key}}/retry"><p class="err">This step failed. {% for t in tasks[:1] %}{{(t.error or '')[-300:]}}{% endfor %}</p><button class="btn primary">Retry</button></form>{% endif %}
+{% set cur = assets | selectattr("round", "equalto", s.round) | list %}{% set old = assets | rejectattr("round", "equalto", s.round) | list %}
+{% macro variant(a) %}<div class="card variant {% if a.id == s.chosen_asset %}chosen{% endif %}">
+{% if a.kind == 'image' %}<img src="/a/{{a.id}}" alt="">{% if a.meta.first %}<div class="small muted">first frame:</div><img src="/a/{{a.id}}/first" alt="" style="width:45%">{% endif %}
+{% elif a.kind == 'audio' %}<audio controls preload="none" src="/a/{{a.id}}"></audio>{% elif a.kind == 'video' %}<video controls preload="metadata" src="/a/{{a.id}}"></video>{% endif %}
+<div class="scores">#{{a.id}} · round {{a.round + 1}}{% for k, v in a.scores.items() if k != 'rank' and v is not none and k not in ('issues','transcript') %} · {{k}} {{v}}{% endfor %}
+{% if a.scores.issues %}<br>pronunciation: {% for i in a.scores.issues %}{{i.expected}}→{{i.heard}} {% endfor %}{% endif %}{% if a.meta.locked %} · locked reference{% endif %}</div>
+{% if a.meta.qa %}<pre class="qa">{{a.meta.qa | tojson(indent=2)}}</pre>{% endif %}
+{% if s.state == 'review' and a.round == s.round %}<form method="post" action="/p/{{p.id}}/s/{{s.key}}/pick"><input type="hidden" name="asset_id" value="{{a.id}}">
+<button class="btn primary">{% if s.kind == 'episode' %}Approve final episode{% else %}Pick this{% endif %}</button></form>{% endif %}
+{% if a.id == s.chosen_asset %}<span class="chip st-approved">chosen</span>{% endif %}</div>{% endmacro %}
+<h2>Variants{% if s.round %} · round {{s.round + 1}}{% endif %}</h2><div class="variants">{% for a in cur %}{{ variant(a) }}{% else %}<p class="muted">{% if s.state in ('waiting','generating') %}This round is being generated.{% else %}Nothing generated yet.{% endif %}</p>{% endfor %}</div>
+{% if old %}<details style="margin-top:14px"><summary class="muted small">Earlier rounds ({{old|length}}): shown for reference only</summary><div class="variants" style="margin-top:10px;opacity:.75">{% for a in old %}{{ variant(a) }}{% endfor %}</div></details>{% endif %}
+{% if s.state in ('review','approved','failed') and s.kind not in ('clip',) %}<h2>Not right?</h2>
+<form method="post" action="/p/{{p.id}}/s/{{s.key}}/regen" class="card"><label class="small muted">Tell it what to change (added to the prompt), then regenerate. Anything built on this step is redone.</label>
+<textarea name="note" rows="2" placeholder="e.g. both seated on the sofa, Dadi on the left"></textarea><p><button class="btn">Regenerate</button></p></form>
+{% if s.state == 'approved' and s.gate %}<form method="post" action="/p/{{p.id}}/s/{{s.key}}/reopen"><button class="btn">Choose a different variant</button></form>{% endif %}{% endif %}
+{% endif %}{% endblock %}
