@@ -209,22 +209,59 @@ def last_frame(video, out):
     sh("ffmpeg", "-loglevel", "error", "-y", "-sseof", "-0.1", "-i", video, "-frames:v", "1", out); return out
 
 
+IDENTITY_LOCK = ("Every person and animal keeps exactly its own species, body, face and colours from the first frame to the last; "
+                 "nothing turns into anything else; gentle natural motion.")
+NEG_DRIFT = ", transforming, shape-shifting, one animal turning into another, merging bodies, extra trunk, extra limbs, extra heads"
+DRIFT_TRIES = 3
+
+
 def h_video(t):
+    """I2V / I2V+COMP / FLF. I2V shots are checked for subject drift (drift.py: a subject that stops looking like itself,
+    e.g. Ep2 2.3-D's cow growing a trunk); a drifting render is redone with a new seed, up to DRIFT_TRIES renders, and the
+    most consistent one is kept. If every try drifts the shot goes to your review instead of being approved silently."""
     p = t["params"]; s = p["shot"]; d = WORK / f"t{t['id']}"; d.mkdir(exist_ok=True)
-    kf = s3get(p["kf"]["s3"], d / "kf.png"); prompt = s.get("motion_prompt", "") + ". " + p["look"]
-    seed = 7000 + 7 * t["round"]
-    if s["tech"] == "FLF":
-        if p.get("prev_video"):
-            start = last_frame(s3get(p["prev_video"]["s3"], d / "prev.mp4"), d / "start.png")
+    kf = s3get(p["kf"]["s3"], d / "kf.png")
+    prompt = s.get("motion_prompt", "") + ". " + IDENTITY_LOCK + " " + p["look"]
+    tries = 1 if s["tech"] == "FLF" else DRIFT_TRIES          # a morph is meant to change; nothing to check
+    best = None
+    for k in range(tries):
+        seed = 7000 + 7 * t["round"] + 1009 * k
+        if s["tech"] == "FLF":
+            if p.get("prev_video"):
+                start = last_frame(s3get(p["prev_video"]["s3"], d / "prev.mp4"), d / "start.png")
+            else:
+                start = s3get(p["kf"]["meta"]["first"], d / "first.png")
+            g = g_flf(comfy.to_input(start, f"t{t['id']}_s.png"), comfy.to_input(kf, f"t{t['id']}_e.png"), prompt,
+                      f"p{t['project_id']}/{s['id']}", seed, p["frames"])
         else:
-            start = s3get(p["kf"]["meta"]["first"], d / "first.png")
-        g = g_flf(comfy.to_input(start, f"t{t['id']}_s.png"), comfy.to_input(kf, f"t{t['id']}_e.png"), prompt,
-                  f"p{t['project_id']}/{s['id']}", seed, p["frames"])
-    else:
-        g = comfy.g_i2v(comfy.to_input(kf, f"t{t['id']}_kf.png"), prompt, f"p{t['project_id']}/{s['id']}", seed, p["frames"])
-    files, sec = comfy.run(g)
-    vid = [f for f in files if str(f).endswith(".mp4")][0]
-    return [{"s3_key": s3put(vid, t), "kind": "video", "meta": {"render_s": sec}, "scores": {"rank": 1}}]
+            g = comfy.g_i2v(comfy.to_input(kf, f"t{t['id']}_kf.png"), prompt, f"p{t['project_id']}/{s['id']}", seed, p["frames"])
+        for n in g.values():                                 # stronger negative for every video graph
+            if n.get("class_type") == "CLIPTextEncode" and n["inputs"].get("text") == comfy.NEG_VIDEO:
+                n["inputs"]["text"] = comfy.NEG_VIDEO + NEG_DRIFT
+        files, sec = comfy.run(g)
+        vid = [f for f in files if str(f).endswith(".mp4")][0]
+        if tries == 1:
+            best = (None, vid, sec, None); break
+        try:
+            import drift
+            rep = drift.check(kf, vid, s.get("keyframe_prompt", ""), "cuda", extra_labels=list(p.get("characters", {})) or [])
+        except Exception as e:                               # never fail a shot because the checker failed
+            log("drift check failed", e); rep = {"ok": True, "worst_decay": None, "subjects": [], "error": str(e)[:200]}
+        log(s["id"], "try", k + 1, "drift ok" if rep["ok"] else "DRIFT", rep.get("worst_decay"))
+        key = (rep["ok"], -(rep.get("worst_decay") or 0))
+        if best is None or key > best[0]:
+            best = (key, vid, sec, rep)
+        if rep["ok"]:
+            break
+    _, vid, sec, rep = best
+    scores = {"rank": 1}
+    meta = {"render_s": sec}
+    if rep is not None:
+        scores.update({"drift_ok": rep["ok"], "worst_decay": rep.get("worst_decay"), "tries": k + 1})
+        meta["drift"] = [{x: r.get(x) for x in ("label", "decay", "skipped", "drift")} for r in rep["subjects"]]
+        if not rep["ok"]:
+            scores["needs_review"] = True
+    return [{"s3_key": s3put(vid, t), "kind": "video", "meta": meta, "scores": scores}]
 
 
 def h_talk(t):

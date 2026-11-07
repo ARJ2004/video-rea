@@ -96,8 +96,9 @@ def norm(src, out, L):
     """Retime ALL frames of a shot to exactly L seconds (speed change, no trim), 1080x1920 @30, no audio."""
     n = int(subprocess.check_output(["ffprobe", "-v", "error", "-select_streams", "v", "-count_frames", "-show_entries", "stream=nb_read_frames",
                                      "-of", "csv=p=0", str(src)]).decode().strip())
-    nat = dur(src); f = L / max(nat, 0.1) if nat > 0 else 1.0
-    vf = f"setpts=(PTS-STARTPTS)*{f:.5f},fps={FPS},scale={WD}:{HT}:flags=lanczos,tpad=stop_mode=clone:stop_duration=1,format=yuv420p"
+    nat = dur(src); f = min(L / max(nat, 0.1), 1.5) if nat > 0 else 1.0    # slow down at most 1.5x, then hold the last frame
+    hold = max(1.0, L - nat * f + 0.5)
+    vf = f"setpts=(PTS-STARTPTS)*{f:.5f},fps={FPS},scale={WD}:{HT}:flags=lanczos,tpad=stop_mode=clone:stop_duration={hold:.2f},format=yuv420p"
     sh("ffmpeg", "-loglevel", "error", "-y", "-i", src, "-vf", vf, "-t", f"{L:.3f}", "-an", "-c:v", "libx264", "-preset", "veryfast", "-crf", "18", out)
     return out, n
 
@@ -156,6 +157,78 @@ def line_caps(caption, t0, t1):
     return out
 
 
+def silences(f, db=-35, d=0.12):
+    err = subprocess.run(["ffmpeg", "-i", str(f), "-af", f"silencedetect=n={db}dB:d={d}", "-f", "null", "-"], capture_output=True, text=True).stderr
+    return list(zip([float(x) for x in re.findall(r"silence_start: ([\d.]+)", err)], [float(x) for x in re.findall(r"silence_end: ([\d.]+)", err)]))
+
+
+def letters(x):
+    return re.sub(r"[\s\W]", "", x)
+
+
+def phrase_starts(text, wav, phrases):
+    """Start time of each phrase inside one recorded line. A first estimate comes from the character share of the speech
+    span; then ALL boundaries are snapped together to the line's pauses (in order, each pause used once) choosing the
+    assignment closest to the estimates overall (dynamic programming). Phrases split at punctuation, where the voice
+    pauses, so this finds the real cut points even where the character estimate runs late (Ep2 2.3: 'पंछी')."""
+    D = dur(wav); sil = silences(wav)
+    t0 = sil[0][1] if sil and sil[0][0] < 0.05 else 0.0
+    t1 = sil[-1][0] if sil and sil[-1][1] > D - 0.05 else D
+    n = len(letters(text))
+    est = [t0 + len(letters(text[:text.index(ph)])) / n * (t1 - t0) for ph in phrases[1:]]
+    ends = [e for a, e in sil if t0 + 0.2 < e < t1 - 0.1]           # pause ends inside the speech
+    TOL, MISS = 1.0, 0.6                                             # snap window; cost of leaving a boundary unsnapped
+    INF = float("inf")
+    # best[i][j]: min cost placing boundaries 0..i-1 using only pauses before index j
+    k, m = len(est), len(ends)
+    best = [[INF] * (m + 1) for _ in range(k + 1)]; choice = [[None] * (m + 1) for _ in range(k + 1)]
+    for j in range(m + 1):
+        best[0][j] = 0.0
+    for i in range(1, k + 1):
+        for j in range(m + 1):
+            c = best[i - 1][j] + MISS                               # boundary i-1 not snapped
+            if c < best[i][j]:
+                best[i][j], choice[i][j] = c, ("miss", j)
+            if j > 0:
+                c2 = best[i][j - 1]                                  # pause j-1 skipped
+                if c2 < best[i][j]:
+                    best[i][j], choice[i][j] = c2, ("skip", j - 1)
+                if abs(ends[j - 1] - est[i - 1]) < TOL:
+                    c3 = best[i - 1][j - 1] + abs(ends[j - 1] - est[i - 1])
+                    if c3 < best[i][j]:
+                        best[i][j], choice[i][j] = c3, ("snap", j - 1)
+    out, i, j = [None] * k, k, m
+    while i > 0:
+        kind, jj = choice[i][j]
+        if kind == "snap":
+            out[i - 1] = ends[jj]; i, j = i - 1, jj
+        elif kind == "skip":
+            j = jj
+        else:
+            out[i - 1] = None; i -= 1
+    starts, prev = [round(t0, 3)], t0
+    for e, x in zip(est, out):
+        v = x if x is not None else e
+        v = max(v, prev + 0.3); starts.append(round(v, 3)); prev = v
+    return starts, t1
+
+
+def cut(wav, a, b, out):
+    L = max(0.05, b - a)
+    sh("ffmpeg", "-loglevel", "error", "-y", "-ss", f"{a:.3f}", "-t", f"{L:.3f}", "-i", wav, "-af",
+       f"afade=t=in:d=0.02,afade=t=out:st={max(0, L - 0.04):.3f}:d=0.04", out)
+    return out
+
+
+def split_caption(caption, text, phrases):
+    """No per-shot caption given: split the line's caption at the same word share as the phrases split the spoken text."""
+    words = plain(caption).split(); n = len(letters(text)); cuts = []
+    for ph in phrases[1:]:
+        cuts.append(round(len(letters(text[:text.index(ph)])) / n * len(words)))
+    bounds = [0] + cuts + [len(words)]
+    return [" ".join(words[a:b]) for a, b in zip(bounds, bounds[1:])]
+
+
 def clip_task(task):
     pid = task["project_id"]; cid = task["params"]["clip_id"]
     sb = one("SELECT storyboard FROM projects WHERE id=%s", pid)["storyboard"]
@@ -168,8 +241,24 @@ def clip_task(task):
         vo = [(lid, get(chosen(pid, f"voice:{lid}")["s3_key"], d)) for lid in lines if lid not in talk_lines]
         # durations: talking heads keep their own length; other shots get their storyboard length, stretched if the voice-over needs it
         lens = {s["id"]: (dur(vids[s["id"]]) if s["tech"] == "TALK" else float(s.get("dur_s", 3))) for s in c["shots"]}
-        vo_need = 0.5 + sum(dur(p) for _, p in vo) + 0.35 * max(0, len(vo) - 1) + 0.8
         non_talk = [s["id"] for s in c["shots"] if s["tech"] != "TALK"]
+        shots_nt = [s for s in c["shots"] if s["tech"] != "TALK"]
+        # narration mapped to shots: every narrated shot names its phrase ("vo") -> that phrase plays on that shot
+        mapped = None
+        if len(vo) == 1 and shots_nt and all(s.get("vo") and s["vo"] in lines[vo[0][0]]["tts"] for s in shots_nt):
+            lid, wav = vo[0]; text = lines[lid]["tts"]; phrases = [s["vo"] for s in shots_nt]
+            starts_in, end_in = phrase_starts(text, wav, phrases)
+            caps_nt = [s.get("vo_caption") for s in shots_nt]
+            if not all(caps_nt):
+                caps_nt = split_caption(lines[lid]["caption"], text, phrases)
+            mapped = {}
+            for i, s in enumerate(shots_nt):
+                a = starts_in[i]; b = starts_in[i + 1] if i + 1 < len(shots_nt) else end_in + 0.15
+                seg = cut(wav, a, b, d / f"vo_{s['id']}.wav"); L = dur(seg)
+                mapped[s["id"]] = (seg, L, plain(caps_nt[i]))
+                lens[s["id"]] = max(lens[s["id"]], L + 0.3 + 0.6)          # the shot lasts at least as long as its phrase
+            vo = []
+        vo_need = 0.5 + sum(dur(p) for _, p in vo) + 0.35 * max(0, len(vo) - 1) + 0.8
         have = sum(lens[i] for i in non_talk)
         if vo and non_talk and vo_need > have:
             k = vo_need / have
@@ -182,6 +271,9 @@ def clip_task(task):
                 tracks.append((vids[s["id"]], t)); l = lines.get(s["line"])
                 if l:
                     caps += line_caps(l["caption"], t + 0.1, t + lens[s["id"]] - 0.1)
+            if mapped and s["id"] in mapped:
+                seg, L, cap = mapped[s["id"]]
+                tracks.append((seg, t + 0.3)); caps += line_caps(cap, t + 0.3, t + 0.3 + L + 0.2)
             ov = s.get("overlay")
             if ov and ov.get("text"):
                 labels.append((label_png(ov["text"], d / f"lab_{s['id']}.png"), t + 0.3, t + lens[s["id"]] - 0.2))
@@ -196,7 +288,7 @@ def clip_task(task):
         audio = mix(tracks, total, d / "audio.wav")
         out = burn(d / "video.mp4", audio, caps, labels, d / f"clip_{cid}.mp4", d)
         key = put(out, task, ".mp4")
-        return [{"s3_key": key, "kind": "video", "meta": {"duration": round(dur(out), 2), "shots": len(parts), "voice_over_lines": len(vo)},
+        return [{"s3_key": key, "kind": "video", "meta": {"duration": round(dur(out), 2), "shots": len(parts), "voice_over_lines": len(vo), "narration_mapped_to_shots": bool(mapped)},
                  "scores": {"rank": 1}}]
 
 

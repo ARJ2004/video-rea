@@ -123,7 +123,8 @@ def task_specs(project, slot, slots):
         return [("keyframe", fam, par)]
     if k == "video":
         s = p["shot"]; kf = chosen_key(slots, f"kf:{s['id']}")
-        par = {**common, "shot": s, "kf": kf}
+        par = {**common, "shot": s, "kf": kf,
+               "characters": {r: sb["characters"][r].get("description", "") for r in s.get("refs", []) if r in sb.get("characters", {})}}
         if s["tech"] == "TALK":
             par["audio"] = chosen_key(slots, f"voice:{s['line']}")
             return [("talk", "talk", par)]
@@ -162,6 +163,10 @@ def advance(pid):
                     ex("UPDATE slots SET state='failed', updated_at=now() WHERE id=%s", s["id"]); event(pid, f"{s['label']}: produced no output", "error")
                 elif s["gate"]:
                     ex("UPDATE slots SET state='review', updated_at=now() WHERE id=%s", s["id"]); event(pid, f"{s['label']} is ready for your review")
+                elif any((a["scores"] or {}).get("needs_review") for a in assets):
+                    # an automatic check failed after retries (e.g. subject drift in a video): ask instead of approving
+                    ex("UPDATE slots SET state='review', updated_at=now() WHERE id=%s", s["id"])
+                    event(pid, f"{s['label']}: a subject still changes shape after 3 renders. Please review (pick it, or regenerate with a note)", "warn")
                 else:
                     best = max(assets, key=lambda a: (a["scores"] or {}).get("rank", 0))
                     ex("UPDATE slots SET state='approved', chosen_asset=%s, updated_at=now() WHERE id=%s", best["id"], s["id"])

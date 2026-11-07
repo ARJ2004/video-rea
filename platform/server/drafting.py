@@ -26,6 +26,11 @@ Rules:
   Other characters can appear but do not speak.
 - "tts" is natural spoken Hindi in Devanagari; "caption" is the same line in Hinglish (Latin script).
 - Keep devotional and cultural content accurate and respectful; put primary sources in a top-level "sources" list.
+- Narration over pictures: when a clip's line is narrated (not spoken on camera by a TALK shot), give EVERY non-TALK shot of
+  that clip "vo": the exact consecutive part of the line's "tts" spoken over that shot (in order, together covering the
+  whole line, so each phrase names what that shot shows) and "vo_caption": the same part in Hinglish.
+- In motion prompts give each action to one clearly named subject and keep actions gentle; never ask one animal to do
+  something typical of another animal in the same shot.
 - The last shot of the last clip may carry "end_card": {"dur_s": 2, "text": "<series> · Episode <n>"}."""
 
 
@@ -72,6 +77,8 @@ def validate(sb):
             for r in s.get("refs", []):
                 if r not in names:
                     raise ValueError(f"shot {s['id']}: unknown ref '{r}' (not in characters/sets)")
+            if s.get("vo") and not any(s["vo"] in l["tts"] for l in c.get("lines", [])):
+                raise ValueError(f"shot {s['id']}: 'vo' must be an exact part of one of its clip's lines")
             base = (s.get("cover") or {}).get("base")
             if base and base not in ids:
                 raise ValueError(f"shot {s['id']}: cover.base '{base}' must be an earlier shot")
