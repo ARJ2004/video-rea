@@ -230,7 +230,9 @@ def h_video(t):
     most consistent one is kept. If every try drifts the shot goes to your review instead of being approved silently."""
     p = t["params"]; s = p["shot"]; d = WORK / f"t{t['id']}"; d.mkdir(exist_ok=True)
     kf = s3get(p["kf"]["s3"], d / "kf.png")
-    prompt = s.get("motion_prompt", "") + ". " + IDENTITY_LOCK + " " + p["look"]
+    empty = not p.get("characters")                            # no characters: never the series LOOK (it draws people)
+    prompt = s.get("motion_prompt", "") + ". " + IDENTITY_LOCK + (" No people, no faces, no figures anywhere; soft 3D render."
+                                                                   if empty else " " + p["look"])
     tries = 1 if s["tech"] == "FLF" else DRIFT_TRIES          # a morph is meant to change; nothing to check
     best = None
     for k in range(tries):
@@ -246,7 +248,7 @@ def h_video(t):
             g = comfy.g_i2v(comfy.to_input(kf, f"t{t['id']}_kf.png"), prompt, f"p{t['project_id']}/{s['id']}", seed, p["frames"])
         for n in g.values():                                 # stronger negative for every video graph
             if n.get("class_type") == "CLIPTextEncode" and n["inputs"].get("text") == comfy.NEG_VIDEO:
-                n["inputs"]["text"] = comfy.NEG_VIDEO + NEG_DRIFT
+                n["inputs"]["text"] = comfy.NEG_VIDEO + NEG_DRIFT + (", " + PEOPLE_NEG + ", photorealistic" if empty else "")
         files, sec = comfy.run(g)
         vid = [f for f in files if str(f).endswith(".mp4")][0]
         if tries == 1:

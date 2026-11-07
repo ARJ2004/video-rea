@@ -109,7 +109,8 @@ def pad(box, img, k=0.12):
 MAX_DECAY, LOW, CROWD, MIN_AREA = 0.12, 0.85, 3, 0.02
 
 
-FACE_Q, FACE_KF, FACE_APPEAR = ["a human face", "eyes and a nose", "a person"], 0.2, 0.3   # 2.2-C: 0.02 -> 0.62; fish/birds/animals <= 0.17
+# a face appearing: 2.2-C renders 0.02 -> 0.62 and 0.02 -> 0.29; fish 0.05 -> 0.06, birds 0.08 -> 0.08, animals 0.17 -> 0.14
+FACE_Q, FACE_MIN, FACE_RATIO = ["a human face", "eyes and a nose", "a person"], 0.15, 4.0
 
 
 @torch.no_grad()
@@ -176,7 +177,7 @@ def check(keyframe, video, prompt, dev="cuda", extra_labels=()):
     appeared = None
     if not named and not any(r["label"] in ("a person",) for r in report):
         f0 = face_score(kf, dev); later = [face_score(im, dev) for _, im in fr]
-        if f0 < FACE_KF and max(later) > FACE_APPEAR:
+        if max(later) > FACE_MIN and max(later) > FACE_RATIO * f0 + 0.05:      # relative to the keyframe: a new face
             appeared = {"keyframe": round(f0, 3), "later": [round(x, 3) for x in later]}
             ok = False
     decays = [r["decay"] for r in report if r.get("decay") is not None]
