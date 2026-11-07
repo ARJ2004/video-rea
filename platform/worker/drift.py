@@ -29,12 +29,21 @@ def models(dev):
     return _m
 
 
+SCENERY = {"forest", "clearing", "river", "sky", "stars", "star", "window", "sofa", "room", "landscape", "tree", "trees", "grass",
+           "water", "light", "field", "fields", "hills", "hill", "mountain", "mountains", "sun", "sunrise", "sunset", "shot", "background",
+           "plant", "table", "lamp", "diya", "riverbank", "bank", "treetops", "cosmos", "space", "clouds", "cloud", "lotus", "halo",
+           "night", "dawn", "constellation", "lines", "rays", "surface", "frame", "camera", "wide", "close", "closer", "medium"}
+
+
 def labels_from(prompt, extra=()):
-    """Subject labels from a shot prompt: comma/and-separated phrases, trimmed of scene words."""
+    """Subject labels from a shot prompt: comma/and-separated phrases, trimmed of filler words; phrases about scenery
+    (forest, river, sky...) are not subjects (Ep2 2.3-D: 'forest clearing river' drifted under a push-in)."""
     parts = re.split(r",|\band\b|\bwith\b|;", prompt.lower())
     out = []
     for p in parts:
         w = [x for x in re.findall(r"[a-z]+", p) if x not in STOP]
+        if w and any(x in SCENERY for x in w):
+            continue
         if 1 <= len(w) <= 3:
             out.append(" ".join(w))
     return list(dict.fromkeys([*extra, *out]))
