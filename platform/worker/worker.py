@@ -215,6 +215,15 @@ NEG_DRIFT = ", transforming, shape-shifting, one animal turning into another, me
 DRIFT_TRIES = 3
 
 
+def judge(t, kf, rep, subjects):
+    """Upload the keyframe + the screen's frames and ask the server (Claude vision, if a key is configured)."""
+    try:
+        keys = [s3put(kf, t, ".png")] + [s3put(f, t, ".png") for f in rep.get("frame_paths", [])[1:]]
+        return api("/api/w/judge", {"run_id": RUN, "images": keys, "subjects": sorted(set(subjects))})
+    except Exception as e:
+        log("judge call failed", e); return {"drift": None, "problem": str(e)[:200]}
+
+
 def h_video(t):
     """I2V / I2V+COMP / FLF. I2V shots are checked for subject drift (drift.py: a subject that stops looking like itself,
     e.g. Ep2 2.3-D's cow growing a trunk); a drifting render is redone with a new seed, up to DRIFT_TRIES renders, and the
@@ -247,7 +256,11 @@ def h_video(t):
             rep = drift.check(kf, vid, s.get("keyframe_prompt", ""), "cuda", extra_labels=list(p.get("characters", {})) or [])
         except Exception as e:                               # never fail a shot because the checker failed
             log("drift check failed", e); rep = {"ok": True, "worst_decay": None, "subjects": [], "error": str(e)[:200]}
-        log(s["id"], "try", k + 1, "drift ok" if rep["ok"] else "DRIFT", rep.get("worst_decay"))
+        if not rep["ok"]:                                    # screen flagged it: ask the server's vision judge
+            rep["judge"] = judge(t, kf, rep, [r["label"] for r in rep["subjects"]])
+            if rep["judge"].get("drift") is False:
+                rep["ok"] = True                             # e.g. a zoom or a gesture, not a transformation
+        log(s["id"], "try", k + 1, "drift ok" if rep["ok"] else "DRIFT", rep.get("worst_decay"), rep.get("judge"))
         key = (rep["ok"], -(rep.get("worst_decay") or 0))
         if best is None or key > best[0]:
             best = (key, vid, sec, rep)
@@ -259,6 +272,8 @@ def h_video(t):
     if rep is not None:
         scores.update({"drift_ok": rep["ok"], "worst_decay": rep.get("worst_decay"), "tries": k + 1})
         meta["drift"] = [{x: r.get(x) for x in ("label", "decay", "skipped", "drift")} for r in rep["subjects"]]
+        if rep.get("judge"):
+            meta["judge"] = rep["judge"]
         if not rep["ok"]:
             scores["needs_review"] = True
     return [{"s3_key": s3put(vid, t), "kind": "video", "meta": meta, "scores": scores}]

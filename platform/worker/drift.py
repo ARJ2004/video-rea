@@ -88,7 +88,7 @@ def frames(video, fracs=(0.25, 0.5, 0.75, 0.999)):
     for i, f in enumerate(fracs):
         p = d / f"{i}.png"
         subprocess.run(["ffmpeg", "-loglevel", "error", "-y", "-ss", f"{max(0, min(dur * f, dur - 0.2)):.3f}", "-i", str(video), "-frames:v", "1", str(p)], check=True)
-        out.append((f, Image.open(p).convert("RGB")))
+        im = Image.open(p).convert("RGB"); im.path = str(p); out.append((f, im))
     return out
 
 
@@ -152,7 +152,7 @@ def check(keyframe, video, prompt, dev="cuda", extra_labels=()):
         report.append({"label": s["label"], "box": [round(v) for v in s["box"]], "sims": sims, "decay": decay, "drift": drift,
                        "lost": sum(x is None for x in sims)})
     decays = [r["decay"] for r in report if r.get("decay") is not None]
-    return {"ok": ok, "worst_decay": max(decays, default=None), "subjects": report}
+    return {"ok": ok, "worst_decay": max(decays, default=None), "subjects": report, "frame_paths": [im.path for _, im in fr]}
 
 
 if __name__ == "__main__":

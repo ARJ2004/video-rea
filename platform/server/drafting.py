@@ -83,3 +83,28 @@ def validate(sb):
             if base and base not in ids:
                 raise ValueError(f"shot {s['id']}: cover.base '{base}' must be an earlier shot")
     return True
+
+
+JUDGE = """You check one shot of a children's animated video for subject drift. Image 1 is the approved keyframe; the
+following images are frames from later in the generated video, in order. Camera moves (zoom, pan), lighting changes,
+poses, gestures, walking and turning are all FINE. A problem is only: an animal or person turning into a different kind
+of animal or person, growing body parts that belong to another subject (e.g. a cow growing an elephant's trunk), two
+subjects merging, or a subject's face/identity becoming someone else. Subjects in this shot: {subjects}.
+Reply with ONLY a JSON object: {{"drift": true or false, "problem": "<one short sentence, empty if none>"}}"""
+
+
+def judge_drift(api_key, images, subjects):
+    """images: list of PNG/JPEG bytes (keyframe first). -> {"drift": bool, "problem": str}"""
+    import base64
+    client = anthropic.Anthropic(api_key=api_key, timeout=120.0, max_retries=2)
+    content = [{"type": "image", "source": {"type": "base64", "media_type": "image/jpeg", "data": base64.standard_b64encode(b).decode()}}
+               for b in images]
+    content.append({"type": "text", "text": JUDGE.format(subjects=", ".join(subjects) or "see the keyframe")})
+    resp = client.beta.messages.create(model=MODEL, max_tokens=2000, betas=["server-side-fallback-2026-07-01"], fallbacks="default",
+                                       output_config={"effort": "low"}, messages=[{"role": "user", "content": content}])
+    if resp.stop_reason == "refusal":
+        raise RuntimeError("judge declined")
+    text = "".join(b.text for b in resp.content if b.type == "text")
+    m = re.search(r"\{.*\}", text, re.S)
+    out = json.loads(m.group(0)) if m else {}
+    return {"drift": bool(out.get("drift")), "problem": str(out.get("problem", ""))[:300]}

@@ -305,6 +305,32 @@ async def w_complete(request: Request):
     return {"ok": True}
 
 
+@app.post("/api/w/judge")
+async def w_judge(request: Request):
+    """Second opinion on a shot the drift screen flagged. The Anthropic key never leaves this server: the worker sends
+    S3 keys of the keyframe and a few frames; Claude looks at them. No key configured -> {"drift": null} (screen decides)."""
+    body = await request.json(); r = worker_run(request, body)
+    if not r:
+        return JSONResponse({"error": "auth"}, 403)
+    key = db.setting("anthropic_key")
+    if not key:
+        return {"drift": None, "problem": "no Anthropic key in Settings"}
+    import asyncio, io, drafting
+    from PIL import Image
+
+    def run():
+        imgs = []
+        for k in body["images"][:6]:
+            raw = s3.get_object(Bucket=BUCKET, Key=k)["Body"].read()
+            im = Image.open(io.BytesIO(raw)).convert("RGB"); im.thumbnail((768, 768))
+            b = io.BytesIO(); im.save(b, "JPEG", quality=88); imgs.append(b.getvalue())
+        return drafting.judge_drift(key, imgs, body.get("subjects", []))
+    try:
+        return await asyncio.to_thread(run)
+    except Exception as e:
+        return {"drift": None, "problem": f"judge unavailable: {str(e)[:200]}"}
+
+
 @app.post("/api/w/fail")
 async def w_fail(request: Request):
     body = await request.json(); r = worker_run(request, body)
