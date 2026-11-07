@@ -317,7 +317,8 @@ def h_voice_en(t, d, out):
     """English stories: Indic Parler-TTS with the character's fixed named-speaker description (storyboard "voices").
     No English ASR is installed, so takes are ranked by speaking pace only (about 14 characters/second is natural)."""
     p = t["params"]; line = p["line"]
-    (d / "lines.json").write_text(json.dumps([{"id": line["id"], "text": line["tts"], "description": p["voice_description"], "takes": 3}]))
+    desc = p["voice_description"] + (f" {p['note']}." if p.get("note") else "")      # your regenerate note steers pace/tone
+    (d / "lines.json").write_text(json.dumps([{"id": line["id"], "text": line["tts"], "description": desc, "takes": 3}]))
     sh(ROOT / "tts/bin/python", HERE / "en_lines.py", d / "lines.json", out)
     res = []
     for x in json.load(open(out / "takes.json")):
