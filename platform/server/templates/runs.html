@@ -1,6 +1,6 @@
 {% extends "base.html" %}{% block title %}GPU & cost{% endblock %}{% block body %}<h1>GPU machines &amp; cost</h1>
 <p class="muted small">On-demand price × time the machine existed. Each story has a hard cap; machines are launched with a power-off timer set to what the remaining budget buys.</p>
 <div class="card" style="overflow-x:auto"><table><tr><th>#</th><th>Story</th><th>Machine</th><th>State</th><th>Models</th><th>Launched</th><th>Ended</th><th>Cost</th><th>Note</th></tr>
-{% for r in runs %}<tr><td>{{r.id}}</td><td>{{r.title or ''}}</td><td>{{r.instance_id or ''}}<br><span class="muted small">{{r.itype or ''}} {{r.az or ''}}</span></td>
+{% for r in runs %}<tr><td>{{r.id}}</td><td>{{r.title or ''}}</td><td>{{r.instance_id or ''}}<br><span class="muted small">{{r.market or 'ondemand'}} {{r.itype or ''}} {{r.az or ''}}</span></td>
 <td>{{r.state}}</td><td class="small">{{r.families or 'voice'}}</td><td class="small">{{r.launched_at.strftime('%b %d %H:%M') if r.launched_at else ''}}</td>
 <td class="small">{{r.ended_at.strftime('%H:%M') if r.ended_at else ''}}</td><td>${{'%.2f'|format(r.cost)}}</td><td class="small muted">{{(r.error or '')[:120]}}</td></tr>{% endfor %}</table></div>{% endblock %}

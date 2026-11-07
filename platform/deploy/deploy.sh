@@ -51,7 +51,7 @@ cat >"$TMP/policy.json" <<EOF
  {"Sid":"TagOnLaunch","Effect":"Allow","Action":"ec2:CreateTags","Resource":"*","Condition":{"StringEquals":{"ec2:CreateAction":"RunInstances"}}},
  {"Sid":"TerminateOwnGpu","Effect":"Allow","Action":"ec2:TerminateInstances","Resource":"arn:aws:ec2:$REGION:$ACCT:instance/*",
   "Condition":{"StringEquals":{"ec2:ResourceTag/project":"vrea-platform"}}},
- {"Sid":"Describe","Effect":"Allow","Action":["ec2:DescribeInstances","ec2:DescribeInstanceStatus"],"Resource":"*"},
+ {"Sid":"Describe","Effect":"Allow","Action":["ec2:DescribeInstances","ec2:DescribeInstanceStatus","ec2:DescribeSpotPriceHistory"],"Resource":"*"},
  {"Sid":"PassGpuRole","Effect":"Allow","Action":"iam:PassRole","Resource":"arn:aws:iam::$ACCT:role/vrea-ec2"},
  {"Sid":"AmiLookup","Effect":"Allow","Action":"ssm:GetParameter","Resource":"arn:aws:ssm:$REGION::parameter/aws/service/*"}
 ]}

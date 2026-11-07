@@ -28,6 +28,7 @@ CREATE TABLE IF NOT EXISTS runs (
   families TEXT, state TEXT NOT NULL, token TEXT NOT NULL, hourly_usd NUMERIC NOT NULL DEFAULT 0, hard_min INT,
   launched_at TIMESTAMPTZ, ready_at TIMESTAMPTZ, ended_at TIMESTAMPTZ, last_seen TIMESTAMPTZ, last_family TEXT,
   last_task_at TIMESTAMPTZ, error TEXT, created_at TIMESTAMPTZ NOT NULL DEFAULT now());
+ALTER TABLE runs ADD COLUMN IF NOT EXISTS market TEXT;
 CREATE TABLE IF NOT EXISTS tasks (
   id SERIAL PRIMARY KEY, project_id INT NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
   slot_key TEXT NOT NULL, round INT NOT NULL DEFAULT 0, type TEXT NOT NULL, family TEXT NOT NULL,
