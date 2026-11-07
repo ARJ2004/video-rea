@@ -1,0 +1,170 @@
+{
+  "series": "The Third Knock",
+  "episode": 1,
+  "title": "The Third Knock",
+  "language": "en",
+  "source": "Production brief: The Third Knock, Episode 01 (owner, 2026-11-07)",
+  "status": "converted-from-brief",
+  "format": {"aspect": "9:16", "final_resolution": "1080x1920", "fps": 30, "loudness_lufs": -14, "target_duration_s": "75-85"},
+  "style": {
+    "look": "minimalist 2D illustrated animation, flat and softly shaded shapes, simple readable character design, dark navy, charcoal and muted blue palette, warm yellow lamp and beacon light, strong silhouettes and controlled shadows, cinematic dark atmosphere, not photorealistic, not 3D",
+    "look_scene": "minimalist 2D illustrated background art, flat and softly shaded, dark navy, charcoal and muted blue palette, warm yellow light accents, strong shadows, cinematic dark atmosphere, not photorealistic, not 3D",
+    "negative": "photorealistic, 3D render, glossy CGI, anime, readable text, letters, watermark, logo, extra fingers, deformed face, cluttered"
+  },
+  "characters": {
+    "elias": {
+      "description": "Elias, a young man about 26, short dark hair, simple minimalist illustrated face, yellow raincoat, dark navy trousers, dark boots, slim build, no accessories"
+    }
+  },
+  "sets": {
+    "lighthouse_exterior": {"description": "Blackwater Lighthouse, an isolated lighthouse on a small rocky island at night, dark navy ocean, heavy rain and storm clouds, large waves on the rocks, rotating warm yellow beacon, no people"},
+    "control_room": {"description": "a small old lighthouse control room at night: wooden desk, old closed notebook, vintage radio with a red indicator light, warm desk lamp, dark window showing the storm, muted blue shadows and warm yellow highlights, no people"},
+    "staircase": {"description": "a narrow lighthouse staircase seen from above, dark walls, strong vertical perspective, limited light, long shadows, no people"},
+    "entrance": {"description": "the lighthouse entrance at the bottom of the stairs: a heavy old wooden door with a narrow glass window beside it, warm interior light, dark rainy night outside the glass, no people"}
+  },
+  "voices": {
+    "narrator": {"description": "Thoma speaks in a young adult male voice, calm, intimate and slightly tired, measured storytelling pace, with very clear audio and a close-sounding recording."},
+    "elias": {"description": "Thoma speaks in a young adult male voice, natural and restrained, slightly nervous, at a moderate pace, with very clear audio and a close-sounding recording."},
+    "stranger": {"description": "Thoma speaks in a young adult male voice, quiet, slow and calm in an unsettling way, with very clear audio and a close-sounding recording."},
+    "radio": {"description": "Dinesh speaks in a low-pitched, deep male voice, slow, calm but urgent, with very clear audio."}
+  },
+  "notes": "Converted from the owner's production brief. Narration is Elias (first person) -> same voice as Elias. The Stranger reuses Elias's voice (fx stranger) and design (Elias reference, face hidden). Radio lines are voice-only with the radio filter. Notebook, HUD, final screen and choices are drawn as overlays (exact spelling), never inside artwork.",
+  "clips": [
+    {"id": "01", "title": "The Arrival", "ambience": "storm", "music": "drone",
+     "lines": [{"id": "VO_001", "speaker": "narrator", "emotion": "calm, tired", "tts": "Nobody wanted the night shift at Blackwater Lighthouse. So they offered me double pay.", "caption": "Nobody wanted the night shift at Blackwater Lighthouse. So they offered me double pay."}],
+     "shots": [
+       {"id": "01-A", "tech": "I2V", "dur_s": 4, "refs": ["lighthouse_exterior"], "vo_lines": ["VO_001"],
+        "keyframe_prompt": "wide establishing view of Blackwater Lighthouse on a small rocky island in a night storm, large waves striking the rocks, heavy rain, the warm yellow beacon shining",
+        "motion_prompt": "slow camera push towards the lighthouse, waves crash on the rocks, rain falls, the beacon beam sweeps slowly",
+        "sfx": [{"type": "thunder", "at": 1.2}],
+        "overlays": [{"text": "NIGHT 01 | 11:42 PM | BLACKWATER LIGHTHOUSE", "style": "hud", "at": 0.3}]},
+       {"id": "01-B", "tech": "I2V", "dur_s": 4, "refs": ["elias", "control_room"],
+        "keyframe_prompt": "Elias in his wet yellow raincoat just inside the small lighthouse control room, hood up, wooden desk with a notebook, vintage radio with a red light, warm desk lamp, dark stormy window",
+        "motion_prompt": "Elias lowers his wet hood, looks around the room and steps towards the desk"}
+     ]},
+    {"id": "02", "title": "The Rules", "ambience": "rain",
+     "lines": [{"id": "VO_002", "speaker": "narrator", "emotion": "calm, curious", "tts": "On the desk, I found a notebook. Five rules. No explanation.", "caption": "On the desk, I found a notebook. Five rules. No explanation."}],
+     "shots": [
+       {"id": "02-A", "tech": "I2V", "dur_s": 4, "refs": ["elias", "control_room"], "vo_lines": ["VO_002"], "cover": {"base": "01-B", "crop": null},
+        "keyframe_prompt": "over-the-shoulder view: Elias now sits at the wooden desk with the old notebook in front of him, raincoat on, hood down",
+        "motion_prompt": "Elias opens the notebook, lamp light flickers softly"},
+       {"id": "02-B", "tech": "I2V", "dur_s": 7, "refs": ["control_room"],
+        "keyframe_prompt": "close-up from above of an old open notebook on a wooden desk under warm lamp light, blank aged pages with faint ruled lines, nothing written",
+        "motion_prompt": "lamp light flickers softly over the pages, very slow push-in",
+        "overlays": [{"text": "RULES FOR THE NIGHT KEEPER\n1. Keep the lighthouse beam running.\n2. Never open the entrance after midnight.\n3. Ignore voices coming from the ocean.\n4. If the radio turns on by itself, do not respond.\n5. If someone knocks three times, never answer.", "style": "notebook", "at": 0.4}]}
+     ]},
+    {"id": "03", "title": "The Radio", "ambience": "rain",
+     "lines": [
+       {"id": "RADIO_001", "speaker": "radio", "fx": "radio", "emotion": "distant", "tts": "Keeper... can you hear me?", "caption": "Keeper... can you hear me?"},
+       {"id": "ELIAS_001", "speaker": "elias", "emotion": "curious, uneasy", "tts": "Hello? Who is this?", "caption": "Hello? Who is this?"},
+       {"id": "RADIO_002", "speaker": "radio", "fx": "radio", "emotion": "calm, urgent", "tts": "Whatever happens tonight... do not open the door.", "caption": "Whatever happens tonight... do not open the door."}],
+     "shots": [
+       {"id": "03-A", "tech": "I2V", "dur_s": 3, "refs": ["elias", "control_room"], "vo_lines": ["RADIO_001"], "cover": {"base": "02-A", "crop": null},
+        "keyframe_prompt": "medium shot: Elias sitting near the vintage radio on the desk, its red indicator light glowing on by itself",
+        "motion_prompt": "the radio's red light flickers on, Elias freezes, blinks and slowly turns his head towards it",
+        "sfx": [{"type": "static", "at": 0.1, "dur": 1.0}]},
+       {"id": "03-B", "tech": "TALK", "line": "ELIAS_001", "refs": ["elias", "control_room"], "cover": {"base": "03-A", "crop": "mcu", "subject": "elias"},
+        "keyframe_prompt": "medium close-up of Elias leaning slightly towards the radio, uneasy",
+        "motion_prompt": "Elias speaks hesitantly towards the radio, leaning forward slightly"},
+       {"id": "03-C", "tech": "I2V", "dur_s": 3, "refs": ["control_room"], "vo_lines": ["RADIO_002"], "cover": {"base": "03-A", "crop": "object", "subject": "vintage radio"},
+        "keyframe_prompt": "close-up of the vintage radio, red indicator light glowing, speaker grille",
+        "motion_prompt": "the red light pulses slowly, faint static shimmer",
+        "sfx": [{"type": "static", "at": 0.0, "dur": 0.8}]}
+     ]},
+    {"id": "04", "title": "The First Knock", "ambience": "rain",
+     "lines": [
+       {"id": "ELIAS_002", "speaker": "elias", "emotion": "uneasy", "tts": "Hello? Is someone there?", "caption": "Hello? Is someone there?"},
+       {"id": "RADIO_003", "speaker": "radio", "fx": "radio", "emotion": "sharp warning", "tts": "Don't.", "caption": "Don't."}],
+     "shots": [
+       {"id": "04-A", "tech": "I2V", "dur_s": 4, "refs": ["entrance"],
+        "keyframe_prompt": "the heavy old wooden entrance door with a narrow glass window beside it, warm interior light, dark rainy night outside the glass",
+        "motion_prompt": "slow camera push-in towards the door, rain streaks run down the glass",
+        "sfx": [{"type": "knock", "at": 0.8}, {"type": "knock", "at": 2.6}]},
+       {"id": "04-B", "tech": "I2V", "dur_s": 3, "refs": ["elias", "staircase"],
+        "keyframe_prompt": "Elias standing at the top of the narrow staircase looking down towards the entrance, long shadows",
+        "motion_prompt": "Elias slowly stands and takes one step towards the stairs",
+        "sfx": [{"type": "creak", "at": 0.6}]},
+       {"id": "04-C", "tech": "TALK", "line": "ELIAS_002", "refs": ["elias"], "cover": {"base": "04-B", "crop": "mcu", "subject": "elias"},
+        "keyframe_prompt": "medium close-up of Elias calling down the stairs towards the door, uneasy",
+        "motion_prompt": "Elias calls out nervously"},
+       {"id": "04-D", "tech": "I2V", "dur_s": 2, "refs": ["control_room"], "vo_lines": ["RADIO_003"], "cover": {"base": "03-C", "crop": null},
+        "keyframe_prompt": "the same radio close-up, the red light flaring brighter",
+        "motion_prompt": "the red light flares suddenly",
+        "sfx": [{"type": "static", "at": 0.0, "dur": 0.6}]},
+       {"id": "04-E", "tech": "I2V", "dur_s": 2, "refs": ["elias"], "cover": {"base": "04-C", "crop": null},
+        "keyframe_prompt": "the same close-up of Elias, frozen, eyes wide",
+        "motion_prompt": "Elias freezes, holding his breath, very slight camera push"}
+     ]},
+    {"id": "05", "title": "The Third Knock", "ambience": "storm", "music": "drone",
+     "lines": [
+       {"id": "STRANGER_001", "speaker": "stranger", "fx": "stranger", "emotion": "calm, unsettling", "tts": "Elias... open the door. It's freezing out here.", "caption": "Elias... open the door. It's freezing out here."},
+       {"id": "ELIAS_003", "speaker": "elias", "emotion": "shocked whisper", "tts": "That's... my voice.", "caption": "That's... my voice."}],
+     "shots": [
+       {"id": "05-A", "tech": "I2V", "dur_s": 4, "refs": ["entrance"], "vo_lines": ["STRANGER_001"], "cover": {"base": "04-A", "crop": null},
+        "keyframe_prompt": "closer view of the heavy door and its narrow glass window, rain beating on the glass",
+        "motion_prompt": "rain runs down the glass, a faint shadow shifts behind it",
+        "sfx": [{"type": "knock", "at": 0.3}]},
+       {"id": "05-B", "tech": "TALK", "line": "ELIAS_003", "refs": ["elias"], "cover": {"base": "04-C", "crop": null},
+        "keyframe_prompt": "close-up of Elias's shocked face, eyes wide",
+        "motion_prompt": "very slow zoom towards Elias's face as he whispers in shock"}
+     ]},
+    {"id": "06", "title": "The Warning", "ambience": "rain",
+     "lines": [
+       {"id": "RADIO_004", "speaker": "radio", "fx": "radio", "emotion": "urgent", "tts": "Listen carefully. Do not look through the window.", "caption": "Listen carefully. Do not look through the window."},
+       {"id": "ELIAS_004", "speaker": "elias", "emotion": "confused, afraid", "tts": "Who are you? How do you know my name?", "caption": "Who are you? How do you know my name?"},
+       {"id": "RADIO_005", "speaker": "radio", "fx": "radio", "emotion": "quiet", "tts": "Because I was you.", "caption": "Because I was you."}],
+     "shots": [
+       {"id": "06-A", "tech": "I2V", "dur_s": 3, "refs": ["control_room"], "vo_lines": ["RADIO_004"], "cover": {"base": "03-C", "crop": null},
+        "keyframe_prompt": "the same radio close-up, the red indicator glowing brightly",
+        "motion_prompt": "the red light glows and pulses",
+        "sfx": [{"type": "static", "at": 0.0, "dur": 0.6}]},
+       {"id": "06-B", "tech": "TALK", "line": "ELIAS_004", "refs": ["elias"], "cover": {"base": "05-B", "crop": null},
+        "keyframe_prompt": "close-up of Elias, confused and afraid, looking towards the radio",
+        "motion_prompt": "Elias asks, his expression turning from confusion to fear"},
+       {"id": "06-C", "tech": "I2V", "dur_s": 3, "refs": ["control_room"], "vo_lines": ["RADIO_005"], "cover": {"base": "06-A", "crop": null},
+        "keyframe_prompt": "the same radio close-up, the red light dimming slowly",
+        "motion_prompt": "the red light slowly dims",
+        "sfx": [{"type": "heartbeat", "at": 0.0, "dur": 3}]}
+     ]},
+    {"id": "07", "title": "The Reflection", "ambience": "storm", "music": "drone",
+     "lines": [{"id": "VO_006", "speaker": "narrator", "emotion": "hushed", "tts": "I looked through the glass. And for the first time that night... I understood the fifth rule.", "caption": "I looked through the glass. And for the first time that night... I understood the fifth rule."}],
+     "shots": [
+       {"id": "07-A", "tech": "I2V", "dur_s": 3, "refs": ["elias", "entrance"],
+        "keyframe_prompt": "Elias seen from behind slowly approaching the narrow glass window beside the heavy door, warm interior light, rain outside",
+        "motion_prompt": "Elias walks slowly towards the window",
+        "sfx": [{"type": "heartbeat", "at": 0.0, "dur": 3}]},
+       {"id": "07-B", "tech": "I2V", "dur_s": 6, "refs": ["entrance"], "vo_lines": ["VO_006"], "cover": {"base": "05-A", "crop": null},
+        "keyframe_prompt": "through the narrow rain-streaked glass: a still dark human silhouette stands outside in the storm wearing the same yellow raincoat, same short dark hair, its face hidden in shadow",
+        "motion_prompt": "the figure outside slowly raises one hand to the glass; slow camera zoom towards the glass; the figure stays still and calm"}
+     ]},
+    {"id": "08", "title": "The Twist", "music": "drone",
+     "lines": [{"id": "STRANGER_002", "speaker": "stranger", "fx": "stranger", "emotion": "quiet, unsettling", "tts": "You shouldn't have looked.", "caption": "You shouldn't have looked."}],
+     "shots": [
+       {"id": "08-A", "tech": "I2V", "dur_s": 3, "refs": ["entrance"], "cover": {"base": "07-B", "crop": null},
+        "keyframe_prompt": "the same narrow glass window, now nobody outside, only rain and darkness",
+        "motion_prompt": "rain runs down the empty glass"},
+       {"id": "08-B", "tech": "I2V", "dur_s": 4, "refs": ["elias", "entrance"], "vo_lines": ["STRANGER_002"],
+        "keyframe_prompt": "close-up of the dark window glass showing Elias's reflection; the reflection wears a thin unsettling smile while Elias himself stands still with a blank, frightened face",
+        "motion_prompt": "the reflection's thin smile slowly widens while Elias stays completely still"},
+       {"id": "08-C", "tech": "I2V", "dur_s": 3, "refs": ["lighthouse_exterior"], "cover": {"base": "01-A", "crop": null},
+        "keyframe_prompt": "the same lighthouse in the storm, the beacon light out, darker",
+        "motion_prompt": "the beacon light goes out and the scene darkens, waves crash",
+        "sfx": [{"type": "impact", "at": 0.2}]}
+     ]},
+    {"id": "09", "title": "The Ending",
+     "lines": [{"id": "VO_007", "speaker": "narrator", "emotion": "flat, quiet", "tts": "The next morning, they found the lighthouse running. The keeper was missing.", "caption": "The next morning, they found the lighthouse running. The keeper was missing."}],
+     "shots": [
+       {"id": "09-A", "tech": "I2V", "dur_s": 5, "refs": ["control_room"], "vo_lines": ["VO_007"], "cover": {"base": "02-B", "crop": null},
+        "keyframe_prompt": "the same open notebook on the desk, the lamp dim and cold, blank aged pages",
+        "motion_prompt": "slow camera push towards the notebook",
+        "overlays": [{"text": "RULES FOR THE NIGHT KEEPER\n1. Keep the lighthouse beam running.\n2. Never open the entrance after midnight.\n3. Ignore voices coming from the ocean.\n4. If the radio turns on by itself, do not respond.\n5. If someone knocks three times, never answer.\nRULE 6: If you hear this recording, you are already outside.", "style": "notebook", "at": 0.6}]},
+       {"id": "09-B", "tech": "I2V", "dur_s": 5, "refs": ["control_room"], "cover": {"base": "02-A", "crop": null},
+        "keyframe_prompt": "the same control room, the chair at the desk is empty, nobody in the room, lamp dim",
+        "motion_prompt": "slow camera pull back from the empty chair",
+        "sfx": [{"type": "knock", "at": 4.3}],
+        "overlays": [{"text": "BLACKWATER LIGHTHOUSE\nNIGHT 01 — COMPLETED?", "style": "title", "at": 0.6},
+                     {"text": "ACCEPT THE SHIFT\nNEVER RETURN", "style": "choice", "at": 1.4}],
+        "end_card": {"dur_s": 1.2, "text": ""}}
+     ]}
+  ]
+}

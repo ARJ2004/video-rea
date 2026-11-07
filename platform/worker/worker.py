@@ -96,6 +96,11 @@ def g_flf(start, end, prompt, prefix, seed, frames, w=480, h=832):
     return g
 
 
+def scene_look(p):
+    """Style for shots with no characters: the storyboard's look_scene (a LOOK without people-inducing words), else neutral."""
+    return p.get("look_scene") or "soft render, same art style as the rest of the film"
+
+
 def pngs(files):
     return [f for f in files if str(f).endswith(".png")]
 
@@ -126,7 +131,7 @@ def h_sheet(t):
     if p["type"] == "character":
         prompt = (f"full-body character reference sheet, front view, centred, plain warm cream background, {d}. Style: {p['look']}")
     else:
-        prompt = f"establishing wide shot, {d}, no people. Style: {p['look']}"
+        prompt = f"establishing wide shot, {d}, no people, no figures. Style: {scene_look(p)}"
     out = []
     files, _ = comfy.run(g_t2i(prompt, f"p{t['project_id']}/{p['name']}", 4000 + 97 * t["round"], batch=p.get("variants", 2)))
     for i, f in enumerate(pngs(files)):
@@ -147,6 +152,7 @@ def h_keyframe(t):
     prev = s3get(p["prev"]["s3"], d / "prev.png") if p.get("prev") else None
     cover = s.get("cover") or {}
     out = []
+    style_txt = (" No people, no faces, no figures anywhere. Style: " + scene_look(p)) if not chars else (" Style: " + look)
     for v in range(p.get("variants", 2)):
         seed = 5000 + 131 * v + 17 * t["round"]; meta = {"variant": v + 1}
         first = None
@@ -154,7 +160,7 @@ def h_keyframe(t):
             ensure_family("image")
             empty = not chars        # no characters: never the series LOOK (it draws people), and say so explicitly
             if s.get("first_frame_prompt"):
-                fp = s["first_frame_prompt"] + (", no people, no text, vertical, soft 3D render" if empty else ". Style: " + look)
+                fp = s["first_frame_prompt"] + (", no people, no text, vertical. " + scene_look(p) if empty else ". Style: " + look)
                 files, _ = comfy.run(g_t2i(fp, f"p{t['project_id']}/{s['id']}_first", seed,
                                            neg=NEG_IMG + (", " + PEOPLE_NEG if empty else ""))); first = pngs(files)[0]
             else:
@@ -162,7 +168,7 @@ def h_keyframe(t):
             imgs = [comfy.to_input(first, f"t{t['id']}_first.png")] + [comfy.to_input(refs[c], f"t{t['id']}_{c}.png") for c in chars[:1]]
             prompt = ("Keep EXACTLY this composition, camera, framing and lighting. Change only this: " + keyframe_prompt(p, s)
                       + (f" Image 2 is {chars[0]}'s reference: keep them exactly as in image 2. Style: {look}" if chars
-                         else " No people, no figures, no faces anywhere in the frame. Soft 3D render."))
+                         else " No people, no figures, no faces anywhere in the frame. " + scene_look(p)))
             files, _ = comfy.run(comfy.g_keyframe(prompt, imgs, f"p{t['project_id']}/{s['id']}_last", seed))
             kf = pngs(files)[0]; meta["first"] = s3put(first, t)
         elif base is not None and cover.get("crop") in ("mcu", "object", "two"):
@@ -178,12 +184,12 @@ def h_keyframe(t):
             prompt = ("Image 1 is a cropped close shot from this scene. Re-render it as a sharp, detailed, full-resolution vertical 9:16 frame "
                       "with EXACTLY the same framing, pose, setting and lighting as image 1. "
                       + (f"Image 2 is {subj}'s character reference: keep their face, hair and clothing exactly as in image 2. " if subj in refs else "")
-                      + keyframe_prompt(p, s) + " Style: " + look)
+                      + keyframe_prompt(p, s) + style_txt)
             files, _ = comfy.run(comfy.g_keyframe(prompt, imgs, f"p{t['project_id']}/{s['id']}", seed)); kf = pngs(files)[0]
             meta["crop_ok"] = r.returncode == 0
         elif base is not None:
             prompt = ("Keep EXACTLY this scene: same room, camera, framing, lighting and the same characters in the same places. "
-                      "Change only this: " + keyframe_prompt(p, s) + " Style: " + look)
+                      "Change only this: " + keyframe_prompt(p, s) + style_txt)
             files, _ = comfy.run(comfy.g_keyframe(prompt, [comfy.to_input(base, f"t{t['id']}_base.png")], f"p{t['project_id']}/{s['id']}", seed))
             kf = pngs(files)[0]
         elif refs:
@@ -191,11 +197,11 @@ def h_keyframe(t):
             imgs = [comfy.to_input(refs[k], f"t{t['id']}_{k}.png") for k in order[:3]]
             intro = " ".join(f"Image {i + 1} is {k}'s reference." for i, k in enumerate(order[:3]))
             prompt = (intro + " Create one vertical 9:16 frame: " + keyframe_prompt(p, s)
-                      + " Keep every character's face, hair and clothing exactly as in their reference. Style: " + look)
+                      + (" Keep every character's face, hair and clothing exactly as in their reference." if chars else "") + style_txt)
             files, _ = comfy.run(comfy.g_keyframe(prompt, imgs, f"p{t['project_id']}/{s['id']}", seed)); kf = pngs(files)[0]
         else:   # no characters: never add the series LOOK (it pulls people into empty plates)
             ensure_family("image")
-            prompt = keyframe_prompt(p, s) + ", no people, no text, vertical, soft 3D render"
+            prompt = keyframe_prompt(p, s) + ", no people, no text, vertical. " + scene_look(p)
             files, _ = comfy.run(g_t2i(prompt, f"p{t['project_id']}/{s['id']}", seed,
                                        neg=NEG_IMG + ", " + PEOPLE_NEG))
             kf = pngs(files)[0]
@@ -231,7 +237,7 @@ def h_video(t):
     p = t["params"]; s = p["shot"]; d = WORK / f"t{t['id']}"; d.mkdir(exist_ok=True)
     kf = s3get(p["kf"]["s3"], d / "kf.png")
     empty = not p.get("characters")                            # no characters: never the series LOOK (it draws people)
-    prompt = s.get("motion_prompt", "") + ". " + IDENTITY_LOCK + (" No people, no faces, no figures anywhere; soft 3D render."
+    prompt = s.get("motion_prompt", "") + ". " + IDENTITY_LOCK + (" No people, no faces, no figures anywhere. " + scene_look(p)
                                                                    if empty else " " + p["look"])
     tries = 1 if s["tech"] == "FLF" else DRIFT_TRIES          # a morph is meant to change; nothing to check
     best = None
@@ -307,8 +313,24 @@ def voice_env():
             os.environ["HF_TOKEN"] = r.stdout.strip()
 
 
+def h_voice_en(t, d, out):
+    """English stories: Indic Parler-TTS with the character's fixed named-speaker description (storyboard "voices").
+    No English ASR is installed, so takes are ranked by speaking pace only (about 14 characters/second is natural)."""
+    p = t["params"]; line = p["line"]
+    (d / "lines.json").write_text(json.dumps([{"id": line["id"], "text": line["tts"], "description": p["voice_description"], "takes": 3}]))
+    sh(ROOT / "tts/bin/python", HERE / "en_lines.py", d / "lines.json", out)
+    res = []
+    for x in json.load(open(out / "takes.json")):
+        cps = x["chars"] / max(x["sec"], 0.1)
+        res.append({"s3_key": s3put(out / x["take"], t), "kind": "audio", "meta": {"take": x["take"], "engine": "indic-parler-tts (English)"},
+                    "scores": {"chars_per_s": round(cps, 1), "sec": x["sec"], "rank": round(-abs(cps - 14), 2)}})
+    return res
+
+
 def h_voice(t):
     p = t["params"]; voice_env(); d = WORK / f"t{t['id']}"; out = d / "takes"; out.mkdir(parents=True, exist_ok=True)
+    if p.get("engine") == "parler":
+        return h_voice_en(t, d, out)
     line = dict(p["line"], speaker=p["speaker"])
     (d / "sb.json").write_text(json.dumps({"clips": [{"lines": [line]}]}, ensure_ascii=False))
     env = dict(os.environ, PYTHONPATH=f"{HERE}/pipeline")

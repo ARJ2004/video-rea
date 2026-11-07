@@ -8,6 +8,7 @@ import boto3
 import numpy as np
 from PIL import Image, ImageDraw, ImageFilter, ImageFont, features
 from db import one, q
+import audio_fx, overlays
 
 BUCKET = os.environ.get("VREA_BUCKET", "vrea-686112930191-us-east-1")
 s3 = boto3.client("s3", region_name=os.environ.get("VREA_REGION", "us-east-1"))
@@ -238,9 +239,20 @@ def clip_task(task):
     with tempfile.TemporaryDirectory() as d:
         d = Path(d)
         vids = {s["id"]: get(chosen(pid, f"video:{s['id']}")["s3_key"], d) for s in c["shots"]}
-        vo = [(lid, get(chosen(pid, f"voice:{lid}")["s3_key"], d)) for lid in lines if lid not in talk_lines]
+        per_shot = {lid for s in c["shots"] for lid in s.get("vo_lines", [])}     # voice-only lines placed on a named shot
+        vo = [(lid, get(chosen(pid, f"voice:{lid}")["s3_key"], d)) for lid in lines if lid not in talk_lines and lid not in per_shot]
+        shot_vo = {}
+        for s in c["shots"]:
+            for lid in s.get("vo_lines", []):
+                src = get(chosen(pid, f"voice:{lid}")["s3_key"], d)
+                fx = lines[lid].get("fx")
+                shot_vo.setdefault(s["id"], []).append((lid, audio_fx.voice_fx(src, fx, d / f"fx_{lid}.wav") if fx else src))
         # durations: talking heads keep their own length; other shots get their storyboard length, stretched if the voice-over needs it
         lens = {s["id"]: (dur(vids[s["id"]]) if s["tech"] == "TALK" else float(s.get("dur_s", 3))) for s in c["shots"]}
+        for sid, lst in shot_vo.items():                                    # a shot lasts at least as long as its lines
+            need = 0.3 + sum(dur(p) for _, p in lst) + 0.35 * (len(lst) - 1) + 0.6
+            if sid in lens and need > lens[sid]:
+                lens[sid] = need
         non_talk = [s["id"] for s in c["shots"] if s["tech"] != "TALK"]
         shots_nt = [s for s in c["shots"] if s["tech"] != "TALK"]
         # narration mapped to shots: every narrated shot names its phrase ("vo") -> that phrase plays on that shot
@@ -274,21 +286,28 @@ def clip_task(task):
             if mapped and s["id"] in mapped:
                 seg, L, cap = mapped[s["id"]]
                 tracks.append((seg, t + 0.3)); caps += line_caps(cap, t + 0.3, t + 0.3 + L + 0.2)
-            ov = s.get("overlay")
-            if ov and ov.get("text"):
-                labels.append((label_png(ov["text"], d / f"lab_{s['id']}.png"), t + 0.3, t + lens[s["id"]] - 0.2))
+            vt = t + 0.3
+            for lid, pth in shot_vo.get(s["id"], []):                       # radio / narrator / off-screen lines on this shot
+                L = dur(pth); tracks.append((pth, vt)); caps += line_caps(lines[lid]["caption"], vt, vt + L + 0.2); vt += L + 0.35
+            tracks += audio_fx.sfx_tracks(s, t, d)
+            labels += overlays.shot_overlays(s, t, lens[s["id"]], d, label_png)
             t += lens[s["id"]]
         total = t
         if vo:
             vt = starts[non_talk[0]] + 0.5
             for lid, p in vo:
                 L = dur(p); tracks.append((p, vt)); caps += line_caps(lines[lid]["caption"], vt, vt + L + 0.2); vt += L + 0.35
+        if c.get("ambience"):
+            tracks.append((audio_fx.ambience(c["ambience"], total, d / "amb.wav"), 0.0))
+        if c.get("music") == "drone":
+            tracks.append((audio_fx.drone(total, d / "drone.wav"), 0.0))
         (d / "list.txt").write_text("".join(f"file '{p}'\n" for p in parts))
         sh("ffmpeg", "-loglevel", "error", "-y", "-f", "concat", "-safe", "0", "-i", d / "list.txt", "-c", "copy", d / "video.mp4")
         audio = mix(tracks, total, d / "audio.wav")
         out = burn(d / "video.mp4", audio, caps, labels, d / f"clip_{cid}.mp4", d)
         key = put(out, task, ".mp4")
-        return [{"s3_key": key, "kind": "video", "meta": {"duration": round(dur(out), 2), "shots": len(parts), "voice_over_lines": len(vo), "narration_mapped_to_shots": bool(mapped)},
+        return [{"s3_key": key, "kind": "video", "meta": {"duration": round(dur(out), 2), "shots": len(parts), "voice_over_lines": len(vo), "narration_mapped_to_shots": bool(mapped),
+                                                         "voice_lines_on_shots": sum(len(v) for v in shot_vo.values())},
                  "scores": {"rank": 1}}]
 
 

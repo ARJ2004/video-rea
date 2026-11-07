@@ -66,6 +66,10 @@ def validate(sb):
             for k in ("id", "speaker", "caption", "tts"):
                 if k not in l:
                     raise ValueError(f"line {l.get('id')} missing '{k}'")
+            if l.get("fx") not in (None, "radio", "stranger"):
+                raise ValueError(f"line {l['id']}: fx must be radio or stranger")
+            if sb.get("language") == "en" and not (sb.get("voices", {}).get(l["speaker"]) or {}).get("description"):
+                raise ValueError(f"line {l['id']}: English stories need voices.{l['speaker']}.description")
         for s in c.get("shots", []):
             if s.get("id") in ids:
                 raise ValueError(f"duplicate shot id {s.get('id')}")
@@ -77,6 +81,15 @@ def validate(sb):
             for r in s.get("refs", []):
                 if r not in names:
                     raise ValueError(f"shot {s['id']}: unknown ref '{r}' (not in characters/sets)")
+            for lid in s.get("vo_lines", []):
+                if lid not in lines:
+                    raise ValueError(f"shot {s['id']}: vo_lines id '{lid}' is not a line of its clip")
+            for e in s.get("sfx", []):
+                if e.get("type") not in ("knock", "static", "thunder", "heartbeat", "impact", "creak", "silence"):
+                    raise ValueError(f"shot {s['id']}: unknown sfx type '{e.get('type')}'")
+            for o in s.get("overlays", []):
+                if o.get("style", "label") not in ("hud", "notebook", "title", "choice", "label") or not o.get("text"):
+                    raise ValueError(f"shot {s['id']}: overlay needs text and a style of hud/notebook/title/choice/label")
             if s.get("vo") and not any(s["vo"] in l["tts"] for l in c.get("lines", [])):
                 raise ValueError(f"shot {s['id']}: 'vo' must be an exact part of one of its clip's lines")
             base = (s.get("cover") or {}).get("base")

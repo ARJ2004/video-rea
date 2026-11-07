@@ -387,6 +387,9 @@ def cpu_worker():
             c.execute("UPDATE tasks SET state='running', started_at=now(), heartbeat_at=now(), attempts=attempts+1 WHERE id=%s", (t["id"],))
     if not t:
         return
+    sl = one("SELECT round FROM slots WHERE project_id=%s AND key=%s", t["project_id"], t["slot_key"])
+    if not sl or sl["round"] != t["round"]:                          # superseded by a newer round: skip quietly
+        ex("UPDATE tasks SET state='cancelled' WHERE id=%s", t["id"]); return
     event(t["project_id"], f"assembling {t['slot_key']}")
     try:
         complete_task(t["id"], assemble.CPU_HANDLERS[t["type"]](t))

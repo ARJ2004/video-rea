@@ -101,12 +101,17 @@ def task_specs(project, slot, slots):
     """What to run for a slot whose dependencies are approved: list of (type, family, params)."""
     sb, p, k = project["storyboard"], slot["params"], slot["kind"]
     style = sb.get("style", {})
-    common = {"look": style.get("look", ""), "negative": style.get("negative", ""), "note": slot["note"], "round": slot["round"],
+    common = {"look": style.get("look", ""), "look_scene": style.get("look_scene", ""), "negative": style.get("negative", ""),
+              "note": slot["note"], "round": slot["round"],
               "project": project["id"], "slot": slot["key"]}
     if k == "ref":
         return [("sheet", "image", {**common, **p, "variants": VARIANTS["ref"]})]
     if k == "voice":
-        line = p["line"]; spk = line["speaker"] if line["speaker"] in VOICE_REFS else "dadi"
+        line = p["line"]
+        if sb.get("language", "hi") == "en":            # English: Indic Parler-TTS with the character's fixed voice description
+            desc = (sb.get("voices", {}).get(line["speaker"]) or {}).get("description")
+            return [("voice", "voice", {**common, "line": line, "speaker": line["speaker"], "engine": "parler", "voice_description": desc})]
+        spk = line["speaker"] if line["speaker"] in VOICE_REFS else "dadi"
         return [("voice", "voice", {**common, "line": line, "speaker": spk, "takes": 4})]
     if k == "kf":
         s = p["shot"]; refs = {}
