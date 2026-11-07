@@ -133,6 +133,8 @@ def task_specs(project, slot, slots):
         if s["tech"] == "TALK":
             par["audio"] = chosen_key(slots, f"voice:{s['line']}")
             return [("talk", "talk", par)]
+        if s.get("animate") == "still":       # no video model: the keyframe itself, slow camera push + gentle shimmer (CPU)
+            return [("still", "cpu", par)]
         ff = s.get("first_frame", "")
         if ff.startswith("last frame of"):
             par["prev_video"] = chosen_key(slots, f"video:{ff.replace('last frame of', '').strip()}")

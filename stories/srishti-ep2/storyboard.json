@@ -198,7 +198,9 @@
             "sync_word": "Saptarishi"
           },
           "vo": "सप्तर्षि — जो ज्ञान के रक्षक बने।",
-          "vo_caption": "Saptarishi - jo gyaan ke rakshak bane."
+          "vo_caption": "Saptarishi - jo gyaan ke rakshak bane.",
+          "animate": "still",
+          "animate_note": "video model kept forming figures from the constellation (3/3 renders flagged); animated from the approved keyframe instead"
         }
       ]
     },

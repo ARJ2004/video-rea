@@ -360,4 +360,16 @@ def episode_task(task):
         return [{"s3_key": key, "kind": "video", "meta": {"qa": qa}, "scores": {"rank": 1}}]
 
 
-CPU_HANDLERS = {"clip": clip_task, "episode": episode_task}
+def still_task(task):
+    """Animate an approved keyframe without a video model: slow push-in plus a gentle brightness shimmer. Used for shots the
+    video model keeps hallucinating in (Ep2 2.2-C: figures formed from a constellation). Nothing new can appear."""
+    p = task["params"]; s = p["shot"]; L = float(s.get("dur_s", 4)); n = int(round(L * FPS))
+    with tempfile.TemporaryDirectory() as d:
+        d = Path(d); kf = get(p["kf"]["s3"], d); out = d / "still.mp4"
+        sh("ffmpeg", "-loglevel", "error", "-y", "-loop", "1", "-i", kf, "-vf",
+           f"scale={WD * 2}:{HT * 2},zoompan=z='1+0.07*on/{n}':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':d={n}:s={WD}x{HT}:fps={FPS},"
+           f"eq=brightness='0.025*sin(2*PI*t/2.6)':eval=frame,format=yuv420p", "-frames:v", n, "-c:v", "libx264", "-crf", "18", out)
+        return [{"s3_key": put(out, task, ".mp4"), "kind": "video", "meta": {"animate": "still", "duration": L}, "scores": {"rank": 1}}]
+
+
+CPU_HANDLERS = {"clip": clip_task, "episode": episode_task, "still": still_task}
