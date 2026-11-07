@@ -253,7 +253,7 @@
           "dur_s": 6,
           "res": "480x832",
           "keyframe_prompt": "gentle forest clearing by the river with a baby elephant, deer, rabbits and a cow, friendly and calm",
-          "motion_prompt": "animals walk calmly, the baby elephant sprays water playfully, slow push-in",
+          "motion_prompt": "each animal moves gently on its own: the cow grazes, the deer lowers its head to nibble grass, the rabbits hop a little, the baby elephant slowly swings its own trunk; slow push-in",
           "vo": "और जानवर!",
           "vo_caption": "aur jaanvar!"
         }

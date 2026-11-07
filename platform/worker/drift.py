@@ -121,6 +121,7 @@ def check(keyframe, video, prompt, dev="cuda", extra_labels=()):
     Tracking keeps moving subjects (swimming fish, flying birds) from reading as drift; a subject that can no longer be
     found at all is reported as lost, not as drift (it may have left the frame)."""
     labels = labels_from(prompt, extra_labels)
+    named = {x.lower() for x in extra_labels}
     queries = labels + [g for g in GENERIC if g not in labels]
     fr = frames(video, (0.1, 0.4, 0.7, 1.0))
     w, h = fr[0][1].size
@@ -132,7 +133,7 @@ def check(keyframe, video, prompt, dev="cuda", extra_labels=()):
     for s in subs:
         count[s["label"]] = count.get(s["label"], 0) + 1
     for s in subs:
-        if count[s["label"]] >= CROWD:          # a school of fish / flock of birds: individuals are not identities
+        if count[s["label"]] >= CROWD and s["label"] not in named:   # a school of fish / flock of birds (never a named character)
             report.append({"label": s["label"], "box": [round(v) for v in s["box"]], "skipped": "crowd"}); continue
         x0, y0, x1, y1 = s["box"]
         if (x1 - x0) * (y1 - y0) < MIN_AREA * w * h:   # tiny subjects: too few pixels to judge (rabbits read as noise)
