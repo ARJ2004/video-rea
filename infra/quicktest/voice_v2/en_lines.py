@@ -1,4 +1,4 @@
-"""English voice takes with Indic Parler-TTS (it covers English). The platform's main voice path is IndicF5 cloning a
+"""English voice takes with Parler-TTS (default: parler-tts/parler-tts-large-v1, English-only, more natural than Indic Parler). The platform's main voice path is IndicF5 cloning a
 locked Hindi reference voice; English stories use this instead. Consistency comes from a fixed NAMED speaker and a fixed
 description per character (from the storyboard's "voices"), and the same seeds for every line.
 usage: tts/bin/python en_lines.py lines.json out_dir      lines.json: [{"id","text","description","takes"}]"""
@@ -10,8 +10,9 @@ from parler_tts import ParlerTTSForConditionalGeneration
 
 jobs, out = json.load(open(sys.argv[1])), Path(sys.argv[2]); out.mkdir(parents=True, exist_ok=True)
 dev = "cuda"
-m = ParlerTTSForConditionalGeneration.from_pretrained("ai4bharat/indic-parler-tts").to(dev)
-tok = AutoTokenizer.from_pretrained("ai4bharat/indic-parler-tts")
+MODEL = (jobs[0].get("model") if jobs else None) or "parler-tts/parler-tts-large-v1"
+m = ParlerTTSForConditionalGeneration.from_pretrained(MODEL).to(dev)
+tok = AutoTokenizer.from_pretrained(MODEL)
 dtok = AutoTokenizer.from_pretrained(m.config.text_encoder._name_or_path)
 manifest = []
 for j in jobs:

@@ -109,8 +109,9 @@ def task_specs(project, slot, slots):
     if k == "voice":
         line = p["line"]
         if sb.get("language", "hi") == "en":            # English: Indic Parler-TTS with the character's fixed voice description
-            desc = (sb.get("voices", {}).get(line["speaker"]) or {}).get("description")
-            return [("voice", "voice", {**common, "line": line, "speaker": line["speaker"], "engine": "parler", "voice_description": desc})]
+            v = sb.get("voices", {}).get(line["speaker"]) or {}
+            return [("voice", "voice", {**common, "line": line, "speaker": line["speaker"], "engine": "parler",
+                                        "voice_description": v.get("description"), "voice_model": v.get("model") or sb.get("voice_model")})]
         spk = line["speaker"] if line["speaker"] in VOICE_REFS else "dadi"
         return [("voice", "voice", {**common, "line": line, "speaker": spk, "takes": 4})]
     if k == "kf":

@@ -318,12 +318,13 @@ def h_voice_en(t, d, out):
     No English ASR is installed, so takes are ranked by speaking pace only (about 14 characters/second is natural)."""
     p = t["params"]; line = p["line"]
     desc = p["voice_description"] + (f" {p['note']}." if p.get("note") else "")      # your regenerate note steers pace/tone
-    (d / "lines.json").write_text(json.dumps([{"id": line["id"], "text": line["tts"], "description": desc, "takes": 3}]))
+    (d / "lines.json").write_text(json.dumps([{"id": line["id"], "text": line["tts"], "description": desc, "takes": 3,
+                                                "model": p.get("voice_model")}]))
     sh(ROOT / "tts/bin/python", HERE / "en_lines.py", d / "lines.json", out)
     res = []
     for x in json.load(open(out / "takes.json")):
         cps = x["chars"] / max(x["sec"], 0.1)
-        res.append({"s3_key": s3put(out / x["take"], t), "kind": "audio", "meta": {"take": x["take"], "engine": "indic-parler-tts (English)"},
+        res.append({"s3_key": s3put(out / x["take"], t), "kind": "audio", "meta": {"take": x["take"], "engine": p.get("voice_model") or "parler-tts-large-v1"},
                     "scores": {"chars_per_s": round(cps, 1), "sec": x["sec"], "rank": round(-abs(cps - 14), 2)}})
     return res
 
