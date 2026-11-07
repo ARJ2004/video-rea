@@ -89,7 +89,8 @@ JUDGE = """You check one shot of a children's animated video for subject drift. 
 following images are frames from later in the generated video, in order. Camera moves (zoom, pan), lighting changes,
 poses, gestures, walking and turning are all FINE. A problem is only: an animal or person turning into a different kind
 of animal or person, growing body parts that belong to another subject (e.g. a cow growing an elephant's trunk), two
-subjects merging, or a subject's face/identity becoming someone else. Subjects in this shot: {subjects}.
+subjects merging, a subject's face/identity becoming someone else, or a face/person/figure appearing where the keyframe
+has none (e.g. a face forming in stars or clouds). Subjects in this shot: {subjects}.
 Reply with ONLY a JSON object: {{"drift": true or false, "problem": "<one short sentence, empty if none>"}}"""
 
 

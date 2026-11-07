@@ -100,6 +100,18 @@ def pad(box, img, k=0.12):
 MAX_DECAY, LOW, CROWD, MIN_AREA = 0.12, 0.85, 3, 0.02
 
 
+FACE_Q, FACE_KF, FACE_APPEAR = ["a human face", "eyes and a nose", "a person"], 0.2, 0.3   # 2.2-C: 0.02 -> 0.62; fish/birds/animals <= 0.17
+
+
+@torch.no_grad()
+def face_score(img, dev):
+    m = models(dev)
+    out = m["om"](**m["op"](text=[FACE_Q], images=img, return_tensors="pt").to(dev))
+    s = max(img.size)
+    r = m["op"].image_processor.post_process_object_detection(out, threshold=0.0, target_sizes=torch.tensor([[s, s]]).to(dev))[0]
+    return float(r["scores"].max()) if len(r["scores"]) else 0.0
+
+
 def track(prev, cands, img):
     """The candidate (same label) that best continues the previous box: highest overlap, else nearest centre."""
     if not cands:
@@ -151,8 +163,16 @@ def check(keyframe, video, prompt, dev="cuda", extra_labels=()):
         ok = ok and not drift
         report.append({"label": s["label"], "box": [round(v) for v in s["box"]], "sims": sims, "decay": decay, "drift": drift,
                        "lost": sum(x is None for x in sims)})
+    # shots without people: a face/person that APPEARS during the shot is drift too (Ep2 2.2-C: a face formed in the stars)
+    appeared = None
+    if not named and not any(r["label"] in ("a person",) for r in report):
+        f0 = face_score(kf, dev); later = [face_score(im, dev) for _, im in fr]
+        if f0 < FACE_KF and max(later) > FACE_APPEAR:
+            appeared = {"keyframe": round(f0, 3), "later": [round(x, 3) for x in later]}
+            ok = False
     decays = [r["decay"] for r in report if r.get("decay") is not None]
-    return {"ok": ok, "worst_decay": max(decays, default=None), "subjects": report, "frame_paths": [im.path for _, im in fr]}
+    return {"ok": ok, "worst_decay": max(decays, default=None), "subjects": report, "face_appeared": appeared,
+            "frame_paths": [im.path for _, im in fr]}
 
 
 if __name__ == "__main__":

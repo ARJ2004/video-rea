@@ -272,6 +272,8 @@ def h_video(t):
     if rep is not None:
         scores.update({"drift_ok": rep["ok"], "worst_decay": rep.get("worst_decay"), "tries": k + 1})
         meta["drift"] = [{x: r.get(x) for x in ("label", "decay", "skipped", "drift")} for r in rep["subjects"]]
+        if rep.get("face_appeared"):
+            meta["face_appeared"] = rep["face_appeared"]
         if rep.get("judge"):
             meta["judge"] = rep["judge"]
         if not rep["ok"]:
