@@ -171,7 +171,9 @@
             "brahma"
           ],
           "keyframe_prompt": "Brahma seated on a pink lotus in golden cosmic light, eyes closed in meditation, serene",
-          "motion_prompt": "Brahma breathes calmly in meditation, a soft glow gathers at his forehead"
+          "motion_prompt": "Brahma breathes calmly in meditation, a soft glow gathers at his forehead",
+          "vo": "ब्रह्मा जी ने आँखें बंद करके ध्यान किया।",
+          "vo_caption": "Brahma ji ne aankhen band karke dhyaan kiya."
         },
         {
           "id": "2.2-B",
@@ -180,7 +182,9 @@
           "res": "480x832",
           "first_frame": "last frame of 2.2-A",
           "last_frame_prompt": "seven small radiant points of white-gold light floating above meditating Brahma against the deep indigo sky",
-          "motion_prompt": "seven points of light rise gently one after another from Brahma's forehead and float upward"
+          "motion_prompt": "seven points of light rise gently one after another from Brahma's forehead and float upward",
+          "vo": "उनके मन से सात महान ऋषि प्रकट हुए —",
+          "vo_caption": "Unke mann se saat mahaan rishi prakat hue -"
         },
         {
           "id": "2.2-C",
@@ -192,7 +196,9 @@
           "overlay": {
             "text": "सप्तर्षि",
             "sync_word": "Saptarishi"
-          }
+          },
+          "vo": "सप्तर्षि — जो ज्ञान के रक्षक बने।",
+          "vo_caption": "Saptarishi - jo gyaan ke rakshak bane."
         }
       ]
     },
@@ -217,7 +223,9 @@
           "res": "480x832",
           "first_frame_prompt": "close view of a young barren brown-grey Earth landscape at dawn, rocky plains and hills, no plants",
           "last_frame_prompt": "the same landscape now lush and green with trees, grass and a winding blue river at dawn",
-          "motion_prompt": "green life spreads across the land, trees sprout and grow, a river begins to flow"
+          "motion_prompt": "green life spreads across the land, trees sprout and grow, a river begins to flow",
+          "vo": "फिर धरती पर हरियाली छा गई — पेड़-पौधे उगे, नदियाँ बहीं,",
+          "vo_caption": "Phir dharti par hariyaali chhaa gayi - ped-paudhe uge, nadiyaan baheen,"
         },
         {
           "id": "2.3-B",
@@ -225,7 +233,9 @@
           "dur_s": 5,
           "res": "480x832",
           "keyframe_prompt": "clear river with colourful fish swimming under the water surface, sunlight rays",
-          "motion_prompt": "fish swim gracefully, water ripples, light rays shimmer"
+          "motion_prompt": "fish swim gracefully, water ripples, light rays shimmer",
+          "vo": "और पानी, ज़मीन और आसमान में तरह-तरह के जीव आए: मछलियाँ,",
+          "vo_caption": "aur paani, zameen aur aasmaan mein tarah-tarah ke jeev aaye: machhliyaan,"
         },
         {
           "id": "2.3-C",
@@ -233,7 +243,9 @@
           "dur_s": 5,
           "res": "480x832",
           "keyframe_prompt": "flock of colourful birds, parrots and peacock, flying over green treetops at sunrise",
-          "motion_prompt": "birds fly across the sky over the trees, peacock spreads its feathers"
+          "motion_prompt": "birds fly across the sky over the trees, peacock spreads its feathers",
+          "vo": "पंछी",
+          "vo_caption": "panchhi"
         },
         {
           "id": "2.3-D",
@@ -241,7 +253,9 @@
           "dur_s": 6,
           "res": "480x832",
           "keyframe_prompt": "gentle forest clearing by the river with a baby elephant, deer, rabbits and a cow, friendly and calm",
-          "motion_prompt": "animals walk calmly, the baby elephant sprays water playfully, slow push-in"
+          "motion_prompt": "each animal moves gently on its own: the cow grazes, the deer lowers its head to nibble grass, the rabbits hop a little, the baby elephant slowly swings its own trunk; slow push-in",
+          "vo": "और जानवर!",
+          "vo_caption": "aur jaanvar!"
         }
       ]
     },
@@ -268,7 +282,9 @@
             "brahma"
           ],
           "keyframe_prompt": "Brahma on his lotus holding out both hands, two soft human-shaped forms of golden light forming before him",
-          "motion_prompt": "the two golden forms brighten and take human shape"
+          "motion_prompt": "the two golden forms brighten and take human shape",
+          "vo": "और फिर ब्रह्मा जी ने पहले इंसानों को बनाया —",
+          "vo_caption": "Aur phir Brahma ji ne pehle insaanon ko banaaya -"
         },
         {
           "id": "2.4-B",
@@ -280,7 +296,9 @@
             "shatarupa"
           ],
           "keyframe_prompt": "Manu and Shatarupa standing side by side on a green riverbank at sunrise, Manu on the left, Shatarupa on the right, looking at the rising sun with wonder",
-          "motion_prompt": "they look at each other and smile, then look at the sunrise, gentle breeze in the grass"
+          "motion_prompt": "they look at each other and smile, then look at the sunrise, gentle breeze in the grass",
+          "vo": "मनु और शतरूपा।",
+          "vo_caption": "Manu aur Shatarupa."
         },
         {
           "id": "2.4-C",
@@ -300,7 +318,9 @@
           "overlay": {
             "text": "मनु → मानव",
             "sync_word": "maanav"
-          }
+          },
+          "vo": "मनु से ही हम सब 'मानव' कहलाए।",
+          "vo_caption": "Manu se hi hum sab 'maanav' kehlaaye."
         }
       ]
     },
@@ -398,5 +418,6 @@
         }
       ]
     }
-  ]
+  ],
+  "notes_vo": "Narrated clips: each non-TALK shot names its phrase of the line ('vo') and its caption ('vo_caption'); the clip plays that phrase on that shot."
 }

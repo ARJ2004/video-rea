@@ -101,12 +101,18 @@ def task_specs(project, slot, slots):
     """What to run for a slot whose dependencies are approved: list of (type, family, params)."""
     sb, p, k = project["storyboard"], slot["params"], slot["kind"]
     style = sb.get("style", {})
-    common = {"look": style.get("look", ""), "negative": style.get("negative", ""), "note": slot["note"], "round": slot["round"],
+    common = {"look": style.get("look", ""), "look_scene": style.get("look_scene", ""), "negative": style.get("negative", ""),
+              "note": slot["note"], "round": slot["round"],
               "project": project["id"], "slot": slot["key"]}
     if k == "ref":
         return [("sheet", "image", {**common, **p, "variants": VARIANTS["ref"]})]
     if k == "voice":
-        line = p["line"]; spk = line["speaker"] if line["speaker"] in VOICE_REFS else "dadi"
+        line = p["line"]
+        if sb.get("language", "hi") == "en":            # English: Indic Parler-TTS with the character's fixed voice description
+            v = sb.get("voices", {}).get(line["speaker"]) or {}
+            return [("voice", "voice", {**common, "line": line, "speaker": line["speaker"], "engine": "parler",
+                                        "voice_description": v.get("description"), "voice_model": v.get("model") or sb.get("voice_model")})]
+        spk = line["speaker"] if line["speaker"] in VOICE_REFS else "dadi"
         return [("voice", "voice", {**common, "line": line, "speaker": spk, "takes": 4})]
     if k == "kf":
         s = p["shot"]; refs = {}
@@ -123,10 +129,13 @@ def task_specs(project, slot, slots):
         return [("keyframe", fam, par)]
     if k == "video":
         s = p["shot"]; kf = chosen_key(slots, f"kf:{s['id']}")
-        par = {**common, "shot": s, "kf": kf}
+        par = {**common, "shot": s, "kf": kf,
+               "characters": {r: sb["characters"][r].get("description", "") for r in s.get("refs", []) if r in sb.get("characters", {})}}
         if s["tech"] == "TALK":
             par["audio"] = chosen_key(slots, f"voice:{s['line']}")
             return [("talk", "talk", par)]
+        if s.get("animate") == "still":       # no video model: the keyframe itself, slow camera push + gentle shimmer (CPU)
+            return [("still", "cpu", par)]
         ff = s.get("first_frame", "")
         if ff.startswith("last frame of"):
             par["prev_video"] = chosen_key(slots, f"video:{ff.replace('last frame of', '').strip()}")
@@ -162,6 +171,10 @@ def advance(pid):
                     ex("UPDATE slots SET state='failed', updated_at=now() WHERE id=%s", s["id"]); event(pid, f"{s['label']}: produced no output", "error")
                 elif s["gate"]:
                     ex("UPDATE slots SET state='review', updated_at=now() WHERE id=%s", s["id"]); event(pid, f"{s['label']} is ready for your review")
+                elif any((a["scores"] or {}).get("needs_review") for a in assets):
+                    # an automatic check failed after retries (e.g. subject drift in a video): ask instead of approving
+                    ex("UPDATE slots SET state='review', updated_at=now() WHERE id=%s", s["id"])
+                    event(pid, f"{s['label']}: a subject still changes shape after 3 renders. Please review (pick it, or regenerate with a note)", "warn")
                 else:
                     best = max(assets, key=lambda a: (a["scores"] or {}).get("rank", 0))
                     ex("UPDATE slots SET state='approved', chosen_asset=%s, updated_at=now() WHERE id=%s", best["id"], s["id"])

@@ -12,8 +12,8 @@ ACCT=$(aws sts get-caller-identity --query Account --output text)
 bundles() {
   ( cd "$REPO" && tar --exclude='__pycache__' --exclude='*.pyc' -czf "$TMP/server_bundle.tar.gz" platform \
       infra/quicktest/gpu_bootstrap.sh infra/quicktest/model_plan.py infra/quicktest/models.json )
-  mkdir -p "$TMP/w" && cp "$REPO"/platform/worker/worker.py "$REPO"/infra/quicktest/video/{comfy.py,talk.py,reframe.py} \
-      "$REPO"/infra/quicktest/models.json "$REPO"/infra/quicktest/voice_v2/{f5_lines.py,voice_score.py} "$REPO"/infra/quicktest/voice_env.sh "$TMP/w/"
+  mkdir -p "$TMP/w" && cp "$REPO"/platform/worker/{worker.py,drift.py} "$REPO"/infra/quicktest/video/{comfy.py,talk.py,reframe.py} \
+      "$REPO"/infra/quicktest/models.json "$REPO"/infra/quicktest/voice_v2/{f5_lines.py,voice_score.py,en_lines.py} "$REPO"/infra/quicktest/voice_env.sh "$TMP/w/"
   mkdir -p "$TMP/w/pipeline" && cp -r "$REPO/pipeline/vrea" "$TMP/w/pipeline/" && find "$TMP/w" -name __pycache__ -prune -exec rm -rf {} +
   tar -czf "$TMP/worker_bundle.tar.gz" -C "$TMP/w" .
   aws s3 cp "$TMP/server_bundle.tar.gz" "s3://$BUCKET/platform/server_bundle.tar.gz" --quiet
@@ -51,7 +51,7 @@ cat >"$TMP/policy.json" <<EOF
  {"Sid":"TagOnLaunch","Effect":"Allow","Action":"ec2:CreateTags","Resource":"*","Condition":{"StringEquals":{"ec2:CreateAction":"RunInstances"}}},
  {"Sid":"TerminateOwnGpu","Effect":"Allow","Action":"ec2:TerminateInstances","Resource":"arn:aws:ec2:$REGION:$ACCT:instance/*",
   "Condition":{"StringEquals":{"ec2:ResourceTag/project":"vrea-platform"}}},
- {"Sid":"Describe","Effect":"Allow","Action":["ec2:DescribeInstances","ec2:DescribeInstanceStatus"],"Resource":"*"},
+ {"Sid":"Describe","Effect":"Allow","Action":["ec2:DescribeInstances","ec2:DescribeInstanceStatus","ec2:DescribeSpotPriceHistory"],"Resource":"*"},
  {"Sid":"PassGpuRole","Effect":"Allow","Action":"iam:PassRole","Resource":"arn:aws:iam::$ACCT:role/vrea-ec2"},
  {"Sid":"AmiLookup","Effect":"Allow","Action":"ssm:GetParameter","Resource":"arn:aws:ssm:$REGION::parameter/aws/service/*"}
 ]}

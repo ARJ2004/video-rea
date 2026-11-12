@@ -26,6 +26,11 @@ Rules:
   Other characters can appear but do not speak.
 - "tts" is natural spoken Hindi in Devanagari; "caption" is the same line in Hinglish (Latin script).
 - Keep devotional and cultural content accurate and respectful; put primary sources in a top-level "sources" list.
+- Narration over pictures: when a clip's line is narrated (not spoken on camera by a TALK shot), give EVERY non-TALK shot of
+  that clip "vo": the exact consecutive part of the line's "tts" spoken over that shot (in order, together covering the
+  whole line, so each phrase names what that shot shows) and "vo_caption": the same part in Hinglish.
+- In motion prompts give each action to one clearly named subject and keep actions gentle; never ask one animal to do
+  something typical of another animal in the same shot.
 - The last shot of the last clip may carry "end_card": {"dur_s": 2, "text": "<series> · Episode <n>"}."""
 
 
@@ -61,6 +66,10 @@ def validate(sb):
             for k in ("id", "speaker", "caption", "tts"):
                 if k not in l:
                     raise ValueError(f"line {l.get('id')} missing '{k}'")
+            if l.get("fx") not in (None, "radio", "stranger"):
+                raise ValueError(f"line {l['id']}: fx must be radio or stranger")
+            if sb.get("language") == "en" and not (sb.get("voices", {}).get(l["speaker"]) or {}).get("description"):
+                raise ValueError(f"line {l['id']}: English stories need voices.{l['speaker']}.description")
         for s in c.get("shots", []):
             if s.get("id") in ids:
                 raise ValueError(f"duplicate shot id {s.get('id')}")
@@ -72,7 +81,44 @@ def validate(sb):
             for r in s.get("refs", []):
                 if r not in names:
                     raise ValueError(f"shot {s['id']}: unknown ref '{r}' (not in characters/sets)")
+            for lid in s.get("vo_lines", []):
+                if lid not in lines:
+                    raise ValueError(f"shot {s['id']}: vo_lines id '{lid}' is not a line of its clip")
+            for e in s.get("sfx", []):
+                if e.get("type") not in ("knock", "static", "thunder", "heartbeat", "impact", "creak", "silence"):
+                    raise ValueError(f"shot {s['id']}: unknown sfx type '{e.get('type')}'")
+            for o in s.get("overlays", []):
+                if o.get("style", "label") not in ("hud", "notebook", "title", "choice", "label") or not o.get("text"):
+                    raise ValueError(f"shot {s['id']}: overlay needs text and a style of hud/notebook/title/choice/label")
+            if s.get("vo") and not any(s["vo"] in l["tts"] for l in c.get("lines", [])):
+                raise ValueError(f"shot {s['id']}: 'vo' must be an exact part of one of its clip's lines")
             base = (s.get("cover") or {}).get("base")
             if base and base not in ids:
                 raise ValueError(f"shot {s['id']}: cover.base '{base}' must be an earlier shot")
     return True
+
+
+JUDGE = """You check one shot of a children's animated video for subject drift. Image 1 is the approved keyframe; the
+following images are frames from later in the generated video, in order. Camera moves (zoom, pan), lighting changes,
+poses, gestures, walking and turning are all FINE. A problem is only: an animal or person turning into a different kind
+of animal or person, growing body parts that belong to another subject (e.g. a cow growing an elephant's trunk), two
+subjects merging, a subject's face/identity becoming someone else, or a face/person/figure appearing where the keyframe
+has none (e.g. a face forming in stars or clouds). Subjects in this shot: {subjects}.
+Reply with ONLY a JSON object: {{"drift": true or false, "problem": "<one short sentence, empty if none>"}}"""
+
+
+def judge_drift(api_key, images, subjects):
+    """images: list of PNG/JPEG bytes (keyframe first). -> {"drift": bool, "problem": str}"""
+    import base64
+    client = anthropic.Anthropic(api_key=api_key, timeout=120.0, max_retries=2)
+    content = [{"type": "image", "source": {"type": "base64", "media_type": "image/jpeg", "data": base64.standard_b64encode(b).decode()}}
+               for b in images]
+    content.append({"type": "text", "text": JUDGE.format(subjects=", ".join(subjects) or "see the keyframe")})
+    resp = client.beta.messages.create(model=MODEL, max_tokens=2000, betas=["server-side-fallback-2026-07-01"], fallbacks="default",
+                                       output_config={"effort": "low"}, messages=[{"role": "user", "content": content}])
+    if resp.stop_reason == "refusal":
+        raise RuntimeError("judge declined")
+    text = "".join(b.text for b in resp.content if b.type == "text")
+    m = re.search(r"\{.*\}", text, re.S)
+    out = json.loads(m.group(0)) if m else {}
+    return {"drift": bool(out.get("drift")), "problem": str(out.get("problem", ""))[:300]}

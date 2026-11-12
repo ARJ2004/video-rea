@@ -21,6 +21,18 @@ PROFILE = os.environ.get("VREA_GPU_PROFILE", "vrea-ec2")
 TAG = "vrea-platform"
 PRICES = {"g6e.2xlarge": 2.242, "g6e.xlarge": 1.861}          # us-east-1 on-demand $/h
 TYPES = ["g6e.2xlarge", "g6e.xlarge"]
+# tried in order: Spot first (the account's Spot G quota is 4 vCPU -> g6e.xlarge), then on-demand
+PLAN = [("spot", "g6e.xlarge"), ("ondemand", "g6e.2xlarge"), ("ondemand", "g6e.xlarge")]
+SPOT_MARGIN = 1.2            # the cap is charged at the live Spot price x 1.2 (it can move during a session)
+
+
+def spot_price(itype, az):
+    try:
+        h = ec2.describe_spot_price_history(InstanceTypes=[itype], ProductDescriptions=["Linux/UNIX"], AvailabilityZone=az,
+                                            StartTime=datetime.now(timezone.utc), MaxResults=1)["SpotPriceHistory"]
+        return float(h[0]["SpotPrice"]) if h else None
+    except ClientError:
+        return None
 AZS = ["us-east-1a", "us-east-1b", "us-east-1c", "us-east-1d"]
 MIN_SESSION_MIN = 15
 MARGIN_USD = 0.10
@@ -105,29 +117,38 @@ def launch(pid):
     tok = secrets.token_urlsafe(24)
     run = one("INSERT INTO runs (project_id, state, token, families) VALUES (%s,'launching',%s,%s) RETURNING *", pid, tok, ",".join(fams))
     errors = []
-    for itype in TYPES:
-        price = PRICES[itype]
-        hard_min = int(remaining / price * 60) - 2
-        if hard_min < MIN_SESSION_MIN:
-            continue
-        ami = ssm.get_parameter(Name="/aws/service/deeplearning/ami/x86_64/base-oss-nvidia-driver-gpu-ubuntu-22.04/latest/ami-id")["Parameter"]["Value"]
-        ud = user_data(run, hard_min, fams)
+    ami = ssm.get_parameter(Name="/aws/service/deeplearning/ami/x86_64/base-oss-nvidia-driver-gpu-ubuntu-22.04/latest/ami-id")["Parameter"]["Value"]
+    for market, itype in PLAN:
         for az in AZS:
+            price = PRICES[itype]
+            if market == "spot":
+                sp = spot_price(itype, az)
+                if sp is None:
+                    continue
+                price = round(min(PRICES[itype], sp * SPOT_MARGIN), 3)
+            hard_min = int(remaining / price * 60) - 2
+            if hard_min < MIN_SESSION_MIN:
+                continue
+            opts = {"InstanceMarketOptions": {"MarketType": "spot", "SpotOptions": {"SpotInstanceType": "one-time",
+                                                                                  "InstanceInterruptionBehavior": "terminate"}}} if market == "spot" else {}
             try:
                 r = ec2.run_instances(
                     ImageId=ami, InstanceType=itype, MinCount=1, MaxCount=1, IamInstanceProfile={"Name": PROFILE},
                     Placement={"AvailabilityZone": az}, InstanceInitiatedShutdownBehavior="terminate",
-                    MetadataOptions={"HttpTokens": "required"}, UserData=ud,
+                    MetadataOptions={"HttpTokens": "required"}, UserData=user_data(run, hard_min, fams), **opts,
                     TagSpecifications=[{"ResourceType": "instance", "Tags": [{"Key": "Name", "Value": f"vrea-gpu-p{pid}"}, {"Key": "project", "Value": TAG}]},
                                        {"ResourceType": "volume", "Tags": [{"Key": "project", "Value": TAG}]}])
                 iid = r["Instances"][0]["InstanceId"]
-                ex("UPDATE runs SET state='booting', instance_id=%s, itype=%s, az=%s, hourly_usd=%s, hard_min=%s, launched_at=now() WHERE id=%s",
-                   iid, itype, az, price, hard_min, run["id"])
-                event(pid, f"GPU box {iid} launched ({itype}, {az}); loads {', '.join(fams) or 'voice only'}; hard stop in {hard_min} min (budget)")
+                ex("UPDATE runs SET state='booting', instance_id=%s, itype=%s, az=%s, hourly_usd=%s, hard_min=%s, market=%s, launched_at=now() WHERE id=%s",
+                   iid, itype, az, price, hard_min, market, run["id"])
+                event(pid, f"GPU box {iid} launched ({market} {itype}, {az}, ${price:.2f}/h counted); loads {', '.join(fams) or 'voice only'}; "
+                           f"hard stop in {hard_min} min (budget)")
                 return True
             except ClientError as e:
-                code = e.response["Error"]["Code"]; errors.append(f"{itype}/{az}: {code}")
-                if code not in ("InsufficientInstanceCapacity", "Unsupported", "InstanceLimitExceeded", "VcpuLimitExceeded"):
+                code = e.response["Error"]["Code"]; errors.append(f"{market} {itype}/{az}: {code}")
+                if code in ("VcpuLimitExceeded", "MaxSpotInstanceCountExceeded", "InstanceLimitExceeded"):
+                    break                                            # same limit in every AZ: next market/type
+                if code not in ("InsufficientInstanceCapacity", "Unsupported", "SpotMaxPriceTooLow", "InsufficientCapacity"):
                     break
     ex("UPDATE runs SET state='failed', error=%s, ended_at=now() WHERE id=%s", "; ".join(errors)[:2000] or "budget too low", run["id"])
     if not errors:
