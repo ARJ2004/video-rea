@@ -38,26 +38,37 @@ PLAYBOOK = """HOW HIGH-RETENTION AI SHORTS ARE BUILT (the house playbook; follow
 10. Emotion over information. Every clip must make the viewer FEEL one thing (dread, awe, warmth, injustice, curiosity).
     Specific, concrete, sensory details beat summaries. Cut any line that only explains.
 
-MEASURED EVIDENCE (our scan of ~500 AI Shorts, 2026-11-15: each video's views vs its own channel's median; outliers are
-20-450x the median; docs/what-works-2026-11.md). Where this conflicts with the rules above, this wins:
-A. The hook frame shows the THREAT/ODDITY and SOMEONE REACTING TO IT in one image: a ghost child in the storm outside a
-   train window while the family inside points and gasps (21M, 456x); a crocodile gliding toward children swimming (7.4M,
-   190x); a lion behind children in the jungle. Calm scenes with no visible stake (a bus on a road, a ship at the dock,
-   a portrait of one smiling child) sit at the median.
-B. Readable beats dark. In horror, frames that are bright, close and uncanny (a strange face filling the frame and
-   staring at the viewer) are the 5-41x outliers; dark silhouettes against a night sky are the typical ones. Keep the
-   darkness for later shots: the first frame must read at thumbnail size, with a lit face or creature and strong contrast.
-C. One formula, repeated, with a fixed recurring cast. The top six of a 1.5M-subscriber channel are all the same idea
-   (grandmother hand-builds an impossible vehicle/object to make the girl smile; same two characters, same clothes, same
-   photoreal look); its median videos are where it drifted (fantasy dragon, giant vegetable, 3D-cartoon style).
-D. High-arousal family emotion wins over gags: sacrifice, a mother in danger, grief, protecting someone, a grandparent's
-   love ("Maa", "for the girl's smile") were the outliers of a 4M-subscriber AI channel; comedy food gags were median.
-E. Nostalgic, relatable Indian everyday settings (a 90s night train journey, a village river, a flooded school, a lantern)
-   plus sudden danger are the strongest Hindi AI-story format found.
-F. Titles: an unfinished sentence ("When the train suddenly stopped in the middle of the night...") and a fear/shock emoji
-   reached >=5x the channel median about 1.7x as often as titles without (30-33% vs 19%).
-G. Two-part cliffhangers: Part 2 beat Part 1 in 5 of 8 matched pairs, sometimes by 5-8x. End Part 1 on the moment of
-   maximum danger, unresolved."""
+MEASURED EVIDENCE (where this conflicts with the rules above, this wins). Sources: frame-by-frame teardown of reference
+reels (docs/what-works-global.md) and a views-vs-channel-median scan of ~500 AI Shorts (docs/what-works-2026-11.md).
+A. The hook is the CONSEQUENCE, not the setting. The best series reel (oddhourtales, lighthouse horror, 445K views,
+   10 % like rate, 2.2K comments) never establishes: second 0 is mid-scene, and the first words pay off last episode's
+   audience vote ("You chose to light the lamp. You didn't open the door."). Its first cut is at 10 s - the words, the
+   HUD and the sound carry the hook, not cutting. "You" + a consequence + one ominous detail beats a wide establishing shot.
+B. Game state on screen. A persistent HUD (NIGHT 6/7 - big clock 2:17 AM - location - LIGHT: OFF / SHIPS SAVED: 1 /
+   SHIPS LOST: 1) turns a story into stakes the viewer tracks; clock jumps (2:18 AM -> 12:00 PM -> 6:12 PM -> 2:31 AM)
+   are the scene changes.
+C. The ending is a VOTE, held long: a card with the moment ("2:31 AM. TWO HONKS."), the question ("DO YOU GO DOWN TO
+   THE BOAT?"), two coloured buttons, "COMMENT YOUR CHOICE - MAJORITY DECIDES WHAT HAPPENS NEXT", and "FOLLOW TO SEE THE
+   FINAL NIGHT" - held ~16 s (it is the longest shot). Comments are the ranking signal; the vote makes every viewer a
+   commenter and the next episode their consequence. Explainers use the same lever: "COMMENT <KEYWORD> and I'll send
+   the full plan to your DMs".
+D. Captions are the picture's spine: 2-4 words at a time, UPPERCASE, heavy, one key word per chunk in an accent colour
+   (LAMP in amber; DIDN'T / DOOR in red). Sound effects are captioned too: "(HONK... HONK)".
+E. Plant a rule, then break it: an early line states a rule ("Two honks - that's him. Never at night."); the climax
+   breaks it (2:31 AM: two honks). Dread comes from the viewer knowing what it means before the character acts.
+F. Diegetic devices carry exposition without talking heads: a radio with a channel display (lines captioned "KID!",
+   "LAST ONE!"), a handwritten keeper's log page, a clock. One minimal, readable 2D style; a simple fixed character design
+   (yellow sou'wester) - cheap to keep consistent and readable on a phone.
+G. Explainer hooks: a riddle about a concrete object plus a number ("Every product company has one chair nobody can
+   explain. It costs about 20 lakh a year."), drawn as one symbolic image (an empty chair at a table) with an arrow
+   label; then labels pop in one by one in sync with the words; no cuts at all.
+H. From the Shorts scan (all formats): the hook frame shows the threat or oddity AND someone reacting to it; bright,
+   close, uncanny frames beat dark silhouettes (5-41x vs 1x); outliers repeat one formula with a fixed cast; titles that
+   stop mid-sentence at the danger ("When the train suddenly stopped in the middle of the night...") hit 5x the median
+   about 1.7x as often; Part 2 beat Part 1 in 5 of 8 two-part stories - end on the unresolved moment.
+I. Instagram's own ranking guidance: the predictions that matter most are reshare, watch to the end, like, and visit to
+   the audio page; reels that are mostly text, low-resolution, watermarked or with borders are shown less. So text cards
+   are short moments inside motion, never the whole reel (the vote card is the exception at the very end)."""
 
 
 PLATFORM_RULES = """WHAT THIS PLATFORM CAN RENDER (hard rules - output that breaks them is rejected)
@@ -89,7 +100,14 @@ Optional "fx": "radio" | "stranger". Narrated lines: give the shots of that clip
 Sound (synthesized on the server - only these values exist):
 - clip "ambience": "storm" | "rain" | "room";  clip "music": "drone"
 - shot "sfx": [{"type": knock|static|thunder|heartbeat|impact|creak|silence, "at": seconds, optional "dur", "count", "gap"}]
-Overlays (drawn on top, exact spelling): shot "overlays": [{"text", "style": hud|notebook|title|choice|label, "at", "until"}]
+Overlays (drawn on top, exact spelling): shot "overlays": [{"text", "style": hud|notebook|title|choice|label|vote, "at", "until"}]
+- "vote": the end-of-episode audience vote card. text lines: the moment (first line, red), the question, one line of
+  buttons "[GO DOWN] [STAY]", "~COMMENT YOUR CHOICE - MAJORITY DECIDES WHAT HAPPENS NEXT" (small), ">FOLLOW TO SEE ..."
+  (yellow pill). Put it on the last shot, held 8-16 s ("animate": "still" is fine for that shot).
+- "hud": a persistent game-state line at the top (e.g. "NIGHT 6/7 | 2:17 AM | LIGHT: OFF | SHIPS LOST: 1"); repeat it on
+  every shot of a scene, updating the values when they change.
+Captions: storyboard "style": {"captions": "punch"} draws 2-4 word UPPERCASE chunks with the key word in the accent colour
+("accent": amber|red|green|cyan). In a line's "caption", wrap the one key word of each sentence in *asterisks*.
 End card: the last shot of the last clip may carry "end_card": {"dur_s": 2, "text": "<series> - Episode <n>"}.
 
 Ids: clips "01", "02", ...; shots "<clip>-A", "<clip>-B", ...; lines "<clip>-L1", ... (unique)."""

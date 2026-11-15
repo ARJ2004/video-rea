@@ -88,8 +88,8 @@ def validate(sb):
                 if e.get("type") not in ("knock", "static", "thunder", "heartbeat", "impact", "creak", "silence"):
                     raise ValueError(f"shot {s['id']}: unknown sfx type '{e.get('type')}'")
             for o in s.get("overlays", []):
-                if o.get("style", "label") not in ("hud", "notebook", "title", "choice", "label") or not o.get("text"):
-                    raise ValueError(f"shot {s['id']}: overlay needs text and a style of hud/notebook/title/choice/label")
+                if o.get("style", "label") not in ("hud", "notebook", "title", "choice", "label", "vote") or not o.get("text"):
+                    raise ValueError(f"shot {s['id']}: overlay needs text and a style of hud/notebook/title/choice/label/vote")
             if s.get("vo") and not any(s["vo"] in l["tts"] for l in c.get("lines", [])):
                 raise ValueError(f"shot {s['id']}: 'vo' must be an exact part of one of its clip's lines")
             base = (s.get("cover") or {}).get("base")

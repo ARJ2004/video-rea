@@ -4,7 +4,7 @@ Pacing numbers follow the playbook: hook shot 2-3.5 s, average shot 1.5-3 s, voi
 import re
 
 SFX = ("knock", "static", "thunder", "heartbeat", "impact", "creak", "silence")
-OVERLAY_STYLES = ("hud", "notebook", "title", "choice", "label")
+OVERLAY_STYLES = ("hud", "notebook", "title", "choice", "label", "vote")
 TECHS = ("I2V", "TALK", "FLF", "I2V+COMP")
 WPS = {"en": 2.5, "hi": 2.2}          # comfortable spoken words per second (upper bound before it sounds rushed)
 HARD_FOR_MODELS = re.compile(r"\b(fight|fighting|punch|sword ?fight|crowd|typing|writes?|writing|reads? the|letters?|"
@@ -96,14 +96,20 @@ def lint(sb):
     first_c, first = all_shots[0]
     stats = {"shots": len(all_shots), "clips": len(clips), "picture_s": round(total, 1),
              "avg_shot_s": round(total / max(1, len(durs)), 2)}
-    if shot_seconds(first) > 3.5:
-        warns.append(f"hook: first shot {first.get('id')} is {shot_seconds(first)} s; the hook frame should cut by 3 s")
+    if not (first.get("vo") or first.get("vo_lines") or first.get("tech") == "TALK"):
+        warns.append(f"hook: no words over the first shot {first.get('id')} (the reference hooks speak from second 0)")
+    if shot_seconds(first) > 3.5 and not (first.get("vo") or first.get("vo_lines")):
+        warns.append(f"hook: first shot {first.get('id')} holds {shot_seconds(first)} s with no words; cut by 3 s or speak over it")
     if not any(o.get("at", 0) <= 1.0 for o in first.get("overlays", [])):
         warns.append("hook: no on-screen text in the first second (muted viewers see only the picture)")
     if not first.get("sfx"):
         warns.append("hook: no sound hit on the first shot")
-    if stats["avg_shot_s"] > 3.5:
-        warns.append(f"pacing: average shot is {stats['avg_shot_s']} s; aim for 1.5-3 s")
+    last = all_shots[-1][1]
+    if sb.get("ending") != "payoff" and not any(o.get("style") == "vote" for o in last.get("overlays", [])) and not last.get("end_card"):
+        warns.append("ending: no vote card or end card on the last shot (the reference series ends on a held audience vote)")
+    if stats["avg_shot_s"] > 6:
+        warns.append(f"pacing: average shot is {stats['avg_shot_s']} s; even the slow-cut reference series averages ~6.6 s "
+                     f"and keeps motion with captions, HUD changes and camera push-ins")
     for a, b in zip(all_shots, all_shots[1:]):
         fa, fb = a[1].get("framing"), b[1].get("framing")
         if fa and fa == fb and a[1].get("refs") == b[1].get("refs"):

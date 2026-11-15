@@ -1,0 +1,119 @@
+{
+ "fetched": "2026-11-15",
+ "reels": [
+  {
+   "code": "DfcVM8lxlKk",
+   "owner": "oddhourtales",
+   "views": 445241,
+   "likes": 44443,
+   "comments": 2240,
+   "duration_s": 79.434,
+   "taken_at": null,
+   "like_rate": 0.1,
+   "comment_rate": 0.005,
+   "caption": "Night 6. Two honks. At night.\n\nYou chose to light the lamp 🔥 You didn’t open the door.\nThe burner was fine. And the door was gone.\n\nDay 6 📻 Moss called: the generator parts are loaded.\nDay 8, first light. Two honks, that’s him. Never at night.\n\n🔦 2:30 AM. A green light on the water. The Wren.\nTwo honks. Moss on the radio: a storm is coming back, get down here, now.\nBut when the beam passed… the boat wasn’t there.\n\nGo down to the boat… or stay?\n\nComment GO DOWN or STAY. The majority decides the FINAL night.\n\nPart 6 of 7 · Seven Nights at the Lighthouse\n\n#interactivestory #mystery #animation #youdecide #storytime"
+  },
+  {
+   "code": "DfwEiPJh7jD",
+   "owner": "_behindthebuild._",
+   "views": 817,
+   "likes": 35,
+   "comments": 1,
+   "duration_s": 73.125,
+   "taken_at": null,
+   "like_rate": 0.043,
+   "comment_rate": 0.0012,
+   "caption": "Every product company has one chair nobody can explain. It costs about ₹20 lakh a year.\n\nTake it away for a month. Nothing breaks. Nobody panics. The team still ships — on time, beautifully built, and completely the wrong thing.\n\nLook around that table. Every job there is a noun. The engineer writes code. The designer draws screens. Sales sells. Support answers.\n\nThat one chair has no noun. It has questions:\n→ Why are we building this at all?\n→ What do we build next, and what do we drop?\n→ When is it done, and how?\n\nHand those questions to the engineer and the roadmap follows the code. Hand them to sales and it follows the loudest customer. Both teams work hard. Both ship the wrong month.\n\nThe problem was never a missing skill. It was a missing owner.\n\nYou don't need a degree for that chair. Pick a product you already use, write down what's broken and who it hurts, answer the three questions in writing, then ship one small change to real users.\n\nCOMMENT \"ROADMAP\" AND I'LL SEND THE FULL PLAN TO YOUR DMs 👇\n\nPM salary is a national average (~₹17.5–23 LPA, industry aggregators 2026), not a promise.\n\n#ProductManagement #ProductManager #PMCareers #AIProductManagement #BehindTheBuild\n\nKeywords: what does a product manager do, product manager roadmap, how to become a product manager india, pm without coding, non technical product manager, product owner vs product manager, pm career switch, ai product management"
+  }
+ ],
+ "autopsy": [
+  {
+   "file": "_behindthebuild.__DfwEiPJh7jD.mp4",
+   "duration_s": 73.21,
+   "width": 720,
+   "height": 1280,
+   "fps": 24.0,
+   "has_audio": true,
+   "cuts_s": [],
+   "shots": 1,
+   "first_cut_s": null,
+   "cuts_in_first_3s": 0,
+   "shot_mean_s": 73.21,
+   "shot_median_s": 73.21,
+   "shot_max_s": 73.21,
+   "cuts_per_10s_by_quarter": [
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "hook_motion_ratio": 47.56,
+   "first_frame": {
+    "brightness": 0.78,
+    "contrast": 0.05,
+    "saturation": 0.17
+   },
+   "loop_similarity": 0.92,
+   "audio": {
+    "lufs": -14.1,
+    "hit_first_0_5s_db": 2.7,
+    "sound_starts_s": 0.35,
+    "silence_share": 0.02,
+    "dynamic_range_db": 21.3
+   },
+   "page": "_behindthebuild._",
+   "views": 817,
+   "likes": 35
+  },
+  {
+   "file": "oddhourtales_DfcVM8lxlKk.mp4",
+   "duration_s": 79.43,
+   "width": 720,
+   "height": 1280,
+   "fps": 30.0,
+   "has_audio": true,
+   "cuts_s": [
+    10.47,
+    16.87,
+    26.5,
+    33.07,
+    35.2,
+    36.37,
+    39.87,
+    42.87,
+    47.83,
+    50.63,
+    71.97
+   ],
+   "shots": 12,
+   "first_cut_s": 10.47,
+   "cuts_in_first_3s": 0,
+   "shot_mean_s": 6.62,
+   "shot_median_s": 5.68,
+   "shot_max_s": 21.34,
+   "cuts_per_10s_by_quarter": [
+    1.0,
+    2.0,
+    2.0,
+    0.5
+   ],
+   "hook_motion_ratio": 2.64,
+   "first_frame": {
+    "brightness": 0.01,
+    "contrast": 0.01,
+    "saturation": 0.22
+   },
+   "loop_similarity": 0.73,
+   "audio": {
+    "lufs": -13.5,
+    "hit_first_0_5s_db": 17.7,
+    "sound_starts_s": 0.2,
+    "silence_share": 0.01,
+    "dynamic_range_db": 32.8
+   },
+   "page": "oddhourtales",
+   "views": 445241,
+   "likes": 44443
+  }
+ ]
+}

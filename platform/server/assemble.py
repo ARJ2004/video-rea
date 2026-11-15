@@ -121,13 +121,14 @@ def burn(video, audio, caps, labels, out, work):
     """caps: [(text, t0, t1)] 2-line chunks; labels: [(png, t0, t1)]."""
     ins, fc, last = ["-i", str(video), "-i", str(audio)], [], "0:v"
     total = dur(video)
-    for k, (png, a, b) in enumerate(labels):
+    for k, lab in enumerate(labels):
+        png, a, b = lab[:3]; fd = lab[3] if len(lab) > 3 else 0.35      # punch captions fade fast (0.06 s)
         ins += ["-loop", "1", "-t", f"{total:.2f}", "-i", str(png)]
-        fc.append(f"[{k + 2}:v]format=rgba,fade=t=in:st={a:.2f}:d=0.35:alpha=1,fade=t=out:st={max(a, b - 0.35):.2f}:d=0.35:alpha=1[l{k}]")
+        fc.append(f"[{k + 2}:v]format=rgba,fade=t=in:st={a:.2f}:d={fd}:alpha=1,fade=t=out:st={max(a, b - fd):.2f}:d={fd}:alpha=1[l{k}]")
         fc.append(f"[{last}][l{k}]overlay=0:0:enable='between(t,{a:.2f},{b:.2f})'[v{k}]"); last = f"v{k}"
     for j, (text, a, b) in enumerate(caps):
         # trailing space: this ffmpeg drops a multi-byte character (e.g. an em dash) when it is the last byte of the text
-        cf = Path(work) / f"cap{j}.txt"; cf.write_text("\n".join(textwrap.wrap(text, 34)) + " ", encoding="utf-8")
+        cf = Path(work) / f"cap{j}.txt"; cf.write_text("\n".join(textwrap.wrap(text.replace("*", ""), 34)) + " ", encoding="utf-8")
         fc.append(f"[{last}]drawtext=fontfile={CAPF}:textfile={cf}:fontsize=46:fontcolor=white:line_spacing=10:box=1:boxcolor=black@0.45:"
                   f"boxborderw=18:x=(w-text_w)/2:y=h-text_h-220:enable='between(t,{a:.2f},{b:.2f})':"
                   f"alpha='min(1,min((t-{a:.2f})/0.15,({b:.2f}-t)/0.15))'[c{j}]"); last = f"c{j}"
@@ -149,6 +150,17 @@ def plain(text):
     for a, b in PLAIN.items():
         text = text.replace(a, b)
     return " ".join(text.split())
+
+
+def punch_layers(caps, work, accent):
+    """Re-split the timed 2-line caption chunks into punch chunks (same time span, shared by length) as PNG layers."""
+    out = []
+    for j, (text, a, b) in enumerate(caps):
+        ch = overlays.punch_chunks(text); n = sum(len(c) for c in ch) or 1; t = a
+        for i, c in enumerate(ch):
+            e = b if i == len(ch) - 1 else t + (b - a) * len(c) / n
+            out.append((overlays.punch_png(c, Path(work) / f"pc{j}_{i}.png", accent), t, e, 0.06)); t = e
+    return out
 
 
 def line_caps(caption, t0, t1):
@@ -304,6 +316,8 @@ def clip_task(task):
         (d / "list.txt").write_text("".join(f"file '{p}'\n" for p in parts))
         sh("ffmpeg", "-loglevel", "error", "-y", "-f", "concat", "-safe", "0", "-i", d / "list.txt", "-c", "copy", d / "video.mp4")
         audio = mix(tracks, total, d / "audio.wav")
+        if (sb.get("style") or {}).get("captions") == "punch":     # 2-4 word chunks, key word in the accent colour
+            caps, labels = [], labels + punch_layers(caps, d, (sb.get("style") or {}).get("accent", "amber"))
         out = burn(d / "video.mp4", audio, caps, labels, d / f"clip_{cid}.mp4", d)
         key = put(out, task, ".mp4")
         return [{"s3_key": key, "kind": "video", "meta": {"duration": round(dur(out), 2), "shots": len(parts), "voice_over_lines": len(vo), "narration_mapped_to_shots": bool(mapped),

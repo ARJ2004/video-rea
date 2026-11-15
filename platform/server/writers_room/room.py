@@ -142,7 +142,8 @@ class Room:
               "language": self.lang, "source": "Drafted by the writers' room (Claude) for review",
               "status": "draft-for-review",
               "format": {**FORMAT, "target_duration_s": brief.get("target_duration_s") or self.target_s},
-              "style": {"look": vis.get("look", ""), "look_scene": vis.get("look_scene", ""), "negative": vis.get("negative", "")},
+              "style": {"look": vis.get("look", ""), "look_scene": vis.get("look_scene", ""), "negative": vis.get("negative", ""),
+                        "captions": "punch", "accent": "amber"},
               "characters": cast.get("characters", {}), "sets": cast.get("sets", {}), "clips": []}
         if self.lang == "en":
             sb["voices"] = cast.get("voices", {})

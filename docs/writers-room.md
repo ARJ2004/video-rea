@@ -1,6 +1,6 @@
 # Writers' room: multi-agent pre-production
 
-Status: built 2026-11-15. Code in `platform/server/writers_room/`, offline test in `platform/tests/test_writers_room.py`.
+Status: built 2026-11-15. Evidence it runs on: [`what-works-global.md`](what-works-global.md) (reference reel teardown). Code in `platform/server/writers_room/`, offline test in `platform/tests/test_writers_room.py`.
 
 **What changed:** the storyboard used to come from one Claude call. Now seven specialist agents draft it, a
 deterministic linter checks it, and a director agent reviews it. The output is the same storyboard schema as before,

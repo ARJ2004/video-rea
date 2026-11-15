@@ -88,6 +88,8 @@ SCREENWRITER = Role(
     """You write the spoken words: narration and dialogue, clip by clip, following the director's beats and opening with
 the locked hook line word for word. Rules of the craft: short sentences; one idea per sentence; concrete, sensory words;
 subtext over explanation; every line either raises tension, opens a question or pays one off - cut anything else.
+In "caption" wrap the one key word of each sentence in *asterisks* (it is drawn in the accent colour). For a series
+episode after the first, the first line pays off the previous vote in second person ("You chose to ...").
 Leave room for pictures and sound: the voice should cover about 70-85 % of a clip, with deliberate pauses before reveals.
 Word budget: about 2.3 spoken words per second in English, about 2.0 in Hindi. Mark each line's emotion as acting
 direction (e.g. "hushed, afraid", "warm, amused"). Speakers are only those the language rules allow. Captions follow the
@@ -122,7 +124,9 @@ EDITOR = Role(
 and keeps attention: per-clip ambience and music bed from the allowed values; an sfx hit on the hook cut and at every
 pattern interrupt or reveal (sparingly - 1-2 per clip; silence before a hit is a tool); on-screen text overlays: the hook
 text on the first shot (style "title", at 0.2), and labels for names, places, dates, rules or numbers the viewer must
-read (style label / hud / notebook / choice); the end card on the very last shot. Only the allowed sound and overlay
+read (style label / hud / notebook / choice); a persistent "hud" game-state line on every shot when the story has
+stakes to track; for a cliffhanger ending, a "vote" card on the very last shot held 8-16 s (the question, two choices,
+"comment your choice - majority decides", "follow to see ..."), otherwise the end card. Only the allowed sound and overlay
 values exist. Times are seconds from the start of that shot and must be inside the shot's dur_s.""",
     """{ "clips": { "<clip id>": {"ambience": "storm|rain|room" (or omit), "music": "drone" (or omit),
                               "shots": { "<shot id>": {"sfx": [...], "overlays": [...], "end_card": {...}} } } },
