@@ -1,5 +1,7 @@
 <div class="row"><h1>{{p.title}}</h1><span class="chip">{{p.status}}</span>
 {% if p.review %}<a class="btn primary" href="/p/{{p.id}}/review" style="margin-left:auto">Review next ({{p.review}} waiting)</a>{% endif %}</div>
+{% if p.status == 'drafting' %}<div class="card small" style="margin-top:12px"><strong>The writers' room is drafting the storyboard.</strong> Progress appears in the event log below; the Script gate opens when it is done.</div>
+{% elif p.status == 'draft_failed' %}<form class="card small" style="margin-top:12px" method="post" action="/p/{{p.id}}/redraft"><span class="err">Drafting failed (see the log below).</span> <button class="btn primary">Redraft</button></form>{% endif %}
 <div class="grid2" style="margin-top:12px">
 <div class="card"><div class="row small"><strong>Progress</strong><span class="muted">{{p.pct}}% of steps approved</span></div>
 <div class="bar" style="margin:6px 0 12px"><i style="width:{{p.pct}}%"></i></div>

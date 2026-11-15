@@ -4,6 +4,13 @@
 <h2>Option A · paste the story</h2><p class="muted small">Claude drafts the storyboard (clips, shots, lines). You then edit and approve it before anything is generated.
 {% if not has_key %}<br><strong>Needs an Anthropic API key in <a href="/settings">Settings</a>.</strong>{% endif %}</p>
 <textarea name="story" rows="10" placeholder="Paste the story or script here"></textarea>
+<div class="row small" style="margin:8px 0">
+<label>Drafting <select name="mode"><option value="room">Writers' room: director, hook doctor, casting, screenwriter, storyboard, editor, review (5-10 min, about $1-3)</option>
+<option value="quick">Quick: one Claude call (Hindi, Tara &amp; Dadi)</option></select></label>
+<label>Language <select name="language"><option value="en">English</option><option value="hi">Hindi (Tara &amp; Dadi voices)</option></select></label>
+<label>Length (s) <input type="text" name="target_s" placeholder="60" size="4"></label>
+<label>Ending <select name="ending"><option value="">director decides</option><option value="cliffhanger">cliffhanger (series)</option><option value="loop">loop to the start</option><option value="payoff">full payoff</option></select></label></div>
+<textarea name="notes" rows="2" placeholder="Optional directions for the room (audience, tone, references, what must be kept)"></textarea>
 <p><button class="btn primary" name="action" value="draft" {% if not has_key %}disabled{% endif %}>Draft with Claude</button></p>
 <h2>Option B · paste a storyboard JSON</h2><p class="muted small">Same format as <code>stories/srishti-ep2/storyboard.json</code>.</p>
 <textarea name="storyboard" rows="8" class="code" style="min-height:180px"></textarea>

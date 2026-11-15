@@ -97,9 +97,22 @@ def new_page(request: Request, err: str = ""):
 
 
 @app.post("/new")
-def new_project(title: str = Form(...), story: str = Form(""), storyboard: str = Form(""), action: str = Form("create")):
+def new_project(title: str = Form(...), story: str = Form(""), storyboard: str = Form(""), action: str = Form("create"),
+                mode: str = Form("room"), language: str = Form("en"), target_s: str = Form(""), ending: str = Form(""),
+                notes: str = Form("")):
     import drafting, engine
     try:
+        if action == "draft" and not storyboard.strip() and mode == "room":
+            if not db.setting("anthropic_key"):
+                raise ValueError("Add an Anthropic API key in Settings to draft from a story, or paste a storyboard JSON.")
+            if not story.strip():
+                raise ValueError("Paste the story first.")
+            opts = {"language": "hi" if language == "hi" else "en", "target_s": int(target_s) if target_s.strip().isdigit() else None,
+                    "ending": ending if ending in ("cliffhanger", "loop", "payoff") else None, "notes": notes.strip()[:2000]}
+            p = one("INSERT INTO projects (title, storyboard, story_text, status) VALUES (%s,%s,%s,'drafting') RETURNING id",
+                    title, J({"clips": [], "draft_opts": opts}), story)
+            start_room(p["id"])
+            return RedirectResponse(f"/p/{p['id']}", 303)
         if storyboard.strip():
             sb = json.loads(storyboard)
         elif action == "draft":
@@ -116,6 +129,36 @@ def new_project(title: str = Form(...), story: str = Form(""), storyboard: str =
     engine.build_slots(p["id"], sb)
     event(p["id"], "Story created; storyboard waiting for your approval")
     return RedirectResponse(f"/p/{p['id']}/s/script", 303)
+
+
+def start_room(pid):
+    """Writers' room in a background thread: each agent's progress is an event on the board; the result lands at the
+    Script gate exactly like a pasted storyboard. On failure the story stays 'draft_failed' with the reason."""
+    def work():
+        import engine, writers_room
+        p = one("SELECT * FROM projects WHERE id=%s", pid)
+        opts = (p["storyboard"] or {}).get("draft_opts") or {}
+        try:
+            event(pid, "Writers' room started (7 agents; usually 5-10 minutes)")
+            sb = writers_room.draft(db.setting("anthropic_key"), p["story_text"], p["title"],
+                                    progress=lambda m: event(pid, m), **opts)
+            ex("UPDATE projects SET storyboard=%s, status='running', updated_at=now() WHERE id=%s", J(sb), pid)
+            ex("DELETE FROM slots WHERE project_id=%s", pid)
+            engine.build_slots(pid, sb)
+            event(pid, "Storyboard drafted; waiting for your approval (see preproduction for the brief, hooks and review)")
+        except Exception as e:
+            print("writers room", traceback.format_exc(), flush=True)
+            ex("UPDATE projects SET status='draft_failed', updated_at=now() WHERE id=%s", pid)
+            event(pid, f"Writers' room failed: {str(e)[:400]}", "error")
+    threading.Thread(target=work, daemon=True, name=f"room-{pid}").start()
+
+
+@app.post("/p/{pid}/redraft")
+def redraft(pid: int):
+    p = one("SELECT status FROM projects WHERE id=%s", pid)
+    if p and p["status"] == "draft_failed":
+        ex("UPDATE projects SET status='drafting', updated_at=now() WHERE id=%s", pid); start_room(pid)
+    return RedirectResponse(f"/p/{pid}", 303)
 
 
 def board_ctx(pid):
@@ -411,6 +454,8 @@ def startup():
     if os.environ.get("VREA_PUBLIC_URL"):
         db.set_setting("public_url", os.environ["VREA_PUBLIC_URL"])
     ex("UPDATE tasks SET state='queued' WHERE state='running' AND family='cpu'")      # restart: redo interrupted assembly
+    for p in q("SELECT id FROM projects WHERE status='drafting'"):                   # a restart killed the writers' room
+        ex("UPDATE projects SET status='draft_failed' WHERE id=%s", p["id"]); event(p["id"], "Server restarted while drafting; press Redraft", "warn")
     if NO_BACKGROUND:
         return
     import scaler

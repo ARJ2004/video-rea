@@ -4,6 +4,17 @@
 {% if next %}<a class="btn" style="margin-left:auto" href="/p/{{p.id}}/s/{{next.key}}">Next waiting →</a>{% endif %}</div>
 {% if s.note %}<p class="small muted">Your notes so far: {{s.note}}</p>{% endif %}
 {% if s.kind == 'script' %}
+{% set pp = p.storyboard.preproduction %}{% if pp %}
+<div class="card small"><strong>Writers' room</strong> · Claude cost ${{pp.cost_usd}}{% set b = pp.brief %}
+<p><strong>Logline:</strong> {{b.logline}}<br><strong>Feel:</strong> {{b.emotional_core}} · <strong>Open question:</strong> {{b.central_question}} · <strong>Ending:</strong> {{b.ending}}</p>
+{% if pp.hook %}<p><strong>Locked hook</strong> ({{pp.hook.archetype}}, {{pp.hook.total}}/50): "{{pp.hook.spoken_line}}" · text: <em>{{pp.hook.on_screen_text}}</em><br><span class="muted">First frame: {{pp.hook.first_frame}}</span></p>{% endif %}
+{% set rv = pp.reviews[-1] if pp.reviews else none %}{% if rv %}<p><strong>Director review:</strong> {{rv.verdict}} · overall {{rv.overall}} ·
+{% for k, v in (rv.scores or {}).items() %}{{k}} {{v}}{% if not loop.last %} · {% endif %}{% endfor %}</p>
+{% if rv.notes %}<details><summary>Open notes ({{rv.notes|length}})</summary><ul>{% for n in rv.notes %}<li><strong>{{n['for']}}</strong> {{n.where}}: {{n.problem}} → <span class="muted">{{n.fix}}</span></li>{% endfor %}</ul></details>{% endif %}{% endif %}
+{% if pp.lint and pp.lint.warnings %}<details><summary>Automatic checks: {{pp.lint.warnings|length}} warnings · avg shot {{pp.lint.stats.avg_shot_s}} s · {{pp.lint.stats.picture_s}} s of pictures</summary><ul>{% for w in pp.lint.warnings %}<li>{{w}}</li>{% endfor %}</ul></details>{% endif %}
+<details><summary>All hook candidates</summary><table>{% for h in pp.hooks.candidates %}<tr><td>{{h.total}}</td><td>{{h.archetype}}</td><td>"{{h.spoken_line}}"<br><span class="muted">{{h.first_frame}}</span></td></tr>{% endfor %}</table></details>
+<details><summary>Beats</summary><table>{% for x in b.beats %}<tr><td>{{x.start_s}}–{{x.end_s}} s</td><td>{{x.name}}</td><td>{{x.what_happens}}<br><span class="muted">{{x.viewer_feels}}</span></td></tr>{% endfor %}</table></details>
+</div>{% endif %}
 <p class="muted small">Edit the storyboard if you like, then approve. Nothing is generated before this is approved.</p>
 <form method="post" action="/p/{{p.id}}/script"><textarea name="storyboard" class="code">{{sb_text}}</textarea>
 <p class="row">{% if s.state != 'approved' %}<button class="btn" name="action" value="save">Save</button><button class="btn primary" name="action" value="approve">Approve storyboard</button>

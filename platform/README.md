@@ -7,7 +7,9 @@ spending cap per story ($14 by default). Design: [`docs/orchestration-platform.m
 ## Using it
 
 1. **New story:** either paste a story and let Claude draft the storyboard (needs an Anthropic API key in Settings), or
-   paste a storyboard JSON in the same format as `stories/srishti-ep2/storyboard.json`.
+   paste a storyboard JSON in the same format as `stories/srishti-ep2/storyboard.json`. Drafting runs the **writers'
+   room** by default: seven agents (showrunner, hook doctor, casting, screenwriter, storyboard artist, editor & sound,
+   director review) in the background, 5-10 min, about $1-3. See [`docs/writers-room.md`](../docs/writers-room.md).
 2. **Approve the storyboard.** Nothing is generated before this.
 3. **Pick at each review point.** These are the only required ones; the optional video-shot review is skipped.
    - **Designs:** pick a sheet for each character and set.
@@ -26,7 +28,7 @@ The board refreshes every 4 s and shows each step's state, the GPU machine, queu
 | Web app + engine + autoscaler | `server/app.py`, `engine.py`, `scaler.py` | One process on a t4g.small. Postgres is on the same machine, local only. Caddy serves HTTPS on 80/443. |
 | CPU assembly | `server/assemble.py` | Clips (voice-driven timing, 2-line captions, labels) and the episode (dissolves, end card, −14 LUFS, QA) |
 | GPU worker | `worker/worker.py` | On each GPU machine: pulls tasks for the model families already loaded; voice takes run alongside image jobs |
-| Storyboard drafting | `server/drafting.py` | Claude Opus 5.5, structured JSON, validated before it reaches you |
+| Storyboard drafting | `server/writers_room/` (multi-agent), `server/drafting.py` (quick, one call) | Claude Opus 5.5; linted, repaired and director-reviewed before it reaches you |
 
 **Spending cap, three layers:**
 1. No launch unless at least 15 min of budget is left.
@@ -60,3 +62,5 @@ python3 tests/e2e_local.py http://127.0.0.1:8001 <password> <project_id>
 
 The test uses a real Postgres, real S3 and real ffmpeg assembly, with a simulated GPU worker speaking the real worker
 API. It picks the top variant at every review point through the web pages, through to the approved episode.
+
+Writers' room, offline (stub Claude client, no key needed): `python3 tests/test_writers_room.py`
