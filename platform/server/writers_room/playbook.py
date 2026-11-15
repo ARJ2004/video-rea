@@ -36,7 +36,28 @@ PLAYBOOK = """HOW HIGH-RETENTION AI SHORTS ARE BUILT (the house playbook; follow
    manipulating small objects, many people interacting, fast complex choreography, readable text in the image, one
    creature changing into another.
 10. Emotion over information. Every clip must make the viewer FEEL one thing (dread, awe, warmth, injustice, curiosity).
-    Specific, concrete, sensory details beat summaries. Cut any line that only explains."""
+    Specific, concrete, sensory details beat summaries. Cut any line that only explains.
+
+MEASURED EVIDENCE (our scan of ~500 AI Shorts, 2026-11-15: each video's views vs its own channel's median; outliers are
+20-450x the median; docs/what-works-2026-11.md). Where this conflicts with the rules above, this wins:
+A. The hook frame shows the THREAT/ODDITY and SOMEONE REACTING TO IT in one image: a ghost child in the storm outside a
+   train window while the family inside points and gasps (21M, 456x); a crocodile gliding toward children swimming (7.4M,
+   190x); a lion behind children in the jungle. Calm scenes with no visible stake (a bus on a road, a ship at the dock,
+   a portrait of one smiling child) sit at the median.
+B. Readable beats dark. In horror, frames that are bright, close and uncanny (a strange face filling the frame and
+   staring at the viewer) are the 5-41x outliers; dark silhouettes against a night sky are the typical ones. Keep the
+   darkness for later shots: the first frame must read at thumbnail size, with a lit face or creature and strong contrast.
+C. One formula, repeated, with a fixed recurring cast. The top six of a 1.5M-subscriber channel are all the same idea
+   (grandmother hand-builds an impossible vehicle/object to make the girl smile; same two characters, same clothes, same
+   photoreal look); its median videos are where it drifted (fantasy dragon, giant vegetable, 3D-cartoon style).
+D. High-arousal family emotion wins over gags: sacrifice, a mother in danger, grief, protecting someone, a grandparent's
+   love ("Maa", "for the girl's smile") were the outliers of a 4M-subscriber AI channel; comedy food gags were median.
+E. Nostalgic, relatable Indian everyday settings (a 90s night train journey, a village river, a flooded school, a lantern)
+   plus sudden danger are the strongest Hindi AI-story format found.
+F. Titles: an unfinished sentence ("When the train suddenly stopped in the middle of the night...") and a fear/shock emoji
+   reached >=5x the channel median about 1.7x as often as titles without (30-33% vs 19%).
+G. Two-part cliffhangers: Part 2 beat Part 1 in 5 of 8 matched pairs, sometimes by 5-8x. End Part 1 on the moment of
+   maximum danger, unresolved."""
 
 
 PLATFORM_RULES = """WHAT THIS PLATFORM CAN RENDER (hard rules - output that breaks them is rejected)

@@ -7,7 +7,7 @@
 {% set pp = p.storyboard.preproduction %}{% if pp %}
 <div class="card small"><strong>Writers' room</strong> · Claude cost ${{pp.cost_usd}}{% set b = pp.brief %}
 <p><strong>Logline:</strong> {{b.logline}}<br><strong>Feel:</strong> {{b.emotional_core}} · <strong>Open question:</strong> {{b.central_question}} · <strong>Ending:</strong> {{b.ending}}</p>
-{% if pp.hook %}<p><strong>Locked hook</strong> ({{pp.hook.archetype}}, {{pp.hook.total}}/50): "{{pp.hook.spoken_line}}" · text: <em>{{pp.hook.on_screen_text}}</em><br><span class="muted">First frame: {{pp.hook.first_frame}}</span></p>{% endif %}
+{% if pp.hook %}<p><strong>Locked hook</strong> ({{pp.hook.archetype}}, {{pp.hook.total}}/50): "{{pp.hook.spoken_line}}" · text: <em>{{pp.hook.on_screen_text}}</em><br><span class="muted">First frame: {{pp.hook.first_frame}}</span>{% if pp.hooks.post_title %}<br><strong>Post title:</strong> {{pp.hooks.post_title}}{% endif %}</p>{% endif %}
 {% set rv = pp.reviews[-1] if pp.reviews else none %}{% if rv %}<p><strong>Director review:</strong> {{rv.verdict}} · overall {{rv.overall}} ·
 {% for k, v in (rv.scores or {}).items() %}{{k}} {{v}}{% if not loop.last %} · {% endif %}{% endfor %}</p>
 {% if rv.notes %}<details><summary>Open notes ({{rv.notes|length}})</summary><ul>{% for n in rv.notes %}<li><strong>{{n['for']}}</strong> {{n.where}}: {{n.problem}} → <span class="muted">{{n.fix}}</span></li>{% endfor %}</ul></details>{% endif %}{% endif %}

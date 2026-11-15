@@ -54,13 +54,17 @@ write FIVE genuinely different cold opens, each using a different archetype from
 (the episode must pay it off). Score each one 1-10 on: scroll_stop (would the muted first frame stop a thumb?),
 curiosity_gap (does it open a question the viewer needs closed?), clarity (understood instantly with no context?),
 payoff (does the episode actually deliver it?), feasibility (can an image + video model render that first frame well?).
-Pick the winner by total; break ties toward scroll_stop. Write the first frame as a keyframe description a model can
-draw (one subject, high contrast, no text in the image).""",
+Score scroll_stop against the MEASURED EVIDENCE: a frame that shows the threat or oddity AND a character reacting to it,
+brightly enough lit to read at thumbnail size, scores high; a calm establishing shot, a dark silhouette or a lone
+portrait scores at most 4. Pick the winner by total; break ties toward scroll_stop. Write the first frame as a keyframe
+description a model can draw (the stake and the reaction in one frame, a lit face, high contrast, no text in the image).
+Also propose the episode title for posting: an unfinished sentence that stops at the moment of danger, plus one emoji.""",
     """{ "candidates": [ {"archetype", "first_frame": "keyframe description", "first_motion": "what moves in 0-3 s",
                      "spoken_line": "6-12 words, in the episode language", "on_screen_text": "2-6 words",
                      "sound_hit": "knock|static|thunder|heartbeat|impact|creak|silence|none",
                      "why_it_works", "scores": {"scroll_stop","curiosity_gap","clarity","payoff","feasibility"}, "total"} ],
   "winner": <index into candidates>,
+  "post_title": "unfinished sentence at the moment of danger + one emoji (for posting)",
   "notes_for_screenwriter": "how the next 5 s must follow the hook (the promise)" }""",
     effort="high")
 
