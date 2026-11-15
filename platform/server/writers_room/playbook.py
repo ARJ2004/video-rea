@@ -125,3 +125,30 @@ def language_rules(lang):
             "calm, measured pace with clear pauses between sentences. The recording is very clear and close-up, with almost "
             "no background noise.\" Use the named speakers Will (young man), Bruce (deep mature man), Laura or Jenna (women) "
             "at the start of the description. A narrator is a speaker too. \"caption\" is the same text as \"tts\".")
+
+
+FORMATS = {
+    "story": "",
+    "spectacle": """FORMAT: MYTHIC SPECTACLE SHORT (devotional/epic). Evidence: two Hanuman reels, 2.1M views / 27 % like rate and
+596K / 22 % (docs/what-works-mythology.md) - devotional audiences like at 2-3x the rate of story reels.
+- 15-30 s, 5-7 shots, hard cuts, ONE iconic moment from scripture (e.g. Hanuman rising to a mountain's size before the
+  army, the leap to Lanka, Vishwaroop, Ganga descending, Shiva's tandava) - not a plot, a darshan.
+- The first frame is already the spectacle: the deity at full scale with something tiny for comparison (Rama on a cliff
+  edge, an army of specks, birds as specks against the deity's chest). No slow establishing shot; no title card.
+- Build in steps: scale (wide, deity vs world) -> presence (medium/close, a power-up: golden glow rising through the
+  body, eyes opening, wind and dust) -> the act (the strike, the leap, the roar) -> the wake (flight over the ocean,
+  light on the horizon). Every shot has background life (banners in the wind, fog sliding, birds, the army shifting).
+- Photoreal, cinematic, epic film lighting under an overcast sky with god-rays; scripturally correct iconography
+  (weapons, ornaments, tilak, colours) stated identically every time.
+- No narration (leave "lines" empty) or at most one short title line; the sound is the music bed (devotional/epic score,
+  set by the owner as "music_bed") plus impacts on the strike; the posting caption is a devotional call ("Jai Shri Ram").
+- End on the peak image held 3-4 s so the reel loops back to the opening scale shot.""",
+    "meme": """FORMAT: DEITY x MODERN-LIFE MEME (comedy). Evidence: a 14 s chibi 2D Krishna reel, 1.15M views / 11 % like rate.
+- 10-15 s, ONE static scene, 1-2 shots: a cute chibi deity (Krishna, Ganesha, Hanuman) beside an ordinary modern young
+  person; the deity casually does something cosmic (spins a galaxy on a fingertip like a ball) while the human makes a
+  tiny everyday request - the gap is the joke.
+- The punchline is a text bubble at the top in Hinglish with one emoji ("Me toh sirf party le raha tha 😭"), drawn as
+  a "label" overlay for the whole reel; the sound is a trending dialogue audio the owner supplies.
+- Motion is only expressions: eye rolls, blinks, mouth, the spinning prop. Flat bright 2D, sky-blue background.
+- Respect: the joke is always on the human or the situation, never on the deity; iconography stays correct.""",
+}

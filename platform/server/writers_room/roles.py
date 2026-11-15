@@ -75,7 +75,9 @@ in every shot. A description is a production spec, not prose: age, build, face, 
 one or two distinctive accessories, in the series look. Never describe changing clothes. No real people's names or
 likenesses. Locations: the fixed layout, light sources, materials, palette, time of day, and "no people" (sets are
 drawn empty; characters are added per shot). Make every character silhouette-distinct (shape, colour) so they read at
-phone size. For voices follow the language rules exactly.""",
+phone size. End each character description with "One <name> exists in this film." (stops the image model from
+duplicating or blending characters). For a set where scale matters, state the proportions as a rule (e.g. "the deity's
+head is as wide as the forested ridge; the army are tiny specks below"). For voices follow the language rules exactly.""",
     """{ "characters": { "<key>": {"description": "one dense line, identical wording reused by every prompt"} },
   "sets": { "<key>": {"description": "one dense line, ends with 'no people'"} },
   "voices": { "<speaker key>": {"description": "Parler voice description (English only; omit for Hindi)"} },
@@ -109,7 +111,8 @@ on-camera lines; put narration over pictures that show exactly what is being sai
 light, framing and camera move rather than by complex action; hold one longer shot (4-6 s) at the emotional peak.
 keyframe_prompt describes the frame: subject, framing (e.g. "extreme close-up", "low-angle wide"), composition for 9:16
 (subject in the upper-middle third, room for captions in the lower third), light, mood. motion_prompt: ONE gentle action
-per named subject + the camera move. Never ask the models for text, fights, hands handling small objects, crowds acting,
+per named subject + the camera move + one line of background life (banners in the wind, fog sliding, birds crossing,
+leaves falling) so no frame is ever frozen. Never ask the models for text, fights, hands handling small objects, crowds acting,
 or one creature becoming another. Every shot's refs list exactly the characters and sets visible in it.
 Keep all prior fields; return the complete storyboard.""",
     """The complete storyboard JSON object (series, episode, title, language, format, style, characters, sets, voices,

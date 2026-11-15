@@ -13,7 +13,7 @@ from concurrent.futures import ThreadPoolExecutor
 
 from . import lint as lint_mod
 from . import roles
-from .playbook import PLAYBOOK, PLATFORM_RULES, language_rules
+from .playbook import FORMATS, PLAYBOOK, PLATFORM_RULES, language_rules
 
 MODEL = "claude-opus-5-5"
 PRICE = {"in": 4.0, "out": 20.0, "cache_read": 0.20, "cache_write": 5.0}     # $ per 1M tokens (Opus 5.5)
@@ -22,7 +22,7 @@ FORMAT = {"aspect": "9:16", "final_resolution": "1080x1920", "fps": 30, "loudnes
 
 class Room:
     def __init__(self, client, story, title, language="en", target_s=None, ending=None, notes="", progress=None,
-                 max_revisions=1, model=MODEL):
+                 max_revisions=1, model=MODEL, kind="story"):
         self.client, self.story, self.title, self.lang = client, story, title, language
         self.target_s, self.ending, self.notes, self.model = target_s, ending, notes, model
         self.progress = progress or (lambda msg: None)
@@ -31,7 +31,10 @@ class Room:
         brief = (f"\n\nOWNER'S DIRECTIONS: target length {target_s or '45-90'} s; ending: {ending or 'director decides'}."
                  + (f" Notes: {notes}" if notes else ""))
         # identical for every agent -> one cached prefix
+        self.kind = kind if kind in FORMATS else "story"
         self.shared = (PLAYBOOK + "\n\n" + PLATFORM_RULES + "\n\n" + language_rules(language)
+                       + ("\n\n" + FORMATS[self.kind] + "\nThis format overrides the general playbook where they differ."
+                          if FORMATS[self.kind] else "")
                        + f"\n\nTHE STORY (title: {title}):\n<story>\n{story}\n</story>" + brief)
 
     # ------------------------------------------------------------------ one agent call
@@ -141,7 +144,7 @@ class Room:
         sb = {"series": brief.get("series") or self.title, "episode": brief.get("episode", 1), "title": self.title,
               "language": self.lang, "source": "Drafted by the writers' room (Claude) for review",
               "status": "draft-for-review",
-              "format": {**FORMAT, "target_duration_s": brief.get("target_duration_s") or self.target_s},
+              "format": {**FORMAT, "kind": self.kind, "target_duration_s": brief.get("target_duration_s") or self.target_s},
               "style": {"look": vis.get("look", ""), "look_scene": vis.get("look_scene", ""), "negative": vis.get("negative", ""),
                         "captions": "punch", "accent": "amber"},
               "characters": cast.get("characters", {}), "sets": cast.get("sets", {}), "clips": []}

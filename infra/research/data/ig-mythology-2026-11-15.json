@@ -1,0 +1,127 @@
+{
+ "fetched": "2026-11-15",
+ "reels": [
+  {
+   "code": "Dfv19G6o5cK",
+   "owner": "chitti.ai2221134",
+   "views": 2130706,
+   "likes": 569204,
+   "comments": 539,
+   "duration_s": 30.093,
+   "taken_at": null,
+   "like_rate": 0.267,
+   "comment_rate": 0.0003,
+   "caption": "Check caption for prompt...\n\nREFERENCES\n@image1 is the identity master for Rama: blue-grey skin, long wavy black hair in a top bun with a gold band, white-and-red tilak, yellow dhoti, maroon sash, gold armbands, brown leather quiver on his back, golden bow. One Rama exists in this film.\nimage2 is the identity master for Hanuman: true vanara face with brown fur and monkey muzzle, ornate jewelled golden crown, red-white tilak, gold necklaces and armbands, golden gada with a carved spherical head. One Hanuman exists in this film.\n@image3 is the location, scale and viewing-angle guide only, never a keyframe: the high flat-topped rocky cliff on the left where Rama stands, the twin rock spire in the centre background, the misty valley, the forested mountain ridge on the right, and the vast army filling the valley floor below the cliff. Its two panels show how big Hanuman is against the ridge, the spire and the army once he has risen. Hold exactly that proportion from shot 3 onward. The film is new live-action footage moving through this world.\n\nWORLD AND SCALE\nA colossal mountain valley under a heavy overcast sky. Rama stands alone on the edge of the high cliff. The army is a vanara army: tens of thousands of monkey warriors with brown fur, monkey faces and muzzles, long tails, gold armbands and red loincloths, carrying spears, maces and saffron banners. They fill every terrace and the valley floor below him, a living sea of tiny furred figures that shift, turn and call in every second. Across the valley rises the high forested mountain ridge. Hanuman is a living mountain: when risen, his head and shoulders tower over the ridge, his head as wide as a full stretch of the forested ridge, the twin spire small beside him. Everything below his chest stays behind the ridge for the whole film. Low cloud and fog drift in front of and behind him. Flocks of tiny birds, specks against him, cross the valley. Every shot has background life: banners pulling in the wind, vanaras moving, trees swaying, fog sliding.\n\nSHOTS (30 seconds, 6 shots, hard cuts)\n\nSHOT 1, 0.0–4.0s: the strike and the call. 47-degree view starting low at Rama's bare feet on the cliff rock, in front of him."
+  },
+  {
+   "code": "DdNzdISy_fO",
+   "owner": "realinsaanluvya",
+   "views": 1152798,
+   "likes": 128390,
+   "comments": 194,
+   "duration_s": 13.931,
+   "taken_at": null,
+   "like_rate": 0.111,
+   "comment_rate": 0.0002,
+   "caption": "Aree prabhuu nahii😭\n.\n.\n.\n.\n.\n#connectwithcommunity #hindimemes #godfunny #humour #cartoon"
+  },
+  {
+   "code": "DfUAr5JhqC8",
+   "owner": "rajiv_kumar06",
+   "views": 595739,
+   "likes": 131676,
+   "comments": 266,
+   "duration_s": 20.179,
+   "taken_at": null,
+   "like_rate": 0.221,
+   "comment_rate": 0.0004,
+   "caption": "Jay Shri Ram 🚩🔱🚩"
+  }
+ ],
+ "autopsy": [
+  {
+   "file": "rajiv_kumar06_DfUAr5JhqC8.mp4",
+   "duration_s": 20.29,
+   "width": 1280,
+   "height": 720,
+   "fps": 30.0,
+   "has_audio": true,
+   "cuts_s": [
+    3.77,
+    7.47,
+    12.1,
+    15.63
+   ],
+   "shots": 5,
+   "first_cut_s": 3.77,
+   "cuts_in_first_3s": 0,
+   "shot_mean_s": 4.06,
+   "shot_median_s": 3.77,
+   "shot_max_s": 4.66,
+   "cuts_per_10s_by_quarter": [
+    2.0,
+    2.0,
+    2.0,
+    2.0
+   ],
+   "hook_motion_ratio": 0.33,
+   "first_frame": {
+    "brightness": 0.08,
+    "contrast": 0.14,
+    "saturation": 0.1
+   },
+   "loop_similarity": 0.91,
+   "audio": {
+    "lufs": -14.1,
+    "hit_first_0_5s_db": 0.1,
+    "sound_starts_s": 0.1,
+    "silence_share": 0.0,
+    "dynamic_range_db": 11.7
+   },
+   "page": "rajiv_kumar06",
+   "views": 595739,
+   "likes": 131676
+  },
+  {
+   "file": "realinsaanluvya_DdNzdISy_fO.mp4",
+   "duration_s": 14.05,
+   "width": 720,
+   "height": 1280,
+   "fps": 30.0,
+   "has_audio": true,
+   "cuts_s": [
+    13.43
+   ],
+   "shots": 2,
+   "first_cut_s": 13.43,
+   "cuts_in_first_3s": 0,
+   "shot_mean_s": 7.02,
+   "shot_median_s": 7.02,
+   "shot_max_s": 13.43,
+   "cuts_per_10s_by_quarter": [
+    0.0,
+    0.0,
+    0.0,
+    2.8
+   ],
+   "hook_motion_ratio": 2.98,
+   "first_frame": {
+    "brightness": 0.62,
+    "contrast": 0.29,
+    "saturation": 0.35
+   },
+   "loop_similarity": 0.38,
+   "audio": {
+    "lufs": -14.9,
+    "hit_first_0_5s_db": 8.3,
+    "sound_starts_s": 0.15,
+    "silence_share": 0.28,
+    "dynamic_range_db": 47.0
+   },
+   "page": "realinsaanluvya",
+   "views": 1152798,
+   "likes": 128390
+  }
+ ],
+ "note": "Dfv19G6o5cK: embed exposes only the cover image (no video); caption truncated at 2200 chars"
+}

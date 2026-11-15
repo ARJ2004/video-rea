@@ -96,16 +96,17 @@ def lint(sb):
     first_c, first = all_shots[0]
     stats = {"shots": len(all_shots), "clips": len(clips), "picture_s": round(total, 1),
              "avg_shot_s": round(total / max(1, len(durs)), 2)}
-    if not (first.get("vo") or first.get("vo_lines") or first.get("tech") == "TALK"):
+    kind = (sb.get("format") or {}).get("kind", "story")
+    if kind == "story" and not (first.get("vo") or first.get("vo_lines") or first.get("tech") == "TALK"):
         warns.append(f"hook: no words over the first shot {first.get('id')} (the reference hooks speak from second 0)")
-    if shot_seconds(first) > 3.5 and not (first.get("vo") or first.get("vo_lines")):
+    if kind == "story" and shot_seconds(first) > 3.5 and not (first.get("vo") or first.get("vo_lines")):
         warns.append(f"hook: first shot {first.get('id')} holds {shot_seconds(first)} s with no words; cut by 3 s or speak over it")
-    if not any(o.get("at", 0) <= 1.0 for o in first.get("overlays", [])):
+    if kind != "spectacle" and not any(o.get("at", 0) <= 1.0 for o in first.get("overlays", [])):
         warns.append("hook: no on-screen text in the first second (muted viewers see only the picture)")
     if not first.get("sfx"):
         warns.append("hook: no sound hit on the first shot")
     last = all_shots[-1][1]
-    if sb.get("ending") != "payoff" and not any(o.get("style") == "vote" for o in last.get("overlays", [])) and not last.get("end_card"):
+    if kind == "story" and sb.get("ending") != "payoff" and not any(o.get("style") == "vote" for o in last.get("overlays", [])) and not last.get("end_card"):
         warns.append("ending: no vote card or end card on the last shot (the reference series ends on a held audience vote)")
     if stats["avg_shot_s"] > 6:
         warns.append(f"pacing: average shot is {stats['avg_shot_s']} s; even the slow-cut reference series averages ~6.6 s "

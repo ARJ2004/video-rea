@@ -337,6 +337,20 @@ def jumps(path):
     return out
 
 
+def bed_graph(n, total, gain_db=-14.0, duck=True):
+    """Filter lines mixing clip audio [a0..a{n-1}] with a music input (index n, looped) into [a] at -14 LUFS. The music
+    fades in/out and, when duck is on, drops under the voice (sidechain compression keyed by the voice mix)."""
+    fc = ["".join(f"[a{i}]" for i in range(n)) + f"amix=inputs={n}:normalize=0:duration=longest,atrim=0:{total:.3f}[vox]",
+          f"[{n}:a]aresample=48000,aformat=channel_layouts=stereo,atrim=0:{total:.3f},asetpts=PTS-STARTPTS,"
+          f"afade=t=in:d=0.8,afade=t=out:st={max(0.0, total - 2.0):.3f}:d=2,volume={gain_db}dB[mus]"]
+    if duck:
+        fc += ["[vox]asplit=2[vox1][key]", "[mus][key]sidechaincompress=threshold=0.02:ratio=8:attack=30:release=500[mduck]",
+               "[vox1][mduck]amix=inputs=2:normalize=0:duration=first,loudnorm=I=-14:TP=-1.5:LRA=11[a]"]
+    else:
+        fc += ["[vox][mus]amix=inputs=2:normalize=0:duration=first,loudnorm=I=-14:TP=-1.5:LRA=11[a]"]
+    return fc
+
+
 def episode_task(task):
     pid = task["project_id"]; proj = one("SELECT title, storyboard FROM projects WHERE id=%s", pid); sb = proj["storyboard"]
     X = 0.6
@@ -359,8 +373,13 @@ def episode_task(task):
         total, last, acc = t, "v0", lens[0]
         for i in range(1, len(clips)):
             off = acc - X; fc.append(f"[{last}][v{i}]xfade=transition=fade:duration={X}:offset={off:.3f}[x{i}]"); last = f"x{i}"; acc = off + lens[i]
-        fc.append("".join(f"[a{i}]" for i in range(len(clips))) + f"amix=inputs={len(clips)}:normalize=0:duration=longest,"
-                  f"loudnorm=I=-14:TP=-1.5:LRA=11,atrim=0:{total:.3f}[a]")
+        bed = sb.get("music_bed") or {}
+        if bed.get("s3"):                     # a licensed music track under the whole episode, ducked under the voice
+            ins += ["-stream_loop", "-1", "-i", str(get(bed["s3"], d))]
+            fc += bed_graph(len(clips), total, float(bed.get("gain_db", -14)), bed.get("duck", True))
+        else:
+            fc.append("".join(f"[a{i}]" for i in range(len(clips))) + f"amix=inputs={len(clips)}:normalize=0:duration=longest,"
+                      f"loudnorm=I=-14:TP=-1.5:LRA=11,atrim=0:{total:.3f}[a]")
         out = d / "episode.mp4"
         sh("ffmpeg", "-loglevel", "error", "-y", *ins, "-filter_complex", ";".join(fc), "-map", f"[{last}]", "-map", "[a]", "-t", f"{total:.3f}",
            "-c:v", "libx264", "-preset", "medium", "-crf", "18", "-c:a", "aac", "-b:a", "192k", "-movflags", "+faststart", out)

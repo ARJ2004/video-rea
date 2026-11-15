@@ -99,7 +99,7 @@ def new_page(request: Request, err: str = ""):
 @app.post("/new")
 def new_project(title: str = Form(...), story: str = Form(""), storyboard: str = Form(""), action: str = Form("create"),
                 mode: str = Form("room"), language: str = Form("en"), target_s: str = Form(""), ending: str = Form(""),
-                notes: str = Form("")):
+                notes: str = Form(""), kind: str = Form("story")):
     import drafting, engine
     try:
         if action == "draft" and not storyboard.strip() and mode == "room":
@@ -108,7 +108,8 @@ def new_project(title: str = Form(...), story: str = Form(""), storyboard: str =
             if not story.strip():
                 raise ValueError("Paste the story first.")
             opts = {"language": "hi" if language == "hi" else "en", "target_s": int(target_s) if target_s.strip().isdigit() else None,
-                    "ending": ending if ending in ("cliffhanger", "loop", "payoff") else None, "notes": notes.strip()[:2000]}
+                    "ending": ending if ending in ("cliffhanger", "loop", "payoff") else None, "notes": notes.strip()[:2000],
+                    "kind": kind if kind in ("story", "spectacle", "meme") else "story"}
             p = one("INSERT INTO projects (title, storyboard, story_text, status) VALUES (%s,%s,%s,'drafting') RETURNING id",
                     title, J({"clips": [], "draft_opts": opts}), story)
             start_room(p["id"])
